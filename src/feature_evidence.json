@@ -2,17 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-infinity-wallet-visual-theme-to-be-futuristic-and-digitally-appealing-using-the-uploaded-infinity-coin-logo-image-image-png-as-the-primary-visual-inspiration-color-palette-glow-gradient-style-typography-and-overall-ui-feel-and-apply-it-consistently-across-all-existing-screens-dashboard-send-contacts-history-and-the-main-layout",
-      "featureTitle": "Update the Infinity Wallet visual theme to be futuristic and digitally appealing, using the uploaded Infinity Coin logo image (image.png) as the primary visual inspiration (color palette, glow/gradient style, typography, and overall UI feel), and apply it consistently across all existing screens (Dashboard, Send, Contacts, History) and the main layout.",
+      "featureId": "feature-add-a-new-authenticated-receive-page-screen-to-infinity-wallet-that-displays-the-signed-in-user-s-icp-ledger-account-id-derived-from-the-user-s-internet-identity-principal-and-provides-a-copy-to-clipboard-button",
+      "featureTitle": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
       "files": [
-        "frontend/src/components/auth/PrincipalDisplay.tsx",
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/index.css",
-        "frontend/src/pages/ContactsPage.tsx",
-        "frontend/src/pages/DashboardPage.tsx",
-        "frontend/src/pages/HistoryPage.tsx",
-        "frontend/src/pages/SendPage.tsx",
-        "frontend/tailwind.config.js"
+        "frontend/src/pages/ReceivePage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,15 +16,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-9"
+        "REQ-11"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-existing-static-branding-assets-so-they-visually-match-the-uploaded-infinity-coin-logo-style-image-png-keeping-filenames-paths-compatible-with-the-current-ui-usage",
-      "featureTitle": "Update the existing static branding assets so they visually match the uploaded Infinity Coin logo style (image.png), keeping filenames/paths compatible with the current UI usage.",
+      "featureId": "feature-update-the-app-s-in-app-navigation-and-routing-state-to-include-the-new-receive-screen-including-updating-the-page-union-type-and-adding-a-navigation-entry-and-wire-the-existing-receive-quick-action-on-the-dashboard-to-navigate-to-the-receive-screen",
+      "featureTitle": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
       "files": [
-        "frontend/src/components/layout/WalletLogo.tsx",
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/AppLayout.tsx",
         "frontend/src/pages/DashboardPage.tsx"
       ],
       "components": [
@@ -43,7 +37,46 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-10"
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-frontend-utility-that-derives-the-icp-ledger-account-id-from-the-authenticated-user-s-principal-using-the-standard-icp-account-identifier-derivation-default-subaccount-and-use-it-on-the-receive-screen",
+      "featureTitle": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
+      "files": [
+        "frontend/src/lib/icpAccountId.ts",
+        "frontend/src/pages/ReceivePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-on-the-receive-screen-include-brief-guidance-clarifying-that-centralized-exchanges-typically-require-the-icp-account-id-not-the-principal-for-deposits",
+      "featureTitle": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
+      "files": [
+        "frontend/src/pages/ReceivePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
       ],
       "confidence": "high"
     }

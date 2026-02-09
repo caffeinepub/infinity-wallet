@@ -7,7 +7,13 @@ import { RefreshCw, AlertCircle } from 'lucide-react';
 import { formatBalance } from '@/lib/validation';
 import { TOKEN_ICP, TOKEN_INFINITY } from '@/lib/branding';
 
-export default function DashboardPage() {
+type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive';
+
+interface DashboardPageProps {
+  onNavigate: (page: Page) => void;
+}
+
+export default function DashboardPage({ onNavigate }: DashboardPageProps) {
   const { data: balances, isLoading, error, refetch, isRefetching } = useGetBalances();
 
   const icpBalance = balances ? balances[0] : BigInt(0);
@@ -98,10 +104,20 @@ export default function DashboardPage() {
           <CardDescription>Manage your wallet</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="border-primary/30 hover:shadow-glow-sm transition-all">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onNavigate('receive')}
+            className="border-primary/30 hover:shadow-glow-sm transition-all"
+          >
             Receive
           </Button>
-          <Button variant="outline" size="sm" className="border-primary/30 hover:shadow-glow-sm transition-all">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onNavigate('history')}
+            className="border-primary/30 hover:shadow-glow-sm transition-all"
+          >
             View History
           </Button>
         </CardContent>

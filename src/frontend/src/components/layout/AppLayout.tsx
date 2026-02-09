@@ -3,10 +3,10 @@ import WalletLogo from './WalletLogo';
 import AuthButton from '../auth/AuthButton';
 import PrincipalDisplay from '../auth/PrincipalDisplay';
 import { Button } from '@/components/ui/button';
-import { Wallet, Send, Users, History } from 'lucide-react';
+import { Wallet, Send, Users, History, Download } from 'lucide-react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 
-type Page = 'dashboard' | 'send' | 'contacts' | 'history';
+type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -50,6 +50,19 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
               >
                 <Wallet className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+              <Button
+                variant={currentPage === 'receive' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => onNavigate('receive')}
+                className={`gap-2 transition-all ${
+                  currentPage === 'receive' 
+                    ? 'shadow-glow' 
+                    : 'hover:shadow-glow-sm hover:border-primary/30'
+                }`}
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Receive</span>
               </Button>
               <Button
                 variant={currentPage === 'send' ? 'default' : 'ghost'}

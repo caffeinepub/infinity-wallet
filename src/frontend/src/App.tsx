@@ -7,11 +7,12 @@ import DashboardPage from './pages/DashboardPage';
 import SendPage from './pages/SendPage';
 import ContactsPage from './pages/ContactsPage';
 import HistoryPage from './pages/HistoryPage';
+import ReceivePage from './pages/ReceivePage';
 import ProfileSetupDialog from './components/auth/ProfileSetupDialog';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-type Page = 'dashboard' | 'send' | 'contacts' | 'history';
+type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive';
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
@@ -62,10 +63,11 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-        {currentPage === 'dashboard' && <DashboardPage />}
+        {currentPage === 'dashboard' && <DashboardPage onNavigate={setCurrentPage} />}
         {currentPage === 'send' && <SendPage />}
         {currentPage === 'contacts' && <ContactsPage />}
         {currentPage === 'history' && <HistoryPage />}
+        {currentPage === 'receive' && <ReceivePage />}
       </AppLayout>
       {showProfileSetup && <ProfileSetupDialog />}
       <Toaster />

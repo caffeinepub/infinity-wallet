@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Update Infinity Wallet’s UI theme and branding to match the uploaded Infinity Coin logo’s futuristic, neon/digital aesthetic.
+**Goal:** Add an authenticated Receive screen that shows the user’s ICP Ledger Account ID (derived from their Internet Identity Principal) with an easy copy-to-clipboard action.
 
 **Planned changes:**
-- Update theme tokens in `frontend/index.css` (colors, gradients/glows, surfaces, typography, focus/hover states) inspired by `image.png`, keeping readability/accessibility.
-- Apply the updated theme consistently across the main layout and all existing screens (Dashboard, Send, Contacts, History), including headers, cards, and forms, without modifying files under `frontend/src/components/ui`.
-- Restyle existing static branding assets to match the new futuristic/neon look while keeping existing asset filenames/paths working.
+- Add a new authenticated “Receive” page/screen to the app.
+- Implement a frontend utility to derive the ICP Ledger Account ID from the currently authenticated Principal (default subaccount) and display it on the Receive screen.
+- Add a copy button on the Receive screen that copies the full Account ID and shows visible success feedback.
+- Update authenticated navigation/routing to include “Receive” and wire the Dashboard “Quick Actions” > “Receive” button to navigate to it.
+- Add brief, non-technical guidance explaining that exchanges typically require the ICP Account ID (not the Principal) for deposits.
 
-**User-visible outcome:** The wallet UI and branding (logos/icons) have a cohesive futuristic, digitally appealing look consistent with the Infinity Coin logo across all pages.
+**User-visible outcome:** Signed-in users can open a Receive screen from navigation or the Dashboard, view their ICP Account ID, copy it with a button, and read a short note explaining why this (not the Principal) is used for exchange deposits.

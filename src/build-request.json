@@ -1,67 +1,99 @@
 {
   "kind": "build_request",
-  "title": "Update Infinity Wallet theme to match uploaded Infinity Coin logo (futuristic/digital)",
+  "title": "Add ICP Receive screen with Ledger Account ID + copy button",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-9",
-      "text": "Update the Infinity Wallet visual theme to be futuristic and digitally appealing, using the uploaded Infinity Coin logo image (image.png) as the primary visual inspiration (color palette, glow/gradient style, typography, and overall UI feel), and apply it consistently across all existing screens (Dashboard, Send, Contacts, History) and the main layout.",
+      "id": "REQ-11",
+      "text": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-1"
         ],
         "quotes": [
-          "i like this but my theme is going to be this picture logo of my coin. make it futuristic and digitally appealing."
+          "i need a receiving address i can copy, principal probably not working as im sending it in from a centralized exchange it says incorrect user"
         ]
       },
       "acceptanceCriteria": [
-        "Theme tokens in frontend/index.css are updated to reflect a futuristic/digital style inspired by image.png (e.g., dark/space-like surfaces, neon accents, high-contrast text), while keeping UI readable and accessible.",
-        "AppLayout header/navigation/footer and all page headers/cards/forms visually match the updated theme (consistent background, borders, radii, shadows/glows, and hover/focus states).",
-        "No changes are made to any files under frontend/src/components/ui (compose them via props/classes only)."
+        "When the user is signed in, a Receive screen is accessible within the app UI.",
+        "The Receive screen shows a clearly labeled “ICP Account ID” value derived from the currently authenticated Principal.",
+        "The Receive screen includes a copy button that copies the full Account ID to the clipboard and provides visible success feedback.",
+        "All user-facing text on the Receive screen is in English."
       ]
     },
     {
-      "id": "REQ-10",
-      "text": "Update the existing static branding assets so they visually match the uploaded Infinity Coin logo style (image.png), keeping filenames/paths compatible with the current UI usage.",
+      "id": "REQ-12",
+      "text": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-1"
         ],
         "quotes": [
-          "my theme is going to be this picture logo of my coin"
+          "Want me to build a Receive screen that shows your correct deposit address?",
+          "yes please build that for me"
         ]
       },
       "acceptanceCriteria": [
-        "The app header logo (used by frontend/src/components/layout/WalletLogo.tsx) renders the updated infinity-wallet-logo.dim_1024x1024.png without layout breakage.",
-        "The Infinity Coin token icon (used on the Dashboard balance card) renders the updated infinity-coin-icon.dim_512x512.png and matches the futuristic/neon style.",
-        "All images are served as static frontend assets (no backend image serving)."
+        "A “Receive” navigation option is available when authenticated and it navigates to the Receive screen.",
+        "The Dashboard “Quick Actions” > “Receive” button navigates to the Receive screen.",
+        "Existing pages (Dashboard, Send, Contacts, History) continue to function and navigate correctly after adding Receive."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "It should show your ICP Ledger Account ID, derived from your Principal"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Account ID displayed on the Receive screen is computed from the current authenticated Principal (not hardcoded).",
+        "If the user’s identity changes (sign out/sign in as another identity), the Receive screen updates to show the new Account ID."
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "text": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "centralized exchanges do NOT accept Principals. They require a Ledger Account ID."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Receive screen includes a short English explanation that the Principal may be rejected by exchanges and that the Account ID should be used for deposits.",
+        "The guidance text is non-technical and does not mention internal implementation details."
       ]
     }
   ],
   "constraints": [
-    "Respect the existing single-actor Motoko backend architecture; no backend changes are required for this request.",
-    "Do not edit immutable frontend paths listed in SYSTEM_CONTEXT (including frontend/src/components/ui and auth/actor hooks).",
-    "Keep existing image paths used in the UI working (e.g., /assets/generated/infinity-wallet-logo.dim_1024x1024.png and /assets/generated/infinity-coin-icon.dim_512x512.png)."
+    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
+    "Do not edit immutable hook files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Do not route any static images through the backend."
   ],
   "nonGoals": [
-    "Adding new wallet features (e.g., Receive flow, real on-chain transfers) beyond visual/theme updates.",
-    "Changing authentication behavior (Internet Identity) or backend data models."
+    "Implementing actual on-chain ICP deposit detection beyond showing the derived Account ID.",
+    "Adding QR-code generation for the receiving address.",
+    "Adding exchange-specific integrations or validation beyond displaying/copying the derived ICP Account ID."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": [
-      "Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-wallet-logo.dim_1024x1024.png > infinity-wallet-logo.dim_1024x1024.png)",
-      "Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-coin-icon.dim_512x512.png > infinity-coin-icon.dim_512x512.png)"
-    ]
+    "edits": []
   },
   "userProfileUpdate": {
     "goalsToAdd": [],
     "goalsToRemove": [],
-    "preferencesToAdd": [
-      "Futuristic, digitally appealing UI theme based on the provided Infinity Coin logo image"
-    ],
+    "preferencesToAdd": [],
     "preferencesToRemove": [],
     "miscToAdd": [],
     "miscToRemove": [],

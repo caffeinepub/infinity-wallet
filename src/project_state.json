@@ -1,11 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 7,
   "summary": "Build \"Infinity Wallet\", a wallet app for the Internet Computer Protocol (ICP) ecosystem, intended to support the user's token \"Infinity Coin\" (created on launch.bob.fun).",
-  "architectural_notes": [],
-  "known_issues": [],
+  "architectural_notes": [
+    "Centralized exchanges generally require an ICP Ledger Account ID (not an Internet Identity Principal); the app should derive and display the Ledger Account ID for deposits."
+  ],
+  "known_issues": [
+    "Current UI shows Principal but not the ICP Ledger Account ID, preventing users from depositing ICP from centralized exchanges (exchange reports incorrect user/address)."
+  ],
   "isFixRequest": false,
-  "imageRequirements": "## Edit Images\n- Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-wallet-logo.dim_1024x1024.png > infinity-wallet-logo.dim_1024x1024.png)\n- Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-coin-icon.dim_512x512.png > infinity-coin-icon.dim_512x512.png)",
   "existing_features": [
     {
       "id": "feature-set-the-app-name-and-primary-branding-to-infinity-wallet-and-refer-to-the-user-s-token-as-infinity-coin-throughout-the-ui",
@@ -86,6 +89,38 @@
         "REQ-10"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-new-authenticated-receive-page-screen-to-infinity-wallet-that-displays-the-signed-in-user-s-icp-ledger-account-id-derived-from-the-user-s-internet-identity-principal-and-provides-a-copy-to-clipboard-button",
+      "title": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-app-s-in-app-navigation-and-routing-state-to-include-the-new-receive-screen-including-updating-the-page-union-type-and-adding-a-navigation-entry-and-wire-the-existing-receive-quick-action-on-the-dashboard-to-navigate-to-the-receive-screen",
+      "title": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-frontend-utility-that-derives-the-icp-ledger-account-id-from-the-authenticated-user-s-principal-using-the-standard-icp-account-identifier-derivation-default-subaccount-and-use-it-on-the-receive-screen",
+      "title": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-receive-screen-include-brief-guidance-clarifying-that-centralized-exchanges-typically-require-the-icp-account-id-not-the-principal-for-deposits",
+      "title": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -98,6 +133,12 @@
     {
       "id": "AR-2",
       "summary": "Update Infinity Wallet visual theme to be futuristic/digitally appealing and based on the Infinity Coin logo image as the primary design inspiration.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add an ICP “Receive” screen that displays the user’s ICP Ledger Account ID (derived from their Principal) and includes a copy-to-clipboard button for exchange deposits.",
       "reqIds": [],
       "status": "pending"
     }
