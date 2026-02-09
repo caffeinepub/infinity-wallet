@@ -1,83 +1,72 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add authenticated Receive screen showing derived ICP Ledger Account ID",
+  "title": "Restore last known good frontend build and validate primary Oisy Wallet journeys",
   "requirements": [
     {
-      "id": "REQ-11",
-      "summary": "Create an authenticated Receive page that shows the signed-in user’s ICP Ledger Account ID and supports copy-to-clipboard with success feedback.",
+      "id": "REQ-26",
+      "summary": "Restore the frontend code to the most recent known-good deployed version so the app loads and the authenticated Oisy Wallet flow renders without runtime errors.",
       "acceptanceCriteria": [
-        "When the user is signed in, a Receive screen is accessible within the app UI.",
-        "The Receive screen shows a clearly labeled “ICP Account ID” value derived from the currently authenticated Principal.",
-        "The Receive screen includes a copy button that copies the full Account ID to the clipboard and provides visible success feedback.",
-        "All user-facing text on the Receive screen is in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ReceivePage.tsx",
-          "operation": "create",
-          "description": "Add a new authenticated Receive screen UI that reads the current Principal from the existing auth state, displays the derived “ICP Account ID”, and provides a copy button with visible success feedback (e.g., using the app’s existing Sonner toast and/or icon state). Use shadcn-ui components (e.g., Card, Button, Alert) for consistent styling. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "summary": "Wire routing/navigation to include Receive and connect the Dashboard Quick Action to navigate to Receive.",
-      "acceptanceCriteria": [
-        "A “Receive” navigation option is available when authenticated and it navigates to the Receive screen.",
-        "The Dashboard “Quick Actions” > “Receive” button navigates to the Receive screen.",
-        "Existing pages (Dashboard, Send, Contacts, History) continue to function and navigate correctly after adding Receive."
+        "The codebase reflects the previous working version (no remaining changes from the failed deployment attempt).",
+        "A full build and deploy completes successfully without errors.",
+        "After deployment, the app loads and the authenticated Oisy Wallet flow renders without runtime errors."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Extend the local routing state to include a new 'receive' page in the Page union/type, import/render the new ReceivePage, and ensure navigation state updates correctly while keeping existing pages unchanged."
+          "description": "Revert/align App-level gating (connecting/unavailable/unauthenticated/authenticated states, page switching, and profile-setup gating) to match the last known-good deployed version; ensure the Oisy Wallet authenticated flow and page rendering paths do not throw at runtime. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useOisyWallet.tsx",
+          "operation": "modify",
+          "description": "Revert/align the Oisy Wallet connection hook/provider to the last known-good deployed behavior, ensuring stable identity availability during connect/auto-reconnect and avoiding browser/crypto-related runtime issues that could break the authenticated render path. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add a 'Receive' navigation entry/button that is only visible when authenticated and triggers navigation to the new Receive page; keep existing nav entries working. Use existing shadcn-ui Button patterns/icons for consistency. Verify the component's usage instructions before implementing."
+          "description": "Revert/align navigation rendering and connected-state UI to the last known-good deployed version so authenticated navigation reliably shows Dashboard/Send/Receive/Contacts/History/Contracts without crashes. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/DashboardPage.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update Quick Actions so the existing “Receive” button triggers navigation to the Receive page and “View History” navigates to History (e.g., by accepting an onNavigate callback prop from App). Use existing shadcn-ui Button patterns. Verify the component's usage instructions before implementing."
+          "description": "Revert/align React Query hooks usage and actor dependency gating to the last known-good deployed version (avoid firing queries/mutations before actor availability) to prevent runtime errors during authenticated flows. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/auth/AuthButton.tsx",
+          "operation": "modify",
+          "description": "Revert/align connect/disconnect behavior and cache clearing to the last known-good deployed version to ensure clean transitions between disconnected and connected states. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/auth/ProfileSetupDialog.tsx",
+          "operation": "modify",
+          "description": "Revert/align profile setup dialog open/close conditions and save behavior to the last known-good deployed version to prevent any blocking modal flash or crashes after authentication. This should remain consistent with the selected \"authorization\" component expectations for profile setup flows. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-13",
-      "summary": "Implement and use a frontend utility to derive the standard ICP Ledger Account ID from the authenticated Principal (default subaccount).",
+      "id": "REQ-27",
+      "summary": "Add a repeatable smoke-test checklist and runtime safeguards to validate primary user journeys after revert (connect wallet, Dashboard, Send, Receive, Contacts, History, Contracts).",
       "acceptanceCriteria": [
-        "The Account ID displayed on the Receive screen is computed from the current authenticated Principal (not hardcoded).",
-        "If the user’s identity changes (sign out/sign in as another identity), the Receive screen updates to show the new Account ID."
+        "User can connect (or see the expected unavailable state) without the app crashing.",
+        "Dashboard renders and navigation between pages works.",
+        "Send form, Receive copy-to-clipboard, Contacts CRUD UI, History list, and Contracts form all render and are interactable (no uncaught exceptions in the console)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/icpAccountId.ts",
+          "path": "frontend/SMOKE_TEST.md",
           "operation": "create",
-          "description": "Implement a small utility that derives the ICP Ledger Account Identifier from a Principal using the standard derivation with the default subaccount (including hashing and checksum), returning the canonical hex Account ID string."
+          "description": "Create a concise smoke-test checklist covering the required journeys: connect (or unavailable state), Dashboard render + navigation, Send render/confirm/success UI path, Receive copy-to-clipboard, Contacts add/edit/delete UI flows, History list refresh, and Contracts form interactions; include steps to verify no uncaught console exceptions."
         },
         {
-          "path": "frontend/src/pages/ReceivePage.tsx",
-          "operation": "modify",
-          "description": "Compute the displayed Account ID from the current authenticated Principal using the new derivation utility, and ensure it updates when the identity/principal changes (e.g., derived from auth hook state and recalculated on change)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Add brief, non-technical guidance explaining that exchanges usually require the ICP Account ID (not the Principal) for deposits.",
-      "acceptanceCriteria": [
-        "The Receive screen includes a short English explanation that the Principal may be rejected by exchanges and that the Account ID should be used for deposits.",
-        "The guidance text is non-technical and does not mention internal implementation details."
-      ],
-      "file_operations": [
+          "path": "frontend/src/components/errors/AppErrorBoundary.tsx",
+          "operation": "create",
+          "description": "Add an app-level React error boundary component to catch unexpected runtime errors and present a safe fallback UI instead of a blank screen; this supports smoke testing by making failures visible and non-fatal. Verify the component's usage instructions before implementing."
+        },
         {
-          "path": "frontend/src/pages/ReceivePage.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a short English guidance section (e.g., an informational alert/card text) clarifying that centralized exchanges typically require the ICP Account ID for deposits and may reject a Principal. Use shadcn-ui Alert (or equivalent existing UI components) for a consistent info callout. Verify the component's usage instructions before implementing."
+          "description": "Wire the new AppErrorBoundary around the authenticated application content (and optionally around the full app shell) so navigation across Dashboard/Send/Receive/Contacts/History/Contracts cannot hard-crash the whole app during smoke tests. Verify the component's usage instructions before implementing."
         }
       ]
     }

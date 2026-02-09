@@ -1,25 +1,16 @@
-import { useState } from 'react';
 import { useGetTransactionHistory } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, AlertCircle, History, ArrowUpRight } from 'lucide-react';
 import { formatBalance } from '@/lib/validation';
 import { formatTimestamp, truncatePrincipal } from '@/lib/utils';
-import { TOKEN_ICP, TOKEN_INFINITY } from '@/lib/branding';
-import { CoinType } from '../backend';
+import { TOKEN_INFINITY } from '@/lib/branding';
 
 export default function HistoryPage() {
   const { data: transactions, isLoading, error, refetch, isRefetching } = useGetTransactionHistory();
-  const [filter, setFilter] = useState<'all' | 'icp' | 'infinityCoin'>('all');
-
-  const filteredTransactions = transactions?.filter((tx) => {
-    if (filter === 'all') return true;
-    return tx.coinType === (filter === 'icp' ? CoinType.icp : CoinType.infinityCoin);
-  });
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -57,86 +48,72 @@ export default function HistoryPage() {
         </Alert>
       )}
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-        <TabsList className="grid w-full grid-cols-3 bg-card/60 backdrop-blur-sm border border-primary/20 shadow-glow-sm">
-          <TabsTrigger value="all" className="data-[state=active]:shadow-glow-sm">All</TabsTrigger>
-          <TabsTrigger value="icp" className="data-[state=active]:shadow-glow-sm">{TOKEN_ICP}</TabsTrigger>
-          <TabsTrigger value="infinityCoin" className="data-[state=active]:shadow-glow-sm">{TOKEN_INFINITY}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={filter} className="mt-6">
-          {isLoading ? (
-            <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between border-b border-border/50 pb-4">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-3 w-48" />
-                      </div>
-                      <Skeleton className="h-6 w-20" />
-                    </div>
-                  ))}
+      {isLoading ? (
+        <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between border-b border-border/50 pb-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-6 w-20" />
                 </div>
-              </CardContent>
-            </Card>
-          ) : filteredTransactions && filteredTransactions.length > 0 ? (
-            <div className="space-y-3">
-              {filteredTransactions.map((tx) => (
-                <Card 
-                  key={tx.id.toString()} 
-                  className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all"
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2">
-                          <ArrowUpRight className="h-4 w-4 text-accent" />
-                          <CardTitle className="text-base">Sent</CardTitle>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${
-                              tx.coinType === CoinType.icp 
-                                ? 'border-primary/30 text-primary' 
-                                : 'border-accent/30 text-accent'
-                            }`}
-                          >
-                            {tx.coinType === CoinType.icp ? TOKEN_ICP : TOKEN_INFINITY}
-                          </Badge>
-                        </div>
-                        <CardDescription className="text-xs">
-                          To: <span className="font-mono">{truncatePrincipal(tx.recipient, 10, 6)}</span>
-                        </CardDescription>
-                        <CardDescription className="text-xs text-muted-foreground">
-                          {formatTimestamp(tx.timestamp)}
-                        </CardDescription>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                          {formatBalance(tx.amountE8)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {tx.coinType === CoinType.icp ? TOKEN_ICP : TOKEN_INFINITY}
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
               ))}
             </div>
-          ) : (
-            <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 shadow-glow-sm mb-4">
-                  <History className="h-8 w-8 text-primary" />
+          </CardContent>
+        </Card>
+      ) : transactions && transactions.length > 0 ? (
+        <div className="space-y-3">
+          {transactions.map((tx) => (
+            <Card 
+              key={tx.id.toString()} 
+              className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all"
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="h-4 w-4 text-accent" />
+                      <CardTitle className="text-base">Sent</CardTitle>
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs border-accent/30 text-accent"
+                      >
+                        {TOKEN_INFINITY}
+                      </Badge>
+                    </div>
+                    <CardDescription className="text-xs">
+                      To: <span className="font-mono">{truncatePrincipal(tx.recipient, 10, 6)}</span>
+                    </CardDescription>
+                    <CardDescription className="text-xs text-muted-foreground">
+                      {formatTimestamp(tx.timestamp)}
+                    </CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {formatBalance(tx.amountE8)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {TOKEN_INFINITY}
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">No transactions yet</p>
-              </CardContent>
+              </CardHeader>
             </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+          ))}
+        </div>
+      ) : (
+        <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 shadow-glow-sm mb-4">
+              <History className="h-8 w-8 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">No transactions yet</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

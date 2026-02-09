@@ -4,11 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { validateRecipient, validateAmount, parseAmountToE8, formatBalance } from '@/lib/validation';
-import { TOKEN_ICP, TOKEN_INFINITY } from '@/lib/branding';
+import { TOKEN_INFINITY } from '@/lib/branding';
 import { CoinType } from '../backend';
 import RecipientPicker from '../components/wallet/RecipientPicker';
 
@@ -16,7 +15,6 @@ type SendStep = 'form' | 'confirm' | 'success';
 
 export default function SendPage() {
   const [step, setStep] = useState<SendStep>('form');
-  const [coinType, setCoinType] = useState<'icp' | 'infinityCoin'>('icp');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [errors, setErrors] = useState<{ recipient?: string; amount?: string }>({});
@@ -25,11 +23,7 @@ export default function SendPage() {
   const recordTransaction = useRecordTransaction();
   const { data: balances } = useGetBalances();
 
-  const currentBalance = balances
-    ? coinType === 'icp'
-      ? balances[0]
-      : balances[1]
-    : BigInt(0);
+  const currentBalance = balances ? balances[1] : BigInt(0);
 
   const handleValidate = () => {
     const recipientValidation = validateRecipient(recipient);
@@ -51,13 +45,12 @@ export default function SendPage() {
 
   const handleSend = async () => {
     const amountE8 = parseAmountToE8(amount);
-    const coinTypeEnum = coinType === 'icp' ? CoinType.icp : CoinType.infinityCoin;
 
     try {
       await recordTransaction.mutateAsync({
         recipient,
         amountE8,
-        coinType: coinTypeEnum,
+        coinType: CoinType.infinityCoin,
       });
       setTxId(`TX-${Date.now()}`);
       setStep('success');
@@ -91,7 +84,7 @@ export default function SendPage() {
             <div className="rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-4 space-y-2 shadow-glow-sm">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Asset:</span>
-                <span className="font-medium text-primary">{coinType === 'icp' ? TOKEN_ICP : TOKEN_INFINITY}</span>
+                <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount:</span>
@@ -133,7 +126,7 @@ export default function SendPage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Asset:</span>
-                <span className="font-medium text-primary">{coinType === 'icp' ? TOKEN_ICP : TOKEN_INFINITY}</span>
+                <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Amount:</span>
@@ -193,7 +186,7 @@ export default function SendPage() {
         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Send
         </h1>
-        <p className="text-muted-foreground">Transfer ICP or Infinity Coin</p>
+        <p className="text-muted-foreground">Transfer Infinity Coin</p>
       </div>
 
       <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all">
@@ -203,18 +196,12 @@ export default function SendPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="asset">Asset</Label>
-            <Select value={coinType} onValueChange={(value: 'icp' | 'infinityCoin') => setCoinType(value)}>
-              <SelectTrigger id="asset" className="border-primary/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="icp">{TOKEN_ICP}</SelectItem>
-                <SelectItem value="infinityCoin">{TOKEN_INFINITY}</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Asset</Label>
+            <div className="rounded-lg border border-primary/20 bg-muted/30 px-3 py-2">
+              <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Available: <span className="text-primary font-medium">{formatBalance(currentBalance)}</span> {coinType === 'icp' ? TOKEN_ICP : TOKEN_INFINITY}
+              Available: <span className="text-primary font-medium">{formatBalance(currentBalance)}</span> {TOKEN_INFINITY}
             </p>
           </div>
 

@@ -1,14 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
-  "summary": "Build \"Infinity Wallet\", a wallet app for the Internet Computer Protocol (ICP) ecosystem, intended to support the user's token \"Infinity Coin\" (created on launch.bob.fun).",
+  "projectStateVersion": 13,
+  "summary": "Shift Infinity Wallet to support Oisy Wallet integration with Oisy-only login, enabling users to use Oisy-connected accounts to view balances, send/receive, and initiate smart-contract transactions within Infinity Wallet (Infinity Coin-focused).",
   "architectural_notes": [
-    "Centralized exchanges generally require an ICP Ledger Account ID (not an Internet Identity Principal); the app should derive and display the Ledger Account ID for deposits."
+    "Centralized exchanges generally require an ICP Ledger Account ID (not an Internet Identity Principal); the app should derive and display the Ledger Account ID for deposits.",
+    "Add Oisy Wallet (browser extension) integration as the sole authentication/signing provider (replacing Internet Identity) so Infinity Wallet behaves like a dapp that requests signatures/transactions from Oisy."
   ],
   "known_issues": [
-    "Current UI shows Principal but not the ICP Ledger Account ID, preventing users from depositing ICP from centralized exchanges (exchange reports incorrect user/address)."
+    "Current UI shows Principal but not the ICP Ledger Account ID, preventing users from depositing ICP from centralized exchanges (exchange reports incorrect user/address).",
+    "Deployment failed; user requested reverting to the previous working version."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-set-the-app-name-and-primary-branding-to-infinity-wallet-and-refer-to-the-user-s-token-as-infinity-coin-throughout-the-ui",
@@ -121,6 +123,110 @@
         "REQ-14"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-replace-internet-identity-based-authentication-with-an-oisy-wallet-browser-extension-authentication-flow-so-that-users-can-log-in-using-only-oisy-wallet",
+      "title": "Replace Internet Identity-based authentication with an Oisy Wallet (browser extension) authentication flow so that users can log in using only Oisy Wallet.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-introduce-a-new-wallet-auth-context-hook-separate-from-the-existing-internet-identity-hook-that-exposes-an-authenticated-agent-identity-or-equivalent-derived-from-oisy-wallet-plus-connect-disconnect-and-connection-status-flags-and-update-the-app-to-use-it-for-authentication-gating",
+      "title": "Introduce a new wallet-auth context/hook (separate from the existing Internet Identity hook) that exposes an authenticated agent Identity (or equivalent) derived from Oisy Wallet, plus connect/disconnect and connection status flags, and update the app to use it for authentication gating.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-actor-creation-so-all-backend-calls-are-made-using-the-oisy-backed-authenticated-identity-so-queries-mutations-remain-authorized-and-scoped-per-caller-principal",
+      "title": "Update actor creation so all backend calls are made using the Oisy-backed authenticated identity (so queries/mutations remain authorized and scoped per-caller principal).",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-infinity-wallet-ui-function-for-infinity-coin-only-by-removing-icp-specific-balances-and-icp-specific-send-receive-language-from-all-relevant-screens-dashboard-send-history-and-navigation",
+      "title": "Make the Infinity Wallet UI function for Infinity Coin only by removing ICP-specific balances and ICP-specific send/receive language from all relevant screens (Dashboard, Send, History, and navigation).",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-repurpose-the-existing-receive-screen-to-show-the-connected-oisy-wallet-s-receive-address-principal-for-infinity-coin-and-provide-copy-to-clipboard-functionality-removing-icp-account-id-derivation-guidance",
+      "title": "Repurpose the existing Receive screen to show the connected Oisy wallet’s receive address/principal for Infinity Coin and provide copy-to-clipboard functionality, removing ICP Account ID derivation guidance.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-authenticated-screen-for-initiating-smart-contract-canister-update-calls-using-the-oisy-backed-identity-as-the-signer-with-a-minimal-form-based-ui",
+      "title": "Add a new authenticated screen for initiating smart-contract (canister) update calls using the Oisy-backed identity as the signer, with a minimal form-based UI.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-onboarding-screen-that-is-shown-whenever-the-user-is-not-connected-to-oisy-wallet-and-oisy-wallet-is-available-replacing-the-current-generic-unauthenticated-welcome-to-infinity-wallet-content-in-appcontent",
+      "title": "Add a dedicated onboarding screen that is shown whenever the user is not connected to Oisy Wallet (and Oisy Wallet is available), replacing the current generic unauthenticated “Welcome to Infinity Wallet” content in AppContent.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-onboarding-screen-present-a-clear-oisy-first-connection-journey-with-1-a-primary-connect-oisy-wallet-cta-wired-to-useoisywallet-connect-2-brief-guidance-on-what-connecting-enables-infinity-coin-balance-send-receive-contracts-and-3-a-visible-troubleshooting-installation-path-link-to-https-oisy-com-if-the-user-does-not-have-oisy-wallet",
+      "title": "On the onboarding screen, present a clear Oisy-first connection journey with: (1) a primary “Connect Oisy Wallet” CTA wired to useOisyWallet().connect, (2) brief guidance on what connecting enables (Infinity Coin balance, send/receive, contracts), and (3) a visible troubleshooting/installation path (link to https://oisy.com) if the user does not have Oisy Wallet.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-clean-post-connect-behavior-after-a-successful-oisy-connection-automatically-transition-the-user-into-the-authenticated-app-experience-defaulting-to-the-dashboard-page-and-ensure-the-onboarding-screen-is-no-longer-visible",
+      "title": "Implement clean post-connect behavior: after a successful Oisy connection, automatically transition the user into the authenticated app experience (defaulting to the Dashboard page) and ensure the onboarding screen is no longer visible.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-the-existing-first-time-profile-setup-gating-into-the-tightened-onboarding-experience-if-the-user-connects-successfully-but-has-no-saved-user-profile-userprofile-null-ensure-profile-setup-remains-mandatory-before-the-user-can-meaningfully-proceed",
+      "title": "Integrate the existing first-time profile setup gating into the tightened onboarding experience: if the user connects successfully but has no saved user profile (userProfile === null), ensure profile setup remains mandatory before the user can meaningfully proceed.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-keep-the-existing-unavailable-state-handling-oisy-wallet-required-intact-but-ensure-the-onboarding-screen-does-not-appear-in-that-state-the-unavailable-ui-should-remain-the-sole-experience-when-isunavailable-is-true",
+      "title": "Keep the existing unavailable-state handling (Oisy Wallet Required) intact, but ensure the onboarding screen does not appear in that state; the unavailable UI should remain the sole experience when isUnavailable is true.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-revert-the-application-codebase-frontend-backend-to-the-most-recent-known-good-version-that-successfully-deployed-undoing-the-changes-that-led-to-the-current-deployment-failure",
+      "title": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-reverting-run-a-smoke-test-of-the-primary-user-journeys-to-confirm-the-reverted-build-is-functional-connect-wallet-view-dashboard-navigate-to-send-receive-contacts-history-and-contracts",
+      "title": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -139,6 +245,18 @@
     {
       "id": "AR-3",
       "summary": "Add an ICP “Receive” screen that displays the user’s ICP Ledger Account ID (derived from their Principal) and includes a copy-to-clipboard button for exchange deposits.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement Oisy Wallet integration with Oisy-only login (no Internet Identity), using the Oisy wallet/extension as the signer to enable viewing balances, send/receive, and smart-contract transactions inside Infinity Wallet.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Tighten the Oisy-only login flow by adding a dedicated onboarding screen for connecting/authorizing Oisy Wallet.",
       "reqIds": [],
       "status": "pending"
     }

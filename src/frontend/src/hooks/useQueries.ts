@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
+import { useOisyActor } from './useOisyActor';
 import type { UserProfile, Contact, TransactionHistoryItem, CoinType } from '../backend';
 import { toast } from 'sonner';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useOisyActor();
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
@@ -25,7 +25,7 @@ export function useGetCallerUserProfile() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -45,7 +45,7 @@ export function useSaveCallerUserProfile() {
 
 // Balance Queries
 export function useGetBalances() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useOisyActor();
 
   return useQuery<[bigint, bigint]>({
     queryKey: ['balances'],
@@ -58,7 +58,7 @@ export function useGetBalances() {
 }
 
 export function useRecordBalance() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -74,7 +74,7 @@ export function useRecordBalance() {
 
 // Transaction Queries
 export function useGetTransactionHistory() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useOisyActor();
 
   return useQuery<TransactionHistoryItem[]>({
     queryKey: ['transactionHistory'],
@@ -87,7 +87,7 @@ export function useGetTransactionHistory() {
 }
 
 export function useRecordTransaction() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -117,7 +117,7 @@ export function useRecordTransaction() {
 
 // Contact Queries
 export function useGetContacts() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useOisyActor();
 
   return useQuery<Contact[]>({
     queryKey: ['contacts'],
@@ -130,7 +130,7 @@ export function useGetContacts() {
 }
 
 export function useSaveContact() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -149,7 +149,7 @@ export function useSaveContact() {
 }
 
 export function useUpdateContact() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -176,7 +176,7 @@ export function useUpdateContact() {
 }
 
 export function useDeleteContact() {
-  const { actor } = useActor();
+  const { actor } = useOisyActor();
   const queryClient = useQueryClient();
 
   return useMutation({

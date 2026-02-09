@@ -1,27 +1,69 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T05:32:58.298Z",
-  "summary": "The diff adds a new authenticated Receive screen that derives and displays the user’s ICP Ledger Account ID from the current Internet Identity Principal, adds in-app navigation/routing to reach it (including wiring Dashboard navigation), and implements copy-to-clipboard with visible success feedback and English guidance text for exchange deposits. One unrelated change appears to have been made to HistoryPage (timestamp type fix) that wasn’t requested.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-09T06:20:12.595Z",
+  "summary": "The diff does not show a revert to a prior known-good version; instead it adds/changes frontend functionality (Oisy wallet flows, new error boundary, new smoke-test checklist doc, and other UI/feature work). There is no evidence of backend reversion or of the deployment-failing changes being undone.",
+  "missing_requirements": [
+    {
+      "id": "REQ-26",
+      "requirement": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
+      "reason": "The diff shows new/modified frontend code and new files being added, but provides no evidence of reverting to a previous known-good state, nor any backend changes/reverts. The change set appears additive rather than a rollback.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useOisyActor.ts",
+        "frontend/src/components/errors/AppErrorBoundary.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-27",
+      "requirement": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
+      "reason": "A smoke-test checklist document was added, but the diff cannot evidence that a smoke test was actually executed after a revert (and a revert itself is not evidenced).",
+      "evidence": [
+        "frontend/SMOKE_TEST.md"
+      ]
+    }
+  ],
   "hallucinated_features": [
     {
-      "description": "Unrequested fix to History page timestamp typing/formatting (mentioned as a timestamp type error fix).",
-      "reason": "BuildRequest focuses on adding a Receive screen, navigation wiring, account-id derivation utility, and deposit guidance. A HistoryPage timestamp bug fix is not part of REQ-11 through REQ-14.",
+      "description": "Added a new React error boundary with a custom fallback UI and reload behavior.",
+      "reason": "The BuildRequest asked to revert to a last known working version and avoid new features beyond what is required for deployability; adding a new error boundary is an additive feature not explicitly requested as part of a revert.",
       "evidence": [
-        "frontend/src/pages/HistoryPage.tsx",
+        "frontend/src/components/errors/AppErrorBoundary.tsx",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "description": "Introduced/expanded Oisy Wallet connection UX states (connecting screen, unavailable-state UI with Visit/Try Again buttons) and related UI logic changes in App routing/auth flow.",
+      "reason": "The request is to revert to a previously working deployment; the diff reflects additional/changed wallet flow UI rather than a rollback.",
+      "evidence": [
+        "frontend/src/App.tsx",
         "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Implemented a new React Query-based actor hook (useOisyActor) with query invalidation/refetch behavior keyed on identity principal.",
+      "reason": "Not requested in the revert-focused BuildRequest and appears to be new/modified functionality rather than restoration of a prior known-good snapshot.",
+      "evidence": [
+        "frontend/src/hooks/useOisyActor.ts",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Added a new smoke-test checklist document (process documentation).",
+      "reason": "REQ-27 requires running a smoke test; adding a document is not the same as executing it, and the document itself is not explicitly requested as an output artifact.",
+      "evidence": [
+        "frontend/SMOKE_TEST.md"
       ]
     }
   ],
   "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/SMOKE_TEST.md",
     "frontend/src/App.tsx",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/lib/icpAccountId.ts",
-    "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/ReceivePage.tsx",
+    "frontend/src/components/errors/AppErrorBoundary.tsx",
+    "frontend/src/hooks/useOisyActor.ts",
     "project_state.json"
   ]
 }

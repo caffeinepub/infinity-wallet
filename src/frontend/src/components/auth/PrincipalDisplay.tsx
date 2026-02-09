@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useInternetIdentity } from '../../hooks/useInternetIdentity';
+import { useOisyWallet } from '../../hooks/useOisyWallet';
 import { Button } from '@/components/ui/button';
 import { Copy, Check } from 'lucide-react';
 import { truncatePrincipal } from '@/lib/utils';
 
 export default function PrincipalDisplay() {
-  const { identity } = useInternetIdentity();
+  const { identity } = useOisyWallet();
   const [copied, setCopied] = useState(false);
 
   if (!identity) return null;

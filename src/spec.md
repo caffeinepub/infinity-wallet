@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add an authenticated Receive screen that shows the user’s ICP Ledger Account ID (derived from their Internet Identity Principal) with an easy copy-to-clipboard action.
+**Goal:** Restore the application to the most recent known-good version that successfully deployed, removing the changes that caused the current deployment failure.
 
 **Planned changes:**
-- Add a new authenticated “Receive” page/screen to the app.
-- Implement a frontend utility to derive the ICP Ledger Account ID from the currently authenticated Principal (default subaccount) and display it on the Receive screen.
-- Add a copy button on the Receive screen that copies the full Account ID and shows visible success feedback.
-- Update authenticated navigation/routing to include “Receive” and wire the Dashboard “Quick Actions” > “Receive” button to navigate to it.
-- Add brief, non-technical guidance explaining that exchanges typically require the ICP Account ID (not the Principal) for deposits.
+- Revert frontend and backend code to the last known working deployment state, ensuring no remaining changes from the failed deployment attempt.
+- Confirm the reverted codebase builds and deploys successfully.
+- Perform a smoke test of the primary wallet journeys: connect wallet, load Dashboard, and navigate to Send, Receive, Contacts, History, and Contracts to verify no runtime errors.
 
-**User-visible outcome:** Signed-in users can open a Receive screen from navigation or the Dashboard, view their ICP Account ID, copy it with a button, and read a short note explaining why this (not the Principal) is used for exchange deposits.
+**User-visible outcome:** The deployed app loads successfully and the authenticated Oisy Wallet flow renders without errors, with core pages accessible and interactive.

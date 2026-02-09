@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle, Download, History } from 'lucide-react';
 import { formatBalance } from '@/lib/validation';
-import { TOKEN_ICP, TOKEN_INFINITY } from '@/lib/branding';
+import { TOKEN_INFINITY } from '@/lib/branding';
 
-type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive';
+type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive' | 'contracts';
 
 interface DashboardPageProps {
   onNavigate: (page: Page) => void;
@@ -16,7 +16,6 @@ interface DashboardPageProps {
 export default function DashboardPage({ onNavigate }: DashboardPageProps) {
   const { data: balances, isLoading, error, refetch, isRefetching } = useGetBalances();
 
-  const icpBalance = balances ? balances[0] : BigInt(0);
   const infinityBalance = balances ? balances[1] : BigInt(0);
 
   return (
@@ -26,7 +25,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Dashboard
           </h1>
-          <p className="text-muted-foreground">View your wallet balances</p>
+          <p className="text-muted-foreground">View your wallet balance</p>
         </div>
         <Button
           variant="outline"
@@ -47,77 +46,45 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
         </Alert>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* ICP Balance Card */}
-        <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{TOKEN_ICP}</CardTitle>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 shadow-glow-sm">
-              <span className="text-lg font-bold text-primary">₿</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  {formatBalance(icpBalance)}
-                </div>
-                <CardDescription className="text-xs">Internet Computer Protocol</CardDescription>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-4">
         {/* Infinity Coin Balance Card */}
-        <Card className="border-accent/20 bg-card/80 backdrop-blur-sm shadow-glow-accent hover:shadow-glow-lg transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{TOKEN_INFINITY}</CardTitle>
-            <div className="relative">
-              <img
-                src="/assets/generated/infinity-coin-icon.dim_512x512.png"
-                alt={TOKEN_INFINITY}
-                className="h-10 w-10 rounded-full shadow-glow-accent"
-              />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mix-blend-overlay pointer-events-none" />
-            </div>
+        <Card className="border-accent/30 bg-gradient-to-br from-card/90 to-accent/5 backdrop-blur-sm shadow-glow hover:shadow-glow-lg transition-all">
+          <CardHeader>
+            <CardDescription className="text-accent/80">Infinity Coin Balance</CardDescription>
+            <CardTitle className="text-4xl font-bold bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
+              {isLoading ? (
+                <Skeleton className="h-12 w-48" />
+              ) : (
+                <>
+                  {formatBalance(infinityBalance)} <span className="text-2xl">{TOKEN_INFINITY}</span>
+                </>
+              )}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
-                  {formatBalance(infinityBalance)}
-                </div>
-                <CardDescription className="text-xs">Your custom token</CardDescription>
-              </>
-            )}
-          </CardContent>
         </Card>
       </div>
 
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm shadow-glow-sm">
+      {/* Quick Actions */}
+      <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
-          <CardDescription>Manage your wallet</CardDescription>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Manage your Infinity Coin</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
+        <CardContent className="grid gap-3 sm:grid-cols-2">
           <Button
-            variant="outline"
-            size="sm"
             onClick={() => onNavigate('receive')}
-            className="border-primary/30 hover:shadow-glow-sm transition-all"
+            variant="outline"
+            className="gap-2 border-primary/30 hover:shadow-glow-sm transition-all"
           >
+            <Download className="h-4 w-4" />
             Receive
           </Button>
           <Button
-            variant="outline"
-            size="sm"
             onClick={() => onNavigate('history')}
-            className="border-primary/30 hover:shadow-glow-sm transition-all"
+            variant="outline"
+            className="gap-2 border-primary/30 hover:shadow-glow-sm transition-all"
           >
+            <History className="h-4 w-4" />
             View History
           </Button>
         </CardContent>

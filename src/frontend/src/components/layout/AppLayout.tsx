@@ -3,10 +3,10 @@ import WalletLogo from './WalletLogo';
 import AuthButton from '../auth/AuthButton';
 import PrincipalDisplay from '../auth/PrincipalDisplay';
 import { Button } from '@/components/ui/button';
-import { Wallet, Send, Users, History, Download } from 'lucide-react';
-import { useInternetIdentity } from '../../hooks/useInternetIdentity';
+import { Wallet, Send, Users, History, Download, FileCode } from 'lucide-react';
+import { useOisyWallet } from '../../hooks/useOisyWallet';
 
-type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive';
+type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive' | 'contracts';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,8 +15,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, currentPage, onNavigate }: AppLayoutProps) {
-  const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
+  const { isConnected } = useOisyWallet();
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,14 +26,14 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
             <WalletLogo />
           </div>
           <div className="flex items-center gap-3">
-            {isAuthenticated && <PrincipalDisplay />}
+            {isConnected && <PrincipalDisplay />}
             <AuthButton />
           </div>
         </div>
       </header>
 
       {/* Navigation with neon accents */}
-      {isAuthenticated && (
+      {isConnected && (
         <nav className="border-b border-border/50 bg-card/60 backdrop-blur-lg shadow-glow-sm">
           <div className="container px-4">
             <div className="flex gap-1 overflow-x-auto py-2">
@@ -102,6 +101,19 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
               >
                 <History className="h-4 w-4" />
                 <span className="hidden sm:inline">History</span>
+              </Button>
+              <Button
+                variant={currentPage === 'contracts' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => onNavigate('contracts')}
+                className={`gap-2 transition-all ${
+                  currentPage === 'contracts' 
+                    ? 'shadow-glow' 
+                    : 'hover:shadow-glow-sm hover:border-primary/30'
+                }`}
+              >
+                <FileCode className="h-4 w-4" />
+                <span className="hidden sm:inline">Contracts</span>
               </Button>
             </div>
           </div>

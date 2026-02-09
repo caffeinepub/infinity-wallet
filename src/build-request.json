@@ -1,90 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Add ICP Receive screen with Ledger Account ID + copy button",
-  "priority": "normal",
+  "title": "Revert to last known working version after failed deployment",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-11",
-      "text": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
-      "target": "frontend",
+      "id": "REQ-26",
+      "text": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
+      "target": "both",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "i need a receiving address i can copy, principal probably not working as im sending it in from a centralized exchange it says incorrect user"
+          "just revert back"
         ]
       },
       "acceptanceCriteria": [
-        "When the user is signed in, a Receive screen is accessible within the app UI.",
-        "The Receive screen shows a clearly labeled “ICP Account ID” value derived from the currently authenticated Principal.",
-        "The Receive screen includes a copy button that copies the full Account ID to the clipboard and provides visible success feedback.",
-        "All user-facing text on the Receive screen is in English."
+        "The codebase reflects the previous working version (no remaining changes from the failed deployment attempt).",
+        "A full build and deploy completes successfully without errors.",
+        "After deployment, the app loads and the authenticated Oisy Wallet flow renders without runtime errors."
       ]
     },
     {
-      "id": "REQ-12",
-      "text": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
+      "id": "REQ-27",
+      "text": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Want me to build a Receive screen that shows your correct deposit address?",
-          "yes please build that for me"
+          "just revert back"
         ]
       },
       "acceptanceCriteria": [
-        "A “Receive” navigation option is available when authenticated and it navigates to the Receive screen.",
-        "The Dashboard “Quick Actions” > “Receive” button navigates to the Receive screen.",
-        "Existing pages (Dashboard, Send, Contacts, History) continue to function and navigate correctly after adding Receive."
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "text": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "It should show your ICP Ledger Account ID, derived from your Principal"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Account ID displayed on the Receive screen is computed from the current authenticated Principal (not hardcoded).",
-        "If the user’s identity changes (sign out/sign in as another identity), the Receive screen updates to show the new Account ID."
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "text": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "centralized exchanges do NOT accept Principals. They require a Ledger Account ID."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Receive screen includes a short English explanation that the Principal may be rejected by exchanges and that the Account ID should be used for deposits.",
-        "The guidance text is non-technical and does not mention internal implementation details."
+        "User can connect (or see the expected unavailable state) without the app crashing.",
+        "Dashboard renders and navigation between pages works.",
+        "Send form, Receive copy-to-clipboard, Contacts CRUD UI, History list, and Contracts form all render and are interactable (no uncaught exceptions in the console)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
-    "Do not edit immutable hook files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Do not route any static images through the backend."
+    "Respect the existing single-actor Motoko backend architecture (all Motoko logic stays in backend/main.mo).",
+    "Do not edit files under frontend/src/components/ui or other frontend immutable paths; compose them instead if needed."
   ],
   "nonGoals": [
-    "Implementing actual on-chain ICP deposit detection beyond showing the derived Account ID.",
-    "Adding QR-code generation for the receiving address.",
-    "Adding exchange-specific integrations or validation beyond displaying/copying the derived ICP Account ID."
+    "Implementing new features or UI redesign beyond what is required to restore the last working deployment.",
+    "Refactoring unrelated code or changing data models unless required to restore deployability."
   ],
   "imageRequirements": {
     "required": [],

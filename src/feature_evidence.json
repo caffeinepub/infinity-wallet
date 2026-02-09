@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-authenticated-receive-page-screen-to-infinity-wallet-that-displays-the-signed-in-user-s-icp-ledger-account-id-derived-from-the-user-s-internet-identity-principal-and-provides-a-copy-to-clipboard-button",
-      "featureTitle": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
+      "featureId": "feature-revert-the-application-codebase-frontend-backend-to-the-most-recent-known-good-version-that-successfully-deployed-undoing-the-changes-that-led-to-the-current-deployment-failure",
+      "featureTitle": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
       "files": [
-        "frontend/src/pages/ReceivePage.tsx"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,17 +16,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-11"
+        "REQ-26"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-app-s-in-app-navigation-and-routing-state-to-include-the-new-receive-screen-including-updating-the-page-union-type-and-adding-a-navigation-entry-and-wire-the-existing-receive-quick-action-on-the-dashboard-to-navigate-to-the-receive-screen",
-      "featureTitle": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
+      "featureId": "feature-after-reverting-run-a-smoke-test-of-the-primary-user-journeys-to-confirm-the-reverted-build-is-functional-connect-wallet-view-dashboard-navigate-to-send-receive-contacts-history-and-contracts",
+      "featureTitle": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
       "files": [
+        "frontend/SMOKE_TEST.md",
         "frontend/src/App.tsx",
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/pages/DashboardPage.tsx"
+        "frontend/src/components/errors/AppErrorBoundary.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,46 +37,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-12"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-a-frontend-utility-that-derives-the-icp-ledger-account-id-from-the-authenticated-user-s-principal-using-the-standard-icp-account-identifier-derivation-default-subaccount-and-use-it-on-the-receive-screen",
-      "featureTitle": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
-      "files": [
-        "frontend/src/lib/icpAccountId.ts",
-        "frontend/src/pages/ReceivePage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-13"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-on-the-receive-screen-include-brief-guidance-clarifying-that-centralized-exchanges-typically-require-the-icp-account-id-not-the-principal-for-deposits",
-      "featureTitle": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
-      "files": [
-        "frontend/src/pages/ReceivePage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-14"
+        "REQ-27"
       ],
       "confidence": "high"
     }
