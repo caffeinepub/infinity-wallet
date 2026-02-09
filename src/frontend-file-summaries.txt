@@ -1,0 +1,20 @@
+{
+  "frontend/src/App.tsx": "Main application component with authentication flow, profile setup, page routing, and theme provider integration.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including user profiles, balances, transactions, and contacts with proper cache invalidation.",
+  "frontend/src/lib/branding.ts": "Centralized branding constants for app name and token names.",
+  "frontend/src/lib/validation.ts": "Validation utilities for recipient addresses, amounts, and balance formatting functions.",
+  "frontend/src/lib/utils.ts": "Utility functions for class name merging, principal truncation, and timestamp formatting.",
+  "frontend/src/components/layout/AppLayout.tsx": "Main layout wrapper with glassmorphic header/nav/footer featuring neon glow effects and backdrop blur for futuristic aesthetic.",
+  "frontend/src/components/layout/WalletLogo.tsx": "Logo component with gradient text effect and subtle glow overlay matching the Infinity Coin neon theme.",
+  "frontend/src/components/auth/AuthButton.tsx": "Authentication button component handling Internet Identity login/logout with loading states.",
+  "frontend/src/components/auth/PrincipalDisplay.tsx": "Principal display component with neon border, glassmorphic background, and subtle glow effect for futuristic styling.",
+  "frontend/src/components/auth/ProfileSetupDialog.tsx": "Modal dialog for first-time user profile setup requiring name input.",
+  "frontend/src/pages/DashboardPage.tsx": "Dashboard page with gradient text headers, neon-glowing balance cards, and glassmorphic surfaces matching the futuristic theme.",
+  "frontend/src/pages/SendPage.tsx": "Send flow with neon-accented cards, gradient text, glow effects on buttons/inputs, and animated success state with pulsing glow.",
+  "frontend/src/pages/ContactsPage.tsx": "Contacts page with glassmorphic cards, gradient contact names, neon borders, and glow effects on interactive elements.",
+  "frontend/src/pages/HistoryPage.tsx": "Transaction history page with neon-accented tabs, gradient amount displays, glassmorphic cards, and glow effects throughout; fixed timestamp type error by passing bigint directly to formatTimestamp.",
+  "frontend/src/components/contacts/ContactEditorDialog.tsx": "Reusable dialog for creating and editing contacts with validation.",
+  "frontend/src/components/wallet/RecipientPicker.tsx": "Popover component for selecting recipients from saved contacts in the send flow.",
+  "frontend/src/index.css": "Global styles with futuristic neon theme using OKLCH colors (cyan/purple/magenta accents), cosmic background gradients, and custom glow utilities for dark space aesthetic.",
+  "frontend/tailwind.config.js": "Tailwind configuration extended with neon glow shadows, cosmic gradient utilities, and glow-pulse animation for futuristic digital theme."
+}

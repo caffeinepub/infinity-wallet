@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Build \"Infinity Wallet\", a wallet app for the Internet Computer Protocol (ICP) ecosystem, intended to support the user's token \"Infinity Coin\" (created on launch.bob.fun).",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Edit Images\n- Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-wallet-logo.dim_1024x1024.png > infinity-wallet-logo.dim_1024x1024.png)\n- Restyle to match the uploaded Infinity Coin logo (image.png) with a futuristic neon/digital aesthetic (infinity-coin-icon.dim_512x512.png > infinity-coin-icon.dim_512x512.png)",
+  "existing_features": [
+    {
+      "id": "feature-set-the-app-name-and-primary-branding-to-infinity-wallet-and-refer-to-the-user-s-token-as-infinity-coin-throughout-the-ui",
+      "title": "Set the app name and primary branding to “Infinity Wallet” and refer to the user’s token as “Infinity Coin” throughout the UI.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-internet-identity-sign-in-sign-out-and-show-the-authenticated-user-s-principal-in-the-ui",
+      "title": "Implement Internet Identity sign-in/sign-out and show the authenticated user’s Principal in the UI.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-wallet-dashboard-screen-that-shows-balances-for-icp-and-infinity-coin-for-the-signed-in-user",
+      "title": "Add a wallet dashboard screen that shows balances for ICP and Infinity Coin for the signed-in user.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-send-flow-that-allows-the-signed-in-user-to-transfer-icp-and-or-infinity-coin-by-entering-a-recipient-address-and-amount-then-confirming-the-transaction",
+      "title": "Add a “Send” flow that allows the signed-in user to transfer ICP and/or Infinity Coin by entering a recipient address and amount, then confirming the transaction.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-simple-address-book-contacts-feature-so-a-signed-in-user-can-save-edit-and-delete-frequently-used-recipient-addresses",
+      "title": "Implement a simple address book (contacts) feature so a signed-in user can save, edit, and delete frequently used recipient addresses.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-basic-transaction-history-view-for-icp-and-infinity-coin-showing-the-most-recent-transfers-for-the-user-at-minimum-what-the-app-can-reliably-display-based-on-available-on-chain-queries-and-or-locally-recorded-submissions",
+      "title": "Add a basic transaction history view for ICP and Infinity Coin showing the most recent transfers for the user (at minimum, what the app can reliably display based on available on-chain queries and/or locally recorded submissions).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-coherent-visual-theme-for-infinity-wallet-colors-typography-spacing-component-styling-and-apply-it-consistently-across-all-screens-avoid-a-blue-purple-primary-palette",
+      "title": "Create a coherent visual theme for Infinity Wallet (colors, typography, spacing, component styling) and apply it consistently across all screens; avoid a blue/purple primary palette.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-generated-static-image-assets-logo-and-token-icon-into-the-frontend-and-render-them-in-the-ui-e-g-app-header-and-asset-list-do-not-serve-images-via-the-backend",
+      "title": "Add generated static image assets (logo and token icon) into the frontend and render them in the UI (e.g., app header and asset list). Do not serve images via the backend.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-infinity-wallet-visual-theme-to-be-futuristic-and-digitally-appealing-using-the-uploaded-infinity-coin-logo-image-image-png-as-the-primary-visual-inspiration-color-palette-glow-gradient-style-typography-and-overall-ui-feel-and-apply-it-consistently-across-all-existing-screens-dashboard-send-contacts-history-and-the-main-layout",
+      "title": "Update the Infinity Wallet visual theme to be futuristic and digitally appealing, using the uploaded Infinity Coin logo image (image.png) as the primary visual inspiration (color palette, glow/gradient style, typography, and overall UI feel), and apply it consistently across all existing screens (Dashboard, Send, Contacts, History) and the main layout.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-existing-static-branding-assets-so-they-visually-match-the-uploaded-infinity-coin-logo-style-image-png-keeping-filenames-paths-compatible-with-the-current-ui-usage",
+      "title": "Update the existing static branding assets so they visually match the uploaded Infinity Coin logo style (image.png), keeping filenames/paths compatible with the current UI usage.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create Infinity Wallet: an Internet Computer Protocol (ICP) wallet app (including support for Infinity Coin token).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Update Infinity Wallet visual theme to be futuristic/digitally appealing and based on the Infinity Coin logo image as the primary design inspiration.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Infinity Wallet",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
