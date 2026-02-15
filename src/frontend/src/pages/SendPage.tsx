@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { useRecordTransaction, useGetBalances } from '../hooks/useQueries';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRecordTransaction } from '../hooks/useQueries';
+import { useInfinityCoinBalance } from '../hooks/useInfinityCoinBalance';
+import { useInfinityLedger } from '../hooks/useInfinityLedger';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +14,9 @@ import { validateRecipient, validateAmount, parseAmountToE8, formatBalance } fro
 import { TOKEN_INFINITY } from '@/lib/branding';
 import { CoinType } from '../backend';
 import RecipientPicker from '../components/wallet/RecipientPicker';
+import { Principal } from '@dfinity/principal';
+import { formatTransferError, type ICRC1Account } from '@/lib/infinityLedger';
+import { toast } from 'sonner';
 
 type SendStep = 'form' | 'confirm' | 'success';
 
@@ -18,12 +25,15 @@ export default function SendPage() {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [errors, setErrors] = useState<{ recipient?: string; amount?: string }>({});
-  const [txId, setTxId] = useState<string>('');
+  const [blockIndex, setBlockIndex] = useState<bigint | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const recordTransaction = useRecordTransaction();
-  const { data: balances } = useGetBalances();
-
-  const currentBalance = balances ? balances[1] : BigInt(0);
+  const { balance } = useInfinityCoinBalance();
+  const { ledgerClient } = useInfinityLedger();
+  const { identity } = useInternetIdentity();
+  const queryClient = useQueryClient();
 
   const handleValidate = () => {
     const recipientValidation = validateRecipient(recipient);
@@ -40,22 +50,79 @@ export default function SendPage() {
   const handleContinue = () => {
     if (handleValidate()) {
       setStep('confirm');
+      setSendError(null);
     }
   };
 
   const handleSend = async () => {
+    if (!ledgerClient || !identity) {
+      setSendError('Not authenticated. Please sign in.');
+      return;
+    }
+
     const amountE8 = parseAmountToE8(amount);
+    setIsSending(true);
+    setSendError(null);
 
     try {
-      await recordTransaction.mutateAsync({
-        recipient,
-        amountE8,
-        coinType: CoinType.infinityCoin,
+      // Parse recipient - support both Principal and Account ID formats
+      let recipientAccount: ICRC1Account;
+      
+      try {
+        // Try parsing as Principal first
+        const recipientPrincipal = Principal.fromText(recipient);
+        recipientAccount = {
+          owner: recipientPrincipal,
+          subaccount: undefined,
+        };
+      } catch {
+        // If not a valid Principal, assume it's an Account ID
+        // For ICRC-1, we need a Principal, so this will fail
+        setSendError('Recipient must be a valid Principal for Infinity Coin transfers');
+        setIsSending(false);
+        return;
+      }
+
+      // Execute the transfer on the ledger
+      const transferResult = await ledgerClient.icrc1_transfer({
+        to: recipientAccount,
+        amount: amountE8,
+        fee: undefined, // Use default fee
+        memo: undefined,
+        created_at_time: BigInt(Date.now()) * BigInt(1_000_000), // Current time in nanoseconds
       });
-      setTxId(`TX-${Date.now()}`);
-      setStep('success');
+
+      if ('Ok' in transferResult) {
+        // Transfer succeeded
+        const txBlockIndex = transferResult.Ok;
+        setBlockIndex(txBlockIndex);
+
+        // Invalidate balance query to refresh
+        queryClient.invalidateQueries({ queryKey: ['infinityCoinBalance'] });
+
+        // Record transaction in local history (non-blocking)
+        try {
+          await recordTransaction.mutateAsync({
+            recipient,
+            amountE8,
+            coinType: CoinType.infinityCoin,
+          });
+        } catch (historyError) {
+          console.error('Failed to record transaction history:', historyError);
+          toast.warning('Transaction succeeded but history recording failed');
+        }
+
+        setStep('success');
+      } else {
+        // Transfer failed
+        const errorMessage = formatTransferError(transferResult.Err);
+        setSendError(errorMessage);
+      }
     } catch (error) {
-      console.error('Transaction failed:', error);
+      console.error('Transfer failed:', error);
+      setSendError(error instanceof Error ? error.message : 'Transfer failed. Please try again.');
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -64,7 +131,8 @@ export default function SendPage() {
     setRecipient('');
     setAmount('');
     setErrors({});
-    setTxId('');
+    setBlockIndex(null);
+    setSendError(null);
   };
 
   if (step === 'success') {
@@ -76,9 +144,9 @@ export default function SendPage() {
               <CheckCircle2 className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Transaction Recorded
+              Transfer Successful
             </CardTitle>
-            <CardDescription>Your transaction has been successfully recorded</CardDescription>
+            <CardDescription>Your Infinity Coin has been sent on the ledger</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-4 space-y-2 shadow-glow-sm">
@@ -95,8 +163,8 @@ export default function SendPage() {
                 <span className="font-mono text-xs">{recipient.slice(0, 20)}...</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Transaction ID:</span>
-                <span className="font-mono text-xs text-accent">{txId}</span>
+                <span className="text-muted-foreground">Block Index:</span>
+                <span className="font-mono text-xs text-accent">{blockIndex?.toString() ?? 'N/A'}</span>
               </div>
             </div>
             <Button onClick={handleReset} className="w-full shadow-glow hover:shadow-glow-lg transition-all">
@@ -140,11 +208,17 @@ export default function SendPage() {
               </div>
             </div>
 
+            {sendError && (
+              <Alert variant="destructive" className="border-destructive/50 shadow-glow-sm">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{sendError}</AlertDescription>
+              </Alert>
+            )}
+
             <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
               <AlertCircle className="h-4 w-4 text-accent" />
               <AlertDescription className="text-xs">
-                Note: This is a demo wallet. Transactions are recorded locally and do not represent actual
-                blockchain transfers.
+                This transaction will be executed on the Infinity Coin ledger. Once confirmed, it cannot be reversed.
               </AlertDescription>
             </Alert>
 
@@ -152,16 +226,17 @@ export default function SendPage() {
               <Button 
                 variant="outline" 
                 onClick={() => setStep('form')} 
+                disabled={isSending}
                 className="flex-1 border-primary/30 hover:shadow-glow-sm transition-all"
               >
                 Back
               </Button>
               <Button 
                 onClick={handleSend} 
-                disabled={recordTransaction.isPending} 
+                disabled={isSending} 
                 className="flex-1 shadow-glow hover:shadow-glow-lg transition-all"
               >
-                {recordTransaction.isPending ? (
+                {isSending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Sending...
@@ -189,42 +264,42 @@ export default function SendPage() {
         <p className="text-muted-foreground">Transfer Infinity Coin</p>
       </div>
 
-      <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all">
+      <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow">
         <CardHeader>
-          <CardTitle>Transaction Details</CardTitle>
-          <CardDescription>Enter the recipient and amount</CardDescription>
+          <CardTitle>Send {TOKEN_INFINITY}</CardTitle>
+          <CardDescription>
+            Enter recipient's Principal address
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Asset</Label>
-            <div className="rounded-lg border border-primary/20 bg-muted/30 px-3 py-2">
-              <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="recipient">Recipient</Label>
+              <RecipientPicker onSelect={setRecipient} />
             </div>
+            <Input
+              id="recipient"
+              placeholder="Principal (e.g., aaaaa-aa)"
+              value={recipient}
+              onChange={(e) => {
+                setRecipient(e.target.value);
+                if (errors.recipient) setErrors({ ...errors, recipient: undefined });
+              }}
+              className={errors.recipient ? 'border-destructive' : ''}
+            />
+            {errors.recipient && <p className="text-xs text-destructive">{errors.recipient}</p>}
             <p className="text-xs text-muted-foreground">
-              Available: <span className="text-primary font-medium">{formatBalance(currentBalance)}</span> {TOKEN_INFINITY}
+              For Infinity Coin, use the recipient's Principal address (ICRC-1 format)
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="recipient">Recipient Address</Label>
-            <div className="flex gap-2">
-              <Input
-                id="recipient"
-                placeholder="Enter principal address"
-                value={recipient}
-                onChange={(e) => {
-                  setRecipient(e.target.value);
-                  if (errors.recipient) setErrors({ ...errors, recipient: undefined });
-                }}
-                className={`border-primary/20 ${errors.recipient ? 'border-destructive' : ''}`}
-              />
-              <RecipientPicker onSelect={setRecipient} />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="amount">Amount</Label>
+              <span className="text-xs text-muted-foreground">
+                Balance: {formatBalance(balance)} {TOKEN_INFINITY}
+              </span>
             </div>
-            {errors.recipient && <p className="text-xs text-destructive">{errors.recipient}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
             <Input
               id="amount"
               type="number"
@@ -235,13 +310,16 @@ export default function SendPage() {
                 setAmount(e.target.value);
                 if (errors.amount) setErrors({ ...errors, amount: undefined });
               }}
-              className={`border-primary/20 ${errors.amount ? 'border-destructive' : ''}`}
+              className={errors.amount ? 'border-destructive' : ''}
             />
             {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
           </div>
 
-          <Button onClick={handleContinue} className="w-full shadow-glow hover:shadow-glow-lg transition-all">
-            Continue
+          <Button 
+            onClick={handleContinue} 
+            className="w-full shadow-glow hover:shadow-glow-lg transition-all"
+          >
+            Review Transaction
           </Button>
         </CardContent>
       </Card>

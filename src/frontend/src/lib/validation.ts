@@ -5,12 +5,19 @@ export function validateRecipient(recipient: string): { valid: boolean; error?: 
     return { valid: false, error: 'Recipient address is required' };
   }
 
+  const trimmed = recipient.trim();
+
+  // Check if it's a valid 64-character hex string (ICP Account ID)
+  if (/^[0-9a-fA-F]{64}$/.test(trimmed)) {
+    return { valid: true };
+  }
+
   // Try to parse as Principal
   try {
-    Principal.fromText(recipient.trim());
+    Principal.fromText(trimmed);
     return { valid: true };
   } catch {
-    return { valid: false, error: 'Invalid principal format' };
+    return { valid: false, error: 'Invalid address. Must be a valid ICP Account ID (Account Identifier) or Principal' };
   }
 }
 

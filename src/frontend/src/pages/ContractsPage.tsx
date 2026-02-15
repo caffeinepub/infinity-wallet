@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useOisyWallet } from '../hooks/useOisyWallet';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,18 +10,20 @@ import { Loader2, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ContractsPage() {
-  const { identity, isConnected } = useOisyWallet();
+  const { identity } = useInternetIdentity();
   const [canisterId, setCanisterId] = useState('');
   const [methodName, setMethodName] = useState('');
   const [args, setArgs] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
+  const isAuthenticated = !!identity;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!identity || !isConnected) {
-      toast.error('Please connect your Oisy Wallet first');
+    if (!identity || !isAuthenticated) {
+      toast.error('Please sign in with Internet Identity first');
       return;
     }
 
@@ -53,7 +55,7 @@ export default function ContractsPage() {
       // Mock successful response
       setResult({
         success: true,
-        message: `Method "${methodName}" would be called on canister ${canisterId} with arguments: ${JSON.stringify(parsedArgs, null, 2)}\n\nNote: This is a demo implementation. In production, this would execute a real canister call signed by your Oisy Wallet.`,
+        message: `Method "${methodName}" would be called on canister ${canisterId} with arguments: ${JSON.stringify(parsedArgs, null, 2)}\n\nNote: This is a demo implementation. In production, this would execute a real canister call signed by your Internet Identity.`,
       });
       toast.success('Contract call simulated successfully');
     } catch (error: any) {
@@ -75,7 +77,7 @@ export default function ContractsPage() {
     setResult(null);
   };
 
-  if (!isConnected) {
+  if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
@@ -87,7 +89,7 @@ export default function ContractsPage() {
         <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
           <AlertCircle className="h-4 w-4 text-accent" />
           <AlertDescription>
-            Please connect your Oisy Wallet to interact with canisters.
+            Please sign in with Internet Identity to interact with canisters.
           </AlertDescription>
         </Alert>
       </div>
@@ -100,7 +102,7 @@ export default function ContractsPage() {
         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Contracts
         </h1>
-        <p className="text-muted-foreground">Call canister methods using your Oisy Wallet</p>
+        <p className="text-muted-foreground">Call canister methods using your Internet Identity</p>
       </div>
 
       {result && (
@@ -179,7 +181,7 @@ export default function ContractsPage() {
             <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
               <AlertCircle className="h-4 w-4 text-accent" />
               <AlertDescription className="text-xs">
-                This will execute an update call signed by your Oisy Wallet. Make sure you trust the canister
+                This will execute an update call signed by your Internet Identity. Make sure you trust the canister
                 and understand what the method does.
               </AlertDescription>
             </Alert>

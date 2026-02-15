@@ -1,230 +1,68 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
-  "summary": "Shift Infinity Wallet to support Oisy Wallet integration with Oisy-only login, enabling users to use Oisy-connected accounts to view balances, send/receive, and initiate smart-contract transactions within Infinity Wallet (Infinity Coin-focused).",
+  "projectStateVersion": 3,
+  "summary": "Integrate the Infinity Coin ICRC-1 token ledger into the app so it can read real balances and send/receive tokens on the live ledger.",
   "architectural_notes": [
-    "Centralized exchanges generally require an ICP Ledger Account ID (not an Internet Identity Principal); the app should derive and display the Ledger Account ID for deposits.",
-    "Add Oisy Wallet (browser extension) integration as the sole authentication/signing provider (replacing Internet Identity) so Infinity Wallet behaves like a dapp that requests signatures/transactions from Oisy."
+    "Use ICRC-1 ledger canister interface (e.g., icrc1_balance_of, icrc1_transfer) against canister ID atuk3-uqaaa-aaaam-qduwa-cai."
   ],
   "known_issues": [
-    "Current UI shows Principal but not the ICP Ledger Account ID, preventing users from depositing ICP from centralized exchanges (exchange reports incorrect user/address).",
-    "Deployment failed; user requested reverting to the previous working version."
+    "Previous attempts to integrate the ledger were blocked/failed (security checkpoint/build processing error), so ledger integration is not yet in code."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-set-the-app-name-and-primary-branding-to-infinity-wallet-and-refer-to-the-user-s-token-as-infinity-coin-throughout-the-ui",
-      "title": "Set the app name and primary branding to “Infinity Wallet” and refer to the user’s token as “Infinity Coin” throughout the UI.",
+      "id": "feature-configure-the-app-to-use-the-infinity-coin-icrc-1-ledger-canister-id-atuk3-uqaaa-aaaam-qduwa-cai-as-the-single-source-of-truth-for-infinity-coin-on-chain-operations-balance-queries-and-transfers",
+      "title": "Configure the app to use the Infinity Coin ICRC-1 ledger canister ID `atuk3-uqaaa-aaaam-qduwa-cai` as the single source of truth for Infinity Coin on-chain operations (balance queries and transfers).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-internet-identity-sign-in-sign-out-and-show-the-authenticated-user-s-principal-in-the-ui",
-      "title": "Implement Internet Identity sign-in/sign-out and show the authenticated user’s Principal in the UI.",
+      "id": "feature-implement-an-authenticated-icrc-1-ledger-client-in-the-frontend-that-uses-the-current-internet-identity-identity-to-call-the-infinity-coin-ledger-canister-methods-icrc1-balance-of-and-icrc1-transfer",
+      "title": "Implement an authenticated ICRC-1 ledger client in the frontend that uses the current Internet Identity identity to call the Infinity Coin ledger canister methods `icrc1_balance_of` and `icrc1_transfer`.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-wallet-dashboard-screen-that-shows-balances-for-icp-and-infinity-coin-for-the-signed-in-user",
-      "title": "Add a wallet dashboard screen that shows balances for ICP and Infinity Coin for the signed-in user.",
+      "id": "feature-update-the-wallet-balance-flow-react-query-hook-s-and-dashboard-ui-so-the-displayed-infinity-coin-balance-is-fetched-from-the-live-infinity-coin-icrc-1-ledger-via-icrc1-balance-of-instead-of-using-locally-recorded-balances-from-the-backend-canister",
+      "title": "Update the wallet balance flow (React Query hook(s) and Dashboard UI) so the displayed Infinity Coin balance is fetched from the live Infinity Coin ICRC-1 ledger via `icrc1_balance_of` instead of using locally recorded balances from the backend canister.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-send-flow-that-allows-the-signed-in-user-to-transfer-icp-and-or-infinity-coin-by-entering-a-recipient-address-and-amount-then-confirming-the-transaction",
-      "title": "Add a “Send” flow that allows the signed-in user to transfer ICP and/or Infinity Coin by entering a recipient address and amount, then confirming the transaction.",
+      "id": "feature-update-the-send-flow-so-that-confirming-a-send-performs-a-real-infinity-coin-transfer-on-the-live-ledger-by-calling-icrc1-transfer-on-atuk3-uqaaa-aaaam-qduwa-cai-and-only-shows-success-after-the-ledger-call-succeeds",
+      "title": "Update the Send flow so that confirming a send performs a real Infinity Coin transfer on the live ledger by calling `icrc1_transfer` on `atuk3-uqaaa-aaaam-qduwa-cai`, and only shows success after the ledger call succeeds.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-a-simple-address-book-contacts-feature-so-a-signed-in-user-can-save-edit-and-delete-frequently-used-recipient-addresses",
-      "title": "Implement a simple address book (contacts) feature so a signed-in user can save, edit, and delete frequently used recipient addresses.",
+      "id": "feature-after-a-successful-on-ledger-transfer-record-the-transfer-in-the-app-s-local-transaction-history-backend-canister-so-it-appears-in-the-history-screen-while-clearly-treating-the-ledger-as-the-source-of-truth-for-funds",
+      "title": "After a successful on-ledger transfer, record the transfer in the app’s local transaction history (backend canister) so it appears in the History screen, while clearly treating the ledger as the source of truth for funds.",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-basic-transaction-history-view-for-icp-and-infinity-coin-showing-the-most-recent-transfers-for-the-user-at-minimum-what-the-app-can-reliably-display-based-on-available-on-chain-queries-and-or-locally-recorded-submissions",
-      "title": "Add a basic transaction history view for ICP and Infinity Coin showing the most recent transfers for the user (at minimum, what the app can reliably display based on available on-chain queries and/or locally recorded submissions).",
+      "id": "feature-update-the-receive-screen-to-show-the-correct-infinity-coin-receive-address-details-for-the-icrc-1-ledger-the-signed-in-user-s-owner-principal-and-the-default-subaccount-all-zeros-not-set-and-provide-copy-to-clipboard-actions",
+      "title": "Update the Receive screen to show the correct Infinity Coin receive address details for the ICRC-1 ledger: the signed-in user’s owner Principal and the default subaccount (all zeros / not set), and provide copy-to-clipboard actions.",
       "reqIds": [
         "REQ-6"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-coherent-visual-theme-for-infinity-wallet-colors-typography-spacing-component-styling-and-apply-it-consistently-across-all-screens-avoid-a-blue-purple-primary-palette",
-      "title": "Create a coherent visual theme for Infinity Wallet (colors, typography, spacing, component styling) and apply it consistently across all screens; avoid a blue/purple primary palette.",
+      "id": "feature-remove-or-update-any-user-facing-copy-in-the-send-confirmation-ui-that-claims-transfers-are-only-recorded-locally-or-are-a-demo-so-the-app-copy-accurately-reflects-that-infinity-coin-sends-are-executed-on-the-live-ledger",
+      "title": "Remove or update any user-facing copy in the Send confirmation UI that claims transfers are only recorded locally or are a demo, so the app copy accurately reflects that Infinity Coin sends are executed on the live ledger.",
       "reqIds": [
         "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-generated-static-image-assets-logo-and-token-icon-into-the-frontend-and-render-them-in-the-ui-e-g-app-header-and-asset-list-do-not-serve-images-via-the-backend",
-      "title": "Add generated static image assets (logo and token icon) into the frontend and render them in the UI (e.g., app header and asset list). Do not serve images via the backend.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-infinity-wallet-visual-theme-to-be-futuristic-and-digitally-appealing-using-the-uploaded-infinity-coin-logo-image-image-png-as-the-primary-visual-inspiration-color-palette-glow-gradient-style-typography-and-overall-ui-feel-and-apply-it-consistently-across-all-existing-screens-dashboard-send-contacts-history-and-the-main-layout",
-      "title": "Update the Infinity Wallet visual theme to be futuristic and digitally appealing, using the uploaded Infinity Coin logo image (image.png) as the primary visual inspiration (color palette, glow/gradient style, typography, and overall UI feel), and apply it consistently across all existing screens (Dashboard, Send, Contacts, History) and the main layout.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-existing-static-branding-assets-so-they-visually-match-the-uploaded-infinity-coin-logo-style-image-png-keeping-filenames-paths-compatible-with-the-current-ui-usage",
-      "title": "Update the existing static branding assets so they visually match the uploaded Infinity Coin logo style (image.png), keeping filenames/paths compatible with the current UI usage.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-new-authenticated-receive-page-screen-to-infinity-wallet-that-displays-the-signed-in-user-s-icp-ledger-account-id-derived-from-the-user-s-internet-identity-principal-and-provides-a-copy-to-clipboard-button",
-      "title": "Add a new authenticated “Receive” page/screen to Infinity Wallet that displays the signed-in user’s ICP Ledger Account ID (derived from the user’s Internet Identity Principal) and provides a copy-to-clipboard button.",
-      "reqIds": [
-        "REQ-11"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-app-s-in-app-navigation-and-routing-state-to-include-the-new-receive-screen-including-updating-the-page-union-type-and-adding-a-navigation-entry-and-wire-the-existing-receive-quick-action-on-the-dashboard-to-navigate-to-the-receive-screen",
-      "title": "Update the app’s in-app navigation and routing state to include the new Receive screen (including updating the page union/type and adding a navigation entry) and wire the existing “Receive” Quick Action on the Dashboard to navigate to the Receive screen.",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-a-frontend-utility-that-derives-the-icp-ledger-account-id-from-the-authenticated-user-s-principal-using-the-standard-icp-account-identifier-derivation-default-subaccount-and-use-it-on-the-receive-screen",
-      "title": "Implement a frontend utility that derives the ICP Ledger Account ID from the authenticated user’s Principal using the standard ICP Account Identifier derivation (default subaccount), and use it on the Receive screen.",
-      "reqIds": [
-        "REQ-13"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-the-receive-screen-include-brief-guidance-clarifying-that-centralized-exchanges-typically-require-the-icp-account-id-not-the-principal-for-deposits",
-      "title": "On the Receive screen, include brief guidance clarifying that centralized exchanges typically require the ICP Account ID (not the Principal) for deposits.",
-      "reqIds": [
-        "REQ-14"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-internet-identity-based-authentication-with-an-oisy-wallet-browser-extension-authentication-flow-so-that-users-can-log-in-using-only-oisy-wallet",
-      "title": "Replace Internet Identity-based authentication with an Oisy Wallet (browser extension) authentication flow so that users can log in using only Oisy Wallet.",
-      "reqIds": [
-        "REQ-15"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-introduce-a-new-wallet-auth-context-hook-separate-from-the-existing-internet-identity-hook-that-exposes-an-authenticated-agent-identity-or-equivalent-derived-from-oisy-wallet-plus-connect-disconnect-and-connection-status-flags-and-update-the-app-to-use-it-for-authentication-gating",
-      "title": "Introduce a new wallet-auth context/hook (separate from the existing Internet Identity hook) that exposes an authenticated agent Identity (or equivalent) derived from Oisy Wallet, plus connect/disconnect and connection status flags, and update the app to use it for authentication gating.",
-      "reqIds": [
-        "REQ-16"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-actor-creation-so-all-backend-calls-are-made-using-the-oisy-backed-authenticated-identity-so-queries-mutations-remain-authorized-and-scoped-per-caller-principal",
-      "title": "Update actor creation so all backend calls are made using the Oisy-backed authenticated identity (so queries/mutations remain authorized and scoped per-caller principal).",
-      "reqIds": [
-        "REQ-17"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-make-the-infinity-wallet-ui-function-for-infinity-coin-only-by-removing-icp-specific-balances-and-icp-specific-send-receive-language-from-all-relevant-screens-dashboard-send-history-and-navigation",
-      "title": "Make the Infinity Wallet UI function for Infinity Coin only by removing ICP-specific balances and ICP-specific send/receive language from all relevant screens (Dashboard, Send, History, and navigation).",
-      "reqIds": [
-        "REQ-18"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-repurpose-the-existing-receive-screen-to-show-the-connected-oisy-wallet-s-receive-address-principal-for-infinity-coin-and-provide-copy-to-clipboard-functionality-removing-icp-account-id-derivation-guidance",
-      "title": "Repurpose the existing Receive screen to show the connected Oisy wallet’s receive address/principal for Infinity Coin and provide copy-to-clipboard functionality, removing ICP Account ID derivation guidance.",
-      "reqIds": [
-        "REQ-19"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-new-authenticated-screen-for-initiating-smart-contract-canister-update-calls-using-the-oisy-backed-identity-as-the-signer-with-a-minimal-form-based-ui",
-      "title": "Add a new authenticated screen for initiating smart-contract (canister) update calls using the Oisy-backed identity as the signer, with a minimal form-based UI.",
-      "reqIds": [
-        "REQ-20"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-dedicated-onboarding-screen-that-is-shown-whenever-the-user-is-not-connected-to-oisy-wallet-and-oisy-wallet-is-available-replacing-the-current-generic-unauthenticated-welcome-to-infinity-wallet-content-in-appcontent",
-      "title": "Add a dedicated onboarding screen that is shown whenever the user is not connected to Oisy Wallet (and Oisy Wallet is available), replacing the current generic unauthenticated “Welcome to Infinity Wallet” content in AppContent.",
-      "reqIds": [
-        "REQ-21"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-the-onboarding-screen-present-a-clear-oisy-first-connection-journey-with-1-a-primary-connect-oisy-wallet-cta-wired-to-useoisywallet-connect-2-brief-guidance-on-what-connecting-enables-infinity-coin-balance-send-receive-contracts-and-3-a-visible-troubleshooting-installation-path-link-to-https-oisy-com-if-the-user-does-not-have-oisy-wallet",
-      "title": "On the onboarding screen, present a clear Oisy-first connection journey with: (1) a primary “Connect Oisy Wallet” CTA wired to useOisyWallet().connect, (2) brief guidance on what connecting enables (Infinity Coin balance, send/receive, contracts), and (3) a visible troubleshooting/installation path (link to https://oisy.com) if the user does not have Oisy Wallet.",
-      "reqIds": [
-        "REQ-22"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-clean-post-connect-behavior-after-a-successful-oisy-connection-automatically-transition-the-user-into-the-authenticated-app-experience-defaulting-to-the-dashboard-page-and-ensure-the-onboarding-screen-is-no-longer-visible",
-      "title": "Implement clean post-connect behavior: after a successful Oisy connection, automatically transition the user into the authenticated app experience (defaulting to the Dashboard page) and ensure the onboarding screen is no longer visible.",
-      "reqIds": [
-        "REQ-23"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-integrate-the-existing-first-time-profile-setup-gating-into-the-tightened-onboarding-experience-if-the-user-connects-successfully-but-has-no-saved-user-profile-userprofile-null-ensure-profile-setup-remains-mandatory-before-the-user-can-meaningfully-proceed",
-      "title": "Integrate the existing first-time profile setup gating into the tightened onboarding experience: if the user connects successfully but has no saved user profile (userProfile === null), ensure profile setup remains mandatory before the user can meaningfully proceed.",
-      "reqIds": [
-        "REQ-24"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-keep-the-existing-unavailable-state-handling-oisy-wallet-required-intact-but-ensure-the-onboarding-screen-does-not-appear-in-that-state-the-unavailable-ui-should-remain-the-sole-experience-when-isunavailable-is-true",
-      "title": "Keep the existing unavailable-state handling (Oisy Wallet Required) intact, but ensure the onboarding screen does not appear in that state; the unavailable UI should remain the sole experience when isUnavailable is true.",
-      "reqIds": [
-        "REQ-25"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-revert-the-application-codebase-frontend-backend-to-the-most-recent-known-good-version-that-successfully-deployed-undoing-the-changes-that-led-to-the-current-deployment-failure",
-      "title": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
-      "reqIds": [
-        "REQ-26"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-after-reverting-run-a-smoke-test-of-the-primary-user-journeys-to-confirm-the-reverted-build-is-functional-connect-wallet-view-dashboard-navigate-to-send-receive-contacts-history-and-contracts",
-      "title": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
-      "reqIds": [
-        "REQ-27"
       ],
       "version": 1
     }
@@ -232,37 +70,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create Infinity Wallet: an Internet Computer Protocol (ICP) wallet app (including support for Infinity Coin token).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Update Infinity Wallet visual theme to be futuristic/digitally appealing and based on the Infinity Coin logo image as the primary design inspiration.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add an ICP “Receive” screen that displays the user’s ICP Ledger Account ID (derived from their Principal) and includes a copy-to-clipboard button for exchange deposits.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Implement Oisy Wallet integration with Oisy-only login (no Internet Identity), using the Oisy wallet/extension as the signer to enable viewing balances, send/receive, and smart-contract transactions inside Infinity Wallet.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Tighten the Oisy-only login flow by adding a dedicated onboarding screen for connecting/authorizing Oisy Wallet.",
+      "summary": "Integrate Infinity Coin ICRC-1 ledger canister (atuk3-uqaaa-aaaam-qduwa-cai): read balances, send via icrc1_transfer, and show correct deposit/receive address",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Infinity Wallet",
+  "projectName": "Integrate Infinity Coin ICRC-1 ledger (atuk3-uqaaa-aaaam-qduwa-cai) for real balances and transfers",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

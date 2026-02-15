@@ -1,65 +1,151 @@
 {
   "kind": "build_request",
-  "title": "Revert to last known working version after failed deployment",
-  "priority": "high",
+  "title": "Integrate Infinity Coin ICRC-1 ledger (atuk3-uqaaa-aaaam-qduwa-cai) for real balances and transfers",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-26",
-      "text": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "just revert back"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The codebase reflects the previous working version (no remaining changes from the failed deployment attempt).",
-        "A full build and deploy completes successfully without errors.",
-        "After deployment, the app loads and the authenticated Oisy Wallet flow renders without runtime errors."
-      ]
-    },
-    {
-      "id": "REQ-27",
-      "text": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
+      "id": "REQ-1",
+      "text": "Configure the app to use the Infinity Coin ICRC-1 ledger canister ID `atuk3-uqaaa-aaaam-qduwa-cai` as the single source of truth for Infinity Coin on-chain operations (balance queries and transfers).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "just revert back"
+          "integrate it now",
+          "atuk3-uqaaa-aaaam-qduwa-cai is my token ledger"
         ]
       },
       "acceptanceCriteria": [
-        "User can connect (or see the expected unavailable state) without the app crashing.",
-        "Dashboard renders and navigation between pages works.",
-        "Send form, Receive copy-to-clipboard, Contacts CRUD UI, History list, and Contracts form all render and are interactable (no uncaught exceptions in the console)."
+        "A single, clearly named frontend constant/config value exists for the Infinity Coin ledger canister ID and is set to `atuk3-uqaaa-aaaam-qduwa-cai`.",
+        "No other canister ID is used for Infinity Coin balance/transfer calls."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement an authenticated ICRC-1 ledger client in the frontend that uses the current Internet Identity identity to call the Infinity Coin ledger canister methods `icrc1_balance_of` and `icrc1_transfer`.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "connecting the ledger of the infinity coin so we can go live with sending and recieving the actual ledger"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a user is signed in with Internet Identity, the app can successfully call `icrc1_balance_of` against `atuk3-uqaaa-aaaam-qduwa-cai` for the user’s account.",
+        "When a user is signed in with Internet Identity, the app can submit `icrc1_transfer` against `atuk3-uqaaa-aaaam-qduwa-cai` signed by the user’s identity.",
+        "If the user is signed out, ledger calls are not attempted and the UI shows a clear error/gating state rather than failing silently."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update the wallet balance flow (React Query hook(s) and Dashboard UI) so the displayed Infinity Coin balance is fetched from the live Infinity Coin ICRC-1 ledger via `icrc1_balance_of` instead of using locally recorded balances from the backend canister.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "View their Infinity Coin balance from the real ledger"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Dashboard Infinity Coin balance reflects the ledger balance returned by `icrc1_balance_of` for the signed-in user.",
+        "Refreshing the Dashboard triggers a refetch from the ledger canister.",
+        "The app does not require calling `backend.recordBalance` or `backend.getBalances` to show the Infinity Coin balance."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the Send flow so that confirming a send performs a real Infinity Coin transfer on the live ledger by calling `icrc1_transfer` on `atuk3-uqaaa-aaaam-qduwa-cai`, and only shows success after the ledger call succeeds.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Send Infinity Coin using the icrc1_transfer endpoint"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On the Confirm step, clicking “Confirm Send” triggers an `icrc1_transfer` call to `atuk3-uqaaa-aaaam-qduwa-cai`.",
+        "On success, the UI displays a real ledger transfer identifier (e.g., returned block index) instead of a locally generated placeholder TX id.",
+        "On failure, the UI displays an actionable error message and does not transition to the success step.",
+        "After a successful send, the Infinity Coin balance query is invalidated/refetched so the Dashboard shows the updated ledger balance."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "After a successful on-ledger transfer, record the transfer in the app’s local transaction history (backend canister) so it appears in the History screen, while clearly treating the ledger as the source of truth for funds.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Display their correct deposit address for exchanges (Account ID if needed)",
+          "Add a basic transaction history view ... locally recorded submissions"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After `icrc1_transfer` succeeds, the frontend calls the backend to record a transaction entry containing recipient text, amount (in e8s), and coin type = Infinity Coin.",
+        "The History page continues to load and render the recorded transactions for the signed-in user.",
+        "Recording history failure does not mark the ledger transfer as failed; the UI should still treat the transfer as successful if the ledger call succeeded (but show a non-blocking warning toast if history recording fails)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Update the Receive screen to show the correct Infinity Coin receive address details for the ICRC-1 ledger: the signed-in user’s owner Principal and the default subaccount (all zeros / not set), and provide copy-to-clipboard actions.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Receive Infinity Coin using their principal + subaccount",
+          "Show the user’s correct deposit address"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Receive page displays the authenticated user’s Principal as the ICRC-1 account owner.",
+        "Receive page indicates the subaccount being used is the default (all zeros) and does not imply a custom subaccount unless implemented.",
+        "At least one copy button exists to copy the owner Principal, and the copied value matches the displayed owner Principal exactly.",
+        "User-facing text on the Receive page is in English."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Remove or update any user-facing copy in the Send confirmation UI that claims transfers are only recorded locally or are a demo, so the app copy accurately reflects that Infinity Coin sends are executed on the live ledger.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "go live with sending and recieving the actual ledger"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Send confirmation screen no longer states that the wallet is a demo or that transactions do not represent actual blockchain transfers (for Infinity Coin).",
+        "All user-facing text changes are in English."
       ]
     }
   ],
   "constraints": [
-    "Respect the existing single-actor Motoko backend architecture (all Motoko logic stays in backend/main.mo).",
-    "Do not edit files under frontend/src/components/ui or other frontend immutable paths; compose them instead if needed."
+    "Backend must remain a single-actor Motoko canister; do not introduce multiple backend services/canisters.",
+    "Do not modify any frontend files under the immutable paths listed in SYSTEM_CONTEXT (compose existing UI components instead of editing them).",
+    "Use the ledger canister ID exactly as provided: `atuk3-uqaaa-aaaam-qduwa-cai`.",
+    "Do not add third-party authentication; use Internet Identity only."
   ],
   "nonGoals": [
-    "Implementing new features or UI redesign beyond what is required to restore the last working deployment.",
-    "Refactoring unrelated code or changing data models unless required to restore deployability."
+    "Integrating the ICP ledger canister (this request is specifically for the Infinity Coin ICRC-1 ledger).",
+    "Implementing a full on-chain transaction indexer or fetching full ledger history from chain.",
+    "Supporting non-default (custom) ICRC-1 subaccounts unless explicitly requested later."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

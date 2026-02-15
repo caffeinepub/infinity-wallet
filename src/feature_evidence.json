@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-revert-the-application-codebase-frontend-backend-to-the-most-recent-known-good-version-that-successfully-deployed-undoing-the-changes-that-led-to-the-current-deployment-failure",
-      "featureTitle": "Revert the application codebase (frontend + backend) to the most recent known-good version that successfully deployed, undoing the changes that led to the current deployment failure.",
+      "featureId": "feature-configure-the-app-to-use-the-infinity-coin-icrc-1-ledger-canister-id-atuk3-uqaaa-aaaam-qduwa-cai-as-the-single-source-of-truth-for-infinity-coin-on-chain-operations-balance-queries-and-transfers",
+      "featureTitle": "Configure the app to use the Infinity Coin ICRC-1 ledger canister ID `atuk3-uqaaa-aaaam-qduwa-cai` as the single source of truth for Infinity Coin on-chain operations (balance queries and transfers).",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/lib/infinityLedger/config.ts",
+        "frontend/src/lib/infinityLedger/index.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,17 +17,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-26"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-after-reverting-run-a-smoke-test-of-the-primary-user-journeys-to-confirm-the-reverted-build-is-functional-connect-wallet-view-dashboard-navigate-to-send-receive-contacts-history-and-contracts",
-      "featureTitle": "After reverting, run a smoke test of the primary user journeys to confirm the reverted build is functional: connect wallet, view Dashboard, navigate to Send, Receive, Contacts, History, and Contracts.",
+      "featureId": "feature-implement-an-authenticated-icrc-1-ledger-client-in-the-frontend-that-uses-the-current-internet-identity-identity-to-call-the-infinity-coin-ledger-canister-methods-icrc1-balance-of-and-icrc1-transfer",
+      "featureTitle": "Implement an authenticated ICRC-1 ledger client in the frontend that uses the current Internet Identity identity to call the Infinity Coin ledger canister methods `icrc1_balance_of` and `icrc1_transfer`.",
       "files": [
-        "frontend/SMOKE_TEST.md",
-        "frontend/src/App.tsx",
-        "frontend/src/components/errors/AppErrorBoundary.tsx"
+        "frontend/src/hooks/useInfinityLedger.ts",
+        "frontend/src/lib/infinityLedger/client.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,7 +37,108 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-27"
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-wallet-balance-flow-react-query-hook-s-and-dashboard-ui-so-the-displayed-infinity-coin-balance-is-fetched-from-the-live-infinity-coin-icrc-1-ledger-via-icrc1-balance-of-instead-of-using-locally-recorded-balances-from-the-backend-canister",
+      "featureTitle": "Update the wallet balance flow (React Query hook(s) and Dashboard UI) so the displayed Infinity Coin balance is fetched from the live Infinity Coin ICRC-1 ledger via `icrc1_balance_of` instead of using locally recorded balances from the backend canister.",
+      "files": [
+        "frontend/src/hooks/useInfinityCoinBalance.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/DashboardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-send-flow-so-that-confirming-a-send-performs-a-real-infinity-coin-transfer-on-the-live-ledger-by-calling-icrc1-transfer-on-atuk3-uqaaa-aaaam-qduwa-cai-and-only-shows-success-after-the-ledger-call-succeeds",
+      "featureTitle": "Update the Send flow so that confirming a send performs a real Infinity Coin transfer on the live ledger by calling `icrc1_transfer` on `atuk3-uqaaa-aaaam-qduwa-cai`, and only shows success after the ledger call succeeds.",
+      "files": [
+        "frontend/src/hooks/useInfinityCoinBalance.ts",
+        "frontend/src/pages/SendPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-after-a-successful-on-ledger-transfer-record-the-transfer-in-the-app-s-local-transaction-history-backend-canister-so-it-appears-in-the-history-screen-while-clearly-treating-the-ledger-as-the-source-of-truth-for-funds",
+      "featureTitle": "After a successful on-ledger transfer, record the transfer in the app’s local transaction history (backend canister) so it appears in the History screen, while clearly treating the ledger as the source of truth for funds.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/HistoryPage.tsx",
+        "frontend/src/pages/SendPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-receive-screen-to-show-the-correct-infinity-coin-receive-address-details-for-the-icrc-1-ledger-the-signed-in-user-s-owner-principal-and-the-default-subaccount-all-zeros-not-set-and-provide-copy-to-clipboard-actions",
+      "featureTitle": "Update the Receive screen to show the correct Infinity Coin receive address details for the ICRC-1 ledger: the signed-in user’s owner Principal and the default subaccount (all zeros / not set), and provide copy-to-clipboard actions.",
+      "files": [
+        "frontend/src/components/auth/PrincipalDisplay.tsx",
+        "frontend/src/pages/ReceivePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-or-update-any-user-facing-copy-in-the-send-confirmation-ui-that-claims-transfers-are-only-recorded-locally-or-are-a-demo-so-the-app-copy-accurately-reflects-that-infinity-coin-sends-are-executed-on-the-live-ledger",
+      "featureTitle": "Remove or update any user-facing copy in the Send confirmation UI that claims transfers are only recorded locally or are a demo, so the app copy accurately reflects that Infinity Coin sends are executed on the live ledger.",
+      "files": [
+        "frontend/src/pages/SendPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
       ],
       "confidence": "high"
     }

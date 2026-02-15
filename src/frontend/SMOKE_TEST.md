@@ -72,7 +72,8 @@ This document provides a repeatable smoke-test checklist to validate primary use
 
 - [ ] Navigate to Send page
 - [ ] Verify form displays with Recipient and Amount fields
-- [ ] Enter a test recipient address (e.g., `aaaaa-aa`)
+- [ ] Verify placeholder mentions "ICP Account ID (Account Identifier) or Principal"
+- [ ] Enter a test recipient address (valid Principal, e.g., `aaaaa-aa`)
 - [ ] Enter a test amount (e.g., `1.5`)
 - [ ] Click "Review Transaction" button
 - [ ] Verify confirmation screen appears
@@ -81,17 +82,24 @@ This document provides a repeatable smoke-test checklist to validate primary use
 - [ ] Verify no uncaught exceptions in console
 - [ ] **Expected:** Send flow completes without errors
 
+**Additional Address Format Tests:**
+- [ ] Enter a valid 64-character hex ICP Account ID
+- [ ] Verify validation passes and transaction can proceed
+- [ ] Enter an invalid address (e.g., `invalid123`)
+- [ ] Verify error message states "Invalid address. Must be a valid ICP Account ID (Account Identifier) or Principal"
+
 ---
 
 ### 6. Receive Copy-to-Clipboard
-**Objective:** Verify Receive page displays address and copy works
+**Objective:** Verify Receive page displays ICP Account ID and copy works
 
 - [ ] Navigate to Receive page
-- [ ] Verify principal address displays
-- [ ] Click "Copy Address" button
+- [ ] Verify ICP Account ID (64-character hex) displays
+- [ ] Verify guidance mentions centralized exchanges like KCEX
+- [ ] Click "Copy ICP Account ID" button
 - [ ] Verify toast notification confirms copy
 - [ ] Verify no uncaught exceptions in console
-- [ ] **Expected:** Address is displayed and copyable
+- [ ] **Expected:** ICP Account ID is displayed and copyable
 
 ---
 
@@ -101,7 +109,8 @@ This document provides a repeatable smoke-test checklist to validate primary use
 **Add Contact:**
 - [ ] Navigate to Contacts page
 - [ ] Click "Add Contact" button
-- [ ] Enter name and address in dialog
+- [ ] Verify placeholder mentions "ICP Account ID (Account Identifier) or Principal"
+- [ ] Enter name and address (test both Principal and 64-hex Account ID formats)
 - [ ] Click "Save Contact" button
 - [ ] Verify contact appears in list
 - [ ] Verify no uncaught exceptions in console
@@ -118,6 +127,10 @@ This document provides a repeatable smoke-test checklist to validate primary use
 - [ ] Confirm deletion in alert dialog
 - [ ] Verify contact is removed from list
 - [ ] Verify no uncaught exceptions in console
+
+**Address Validation:**
+- [ ] Try adding a contact with an invalid address
+- [ ] Verify error message states "Invalid address. Must be a valid ICP Account ID (Account Identifier) or Principal"
 
 - [ ] **Expected:** All CRUD operations work without errors
 

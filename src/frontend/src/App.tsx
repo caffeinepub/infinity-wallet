@@ -1,4 +1,4 @@
-import { OisyWalletProvider, useOisyWallet } from './hooks/useOisyWallet';
+import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
@@ -19,51 +19,40 @@ import { Button } from '@/components/ui/button';
 type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive' | 'contracts';
 
 function AppContent() {
-  const { identity, isConnecting, isConnected, isUnavailable, error, connect } = useOisyWallet();
+  const { login, identity, isInitializing, isLoggingIn, isLoginError } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
-  const isAuthenticated = isConnected && !!identity;
+  const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
-  if (isConnecting) {
+  if (isInitializing || isLoggingIn) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Connecting to Oisy Wallet...</p>
+          <p className="text-sm text-muted-foreground">
+            {isLoggingIn ? 'Signing in...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  if (isUnavailable) {
+  if (isLoginError) {
     return (
       <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="mx-auto max-w-md space-y-6">
             <Alert variant="destructive" className="border-destructive/50 shadow-glow-sm">
               <AlertCircle className="h-5 w-5" />
-              <AlertTitle className="text-lg font-semibold">Oisy Wallet Required</AlertTitle>
+              <AlertTitle className="text-lg font-semibold">Sign In Failed</AlertTitle>
               <AlertDescription className="mt-2 space-y-3">
                 <p>
-                  Infinity Wallet requires Oisy Wallet to function. Please ensure Oisy Wallet is installed and
-                  enabled in your browser.
+                  There was an error signing in with Internet Identity. Please try again.
                 </p>
-                {error && (
-                  <p className="text-xs font-mono bg-destructive/10 p-2 rounded border border-destructive/20">
-                    Error: {error}
-                  </p>
-                )}
                 <div className="flex flex-col gap-2 pt-2">
-                  <Button
-                    onClick={() => window.open('https://oisy.com', '_blank')}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Visit Oisy Wallet
-                  </Button>
-                  <Button onClick={connect} className="w-full">
+                  <Button onClick={login} className="w-full">
                     Try Again
                   </Button>
                 </div>
@@ -85,15 +74,15 @@ function AppContent() {
                 Welcome to Infinity Wallet
               </h1>
               <p className="text-muted-foreground">
-                Connect your Oisy Wallet to access your Infinity Coin wallet.
+                Sign in with Internet Identity to access your Infinity Coin wallet.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-6">
               <p className="text-sm text-muted-foreground mb-4">
-                Please connect using the button in the header to continue.
+                Please sign in using the button in the header to continue.
               </p>
-              <Button onClick={connect} className="w-full shadow-glow hover:shadow-glow-lg transition-all">
-                Connect Oisy Wallet
+              <Button onClick={login} className="w-full shadow-glow hover:shadow-glow-lg transition-all">
+                Sign in with Internet Identity
               </Button>
             </div>
           </div>
@@ -120,10 +109,8 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <OisyWalletProvider>
-        <AppContent />
-        <Toaster />
-      </OisyWalletProvider>
+      <AppContent />
+      <Toaster />
     </ThemeProvider>
   );
 }

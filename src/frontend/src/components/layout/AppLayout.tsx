@@ -4,7 +4,7 @@ import AuthButton from '../auth/AuthButton';
 import PrincipalDisplay from '../auth/PrincipalDisplay';
 import { Button } from '@/components/ui/button';
 import { Wallet, Send, Users, History, Download, FileCode } from 'lucide-react';
-import { useOisyWallet } from '../../hooks/useOisyWallet';
+import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 
 type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive' | 'contracts';
 
@@ -15,7 +15,8 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, currentPage, onNavigate }: AppLayoutProps) {
-  const { isConnected } = useOisyWallet();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,14 +27,14 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
             <WalletLogo />
           </div>
           <div className="flex items-center gap-3">
-            {isConnected && <PrincipalDisplay />}
+            {isAuthenticated && <PrincipalDisplay />}
             <AuthButton />
           </div>
         </div>
       </header>
 
       {/* Navigation with neon accents */}
-      {isConnected && (
+      {isAuthenticated && (
         <nav className="border-b border-border/50 bg-card/60 backdrop-blur-lg shadow-glow-sm">
           <div className="container px-4">
             <div className="flex gap-1 overflow-x-auto py-2">
@@ -120,21 +121,23 @@ export default function AppLayout({ children, currentPage, onNavigate }: AppLayo
         </nav>
       )}
 
-      {/* Main Content */}
+      {/* Main content */}
       <main className="container px-4 py-8">{children}</main>
 
-      {/* Footer with subtle glow */}
-      <footer className="mt-auto border-t border-border/50 bg-card/40 backdrop-blur-lg py-6 shadow-glow-sm">
-        <div className="container px-4 text-center text-sm text-muted-foreground">
-          © 2026. Built with <span className="text-accent">♥</span> using{' '}
-          <a
-            href="https://caffeine.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
-          >
-            caffeine.ai
-          </a>
+      {/* Footer */}
+      <footer className="border-t border-border/50 bg-card/30 backdrop-blur-sm mt-auto">
+        <div className="container px-4 py-6">
+          <p className="text-center text-sm text-muted-foreground">
+            © 2026. Built with ❤️ using{' '}
+            <a
+              href="https://caffeine.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline transition-colors"
+            >
+              caffeine.ai
+            </a>
+          </p>
         </div>
       </footer>
     </div>

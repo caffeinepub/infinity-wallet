@@ -108,7 +108,7 @@ export default function ContactEditorDialog({ open, onOpenChange, contact }: Con
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
-              placeholder="Enter principal address"
+              placeholder="ICP Account ID (Account Identifier) or Principal"
               value={address}
               onChange={(e) => {
                 setAddress(e.target.value);

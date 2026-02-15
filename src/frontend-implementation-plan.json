@@ -1,72 +1,162 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Restore last known good frontend build and validate primary Oisy Wallet journeys",
+  "title": "Frontend integration of Infinity Coin ICRC-1 ledger for live balances and transfers",
   "requirements": [
     {
-      "id": "REQ-26",
-      "summary": "Restore the frontend code to the most recent known-good deployed version so the app loads and the authenticated Oisy Wallet flow renders without runtime errors.",
+      "id": "REQ-1",
+      "summary": "Add a single frontend config constant for the Infinity Coin ICRC-1 ledger canister ID and ensure all Infinity Coin ledger calls use it.",
       "acceptanceCriteria": [
-        "The codebase reflects the previous working version (no remaining changes from the failed deployment attempt).",
-        "A full build and deploy completes successfully without errors.",
-        "After deployment, the app loads and the authenticated Oisy Wallet flow renders without runtime errors."
+        "A single, clearly named frontend constant/config value exists for the Infinity Coin ledger canister ID and is set to `atuk3-uqaaa-aaaam-qduwa-cai`.",
+        "No other canister ID is used for Infinity Coin balance/transfer calls."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Revert/align App-level gating (connecting/unavailable/unauthenticated/authenticated states, page switching, and profile-setup gating) to match the last known-good deployed version; ensure the Oisy Wallet authenticated flow and page rendering paths do not throw at runtime. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/lib/infinityLedger/config.ts",
+          "operation": "create",
+          "description": "Create a single exported constant (e.g., INFINITY_COIN_LEDGER_CANISTER_ID) set exactly to `atuk3-uqaaa-aaaam-qduwa-cai`, to be the only source of truth for Infinity Coin ledger calls."
         },
         {
-          "path": "frontend/src/hooks/useOisyWallet.tsx",
-          "operation": "modify",
-          "description": "Revert/align the Oisy Wallet connection hook/provider to the last known-good deployed behavior, ensuring stable identity availability during connect/auto-reconnect and avoiding browser/crypto-related runtime issues that could break the authenticated render path. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Revert/align navigation rendering and connected-state UI to the last known-good deployed version so authenticated navigation reliably shows Dashboard/Send/Receive/Contacts/History/Contracts without crashes. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Revert/align React Query hooks usage and actor dependency gating to the last known-good deployed version (avoid firing queries/mutations before actor availability) to prevent runtime errors during authenticated flows. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/auth/AuthButton.tsx",
-          "operation": "modify",
-          "description": "Revert/align connect/disconnect behavior and cache clearing to the last known-good deployed version to ensure clean transitions between disconnected and connected states. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/auth/ProfileSetupDialog.tsx",
-          "operation": "modify",
-          "description": "Revert/align profile setup dialog open/close conditions and save behavior to the last known-good deployed version to prevent any blocking modal flash or crashes after authentication. This should remain consistent with the selected \"authorization\" component expectations for profile setup flows. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/lib/infinityLedger/index.ts",
+          "operation": "create",
+          "description": "Create a small module that imports the ledger canister ID constant and re-exports it (and related ledger helpers) so the rest of the app has one obvious import surface for Infinity Coin ledger integration."
         }
       ]
     },
     {
-      "id": "REQ-27",
-      "summary": "Add a repeatable smoke-test checklist and runtime safeguards to validate primary user journeys after revert (connect wallet, Dashboard, Send, Receive, Contacts, History, Contracts).",
+      "id": "REQ-2",
+      "summary": "Implement an authenticated ICRC-1 ledger client that uses the current Internet Identity identity to call icrc1_balance_of and icrc1_transfer, with signed-out gating.",
       "acceptanceCriteria": [
-        "User can connect (or see the expected unavailable state) without the app crashing.",
-        "Dashboard renders and navigation between pages works.",
-        "Send form, Receive copy-to-clipboard, Contacts CRUD UI, History list, and Contracts form all render and are interactable (no uncaught exceptions in the console)."
+        "When a user is signed in with Internet Identity, the app can successfully call `icrc1_balance_of` against `atuk3-uqaaa-aaaam-qduwa-cai` for the user’s account.",
+        "When a user is signed in with Internet Identity, the app can submit `icrc1_transfer` against `atuk3-uqaaa-aaaam-qduwa-cai` signed by the user’s identity.",
+        "If the user is signed out, ledger calls are not attempted and the UI shows a clear error/gating state rather than failing silently."
       ],
       "file_operations": [
         {
-          "path": "frontend/SMOKE_TEST.md",
+          "path": "frontend/src/lib/infinityLedger/client.ts",
           "operation": "create",
-          "description": "Create a concise smoke-test checklist covering the required journeys: connect (or unavailable state), Dashboard render + navigation, Send render/confirm/success UI path, Receive copy-to-clipboard, Contacts add/edit/delete UI flows, History list refresh, and Contracts form interactions; include steps to verify no uncaught console exceptions."
+          "description": "Implement an ICRC-1 ledger client factory that builds an authenticated agent/actor using the current Internet Identity identity and the configured Infinity Coin ledger canister ID; expose high-level methods for `icrc1_balance_of` and `icrc1_transfer`."
         },
         {
-          "path": "frontend/src/components/errors/AppErrorBoundary.tsx",
+          "path": "frontend/src/hooks/useInfinityLedger.ts",
           "operation": "create",
-          "description": "Add an app-level React error boundary component to catch unexpected runtime errors and present a safe fallback UI instead of a blank screen; this supports smoke testing by making failures visible and non-fatal. Verify the component's usage instructions before implementing."
+          "description": "Create a hook that derives the authenticated Infinity Coin ledger client from `useInternetIdentity` (identity present => authenticated calls; identity absent => return null client and a clear gating state). Use the authorization component's Internet Identity guidance for sign-in gating. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Switch the Dashboard balance flow to fetch Infinity Coin balance from the live ICRC-1 ledger via icrc1_balance_of using React Query, without relying on backend balances.",
+      "acceptanceCriteria": [
+        "Dashboard Infinity Coin balance reflects the ledger balance returned by `icrc1_balance_of` for the signed-in user.",
+        "Refreshing the Dashboard triggers a refetch from the ledger canister.",
+        "The app does not require calling `backend.recordBalance` or `backend.getBalances` to show the Infinity Coin balance."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useInfinityCoinBalance.ts",
+          "operation": "create",
+          "description": "Create a dedicated React Query hook for Infinity Coin balance that calls the Infinity Coin ledger client `icrc1_balance_of` for the signed-in user's default ICRC-1 account (owner principal + default subaccount). Ensure the query is disabled when signed out and surfaces a clear error/gating state."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/DashboardPage.tsx",
           "operation": "modify",
-          "description": "Wire the new AppErrorBoundary around the authenticated application content (and optionally around the full app shell) so navigation across Dashboard/Send/Receive/Contacts/History/Contracts cannot hard-crash the whole app during smoke tests. Verify the component's usage instructions before implementing."
+          "description": "Update Dashboard to use the new Infinity Coin ledger balance hook instead of `useGetBalances()`, keeping the Refresh button wired to refetch the ledger-backed query and ensuring no backend balance calls are used to render the Infinity Coin balance."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Deprecate Infinity Coin usage of `useGetBalances()` in app wiring by updating comments and ensuring other flows no longer depend on it for Infinity Coin; keep the hook available only if still needed elsewhere for non-Infinity Coin balances, but do not use it for Infinity Coin display."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update the Send flow so Confirm Send performs a real icrc1_transfer on the Infinity Coin ledger and only shows success after the ledger call succeeds, including showing the returned ledger transfer identifier and refetching balance.",
+      "acceptanceCriteria": [
+        "On the Confirm step, clicking “Confirm Send” triggers an `icrc1_transfer` call to `atuk3-uqaaa-aaaam-qduwa-cai`.",
+        "On success, the UI displays a real ledger transfer identifier (e.g., returned block index) instead of a locally generated placeholder TX id.",
+        "On failure, the UI displays an actionable error message and does not transition to the success step.",
+        "After a successful send, the Infinity Coin balance query is invalidated/refetched so the Dashboard shows the updated ledger balance."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "Replace the current 'record-only' send behavior with a real ledger transfer: on Confirm Send, call the Infinity Coin ledger client `icrc1_transfer` using the signed-in identity; on success, store/display the returned ledger transfer identifier (e.g., block index) and only then transition to success; on failure, keep the user on confirm and show an actionable error."
+        },
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "Wire post-success cache updates by invalidating/refetching the Infinity Coin ledger balance query (from the Infinity Coin balance hook) after a successful transfer so the Dashboard shows the updated on-ledger balance."
+        },
+        {
+          "path": "frontend/src/hooks/useInfinityCoinBalance.ts",
+          "operation": "modify",
+          "description": "Ensure the Infinity Coin balance query uses a stable queryKey suitable for invalidation from the Send flow (and supports manual refetch/refresh semantics)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "After a successful on-ledger transfer, record the transfer in local transaction history via backend recordTransaction without treating history recording as the source of truth for funds.",
+      "acceptanceCriteria": [
+        "After `icrc1_transfer` succeeds, the frontend calls the backend to record a transaction entry containing recipient text, amount (in e8s), and coin type = Infinity Coin.",
+        "The History page continues to load and render the recorded transactions for the signed-in user.",
+        "Recording history failure does not mark the ledger transfer as failed; the UI should still treat the transfer as successful if the ledger call succeeded (but show a non-blocking warning toast if history recording fails)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "After ledger `icrc1_transfer` succeeds, call the backend `recordTransaction(recipient, amountE8, CoinType.infinityCoin)` to record local history; if history recording fails, keep the success UI and show a non-blocking warning toast indicating history could not be recorded."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Adjust the `useRecordTransaction` behavior (or add an alternate mutation export) so Send can record history without showing a blocking failure state for a successful ledger transfer (e.g., allow Send to catch errors and emit a warning toast rather than a 'Transaction failed' toast)."
+        },
+        {
+          "path": "frontend/src/pages/HistoryPage.tsx",
+          "operation": "modify",
+          "description": "Update the History page informational copy to clearly describe that items are locally recorded submissions while funds are controlled by the live ledger (keep English text), without implying that successful ledger transfers are fake."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Update Receive screen to show the signed-in user’s ICRC-1 receive account details (owner Principal + default subaccount) with copy-to-clipboard actions.",
+      "acceptanceCriteria": [
+        "Receive page displays the authenticated user’s Principal as the ICRC-1 account owner.",
+        "Receive page indicates the subaccount being used is the default (all zeros) and does not imply a custom subaccount unless implemented.",
+        "At least one copy button exists to copy the owner Principal, and the copied value matches the displayed owner Principal exactly.",
+        "User-facing text on the Receive page is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ReceivePage.tsx",
+          "operation": "modify",
+          "description": "Change Receive page from ICP Account ID focus to ICRC-1 account details for Infinity Coin: display the signed-in user's owner Principal and explicitly label the subaccount as default (all zeros / not set). Add copy-to-clipboard actions for the owner Principal (and optionally the subaccount representation), ensuring the copied Principal matches the displayed value exactly."
+        },
+        {
+          "path": "frontend/src/components/auth/PrincipalDisplay.tsx",
+          "operation": "modify",
+          "description": "If needed for consistency, extend PrincipalDisplay (or extract a small helper) to support rendering an un-truncated Principal value in contexts like Receive while preserving copy accuracy; keep copy-to-clipboard behavior reliable."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Update Send confirmation copy so it accurately states that Infinity Coin sends are executed on the live ledger (no demo/local-only claims).",
+      "acceptanceCriteria": [
+        "The Send confirmation screen no longer states that the wallet is a demo or that transactions do not represent actual blockchain transfers (for Infinity Coin).",
+        "All user-facing text changes are in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "Replace the confirmation alert text that claims the wallet is a demo/local-only with English copy that reflects real on-ledger Infinity Coin transfers (while still allowing optional note that local history is recorded in-app)."
         }
       ]
     }

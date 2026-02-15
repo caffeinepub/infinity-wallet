@@ -1,43 +1,54 @@
-import { useOisyWallet } from '../../hooks/useOisyWallet';
+import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Wallet, LogOut, Loader2 } from 'lucide-react';
+import { LogIn, LogOut, Loader2 } from 'lucide-react';
 
 export default function AuthButton() {
-  const { connect, disconnect, isConnecting, isConnected } = useOisyWallet();
+  const { login, clear, loginStatus, identity } = useInternetIdentity();
   const queryClient = useQueryClient();
 
+  const isAuthenticated = !!identity;
+  const isLoggingIn = loginStatus === 'logging-in';
+
   const handleAuth = async () => {
-    if (isConnected) {
-      await disconnect();
+    if (isAuthenticated) {
+      await clear();
       queryClient.clear();
     } else {
-      await connect();
+      try {
+        await login();
+      } catch (error: any) {
+        console.error('Login error:', error);
+        if (error.message === 'User is already authenticated') {
+          await clear();
+          setTimeout(() => login(), 300);
+        }
+      }
     }
   };
 
   return (
     <Button
       onClick={handleAuth}
-      disabled={isConnecting}
-      variant={isConnected ? 'outline' : 'default'}
+      disabled={isLoggingIn}
+      variant={isAuthenticated ? 'outline' : 'default'}
       size="sm"
       className="gap-2"
     >
-      {isConnecting ? (
+      {isLoggingIn ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" />
-          Connecting...
+          Signing in...
         </>
-      ) : isConnected ? (
+      ) : isAuthenticated ? (
         <>
           <LogOut className="h-4 w-4" />
-          Disconnect Oisy
+          Sign out
         </>
       ) : (
         <>
-          <Wallet className="h-4 w-4" />
-          Connect Oisy Wallet
+          <LogIn className="h-4 w-4" />
+          Sign in
         </>
       )}
     </Button>

@@ -36,8 +36,7 @@ export default function HistoryPage() {
       <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
         <AlertCircle className="h-4 w-4 text-accent" />
         <AlertDescription className="text-xs">
-          This wallet displays locally recorded transactions. Full on-chain history integration is not yet
-          available.
+          This displays locally recorded transaction submissions. Your actual Infinity Coin balance and transfers are controlled by the live ICRC-1 ledger.
         </AlertDescription>
       </Alert>
 

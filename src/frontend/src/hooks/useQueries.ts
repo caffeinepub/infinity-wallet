@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOisyActor } from './useOisyActor';
+import { useActor } from './useActor';
 import type { UserProfile, Contact, TransactionHistoryItem, CoinType } from '../backend';
 import { toast } from 'sonner';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useOisyActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
@@ -25,7 +25,7 @@ export function useGetCallerUserProfile() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useOisyActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -35,46 +35,13 @@ export function useSaveCallerUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      toast.success('Profile saved successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to save profile: ${error.message}`);
     },
   });
 }
 
-// Balance Queries
-export function useGetBalances() {
-  const { actor, isFetching: actorFetching } = useOisyActor();
-
-  return useQuery<[bigint, bigint]>({
-    queryKey: ['balances'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getBalances();
-    },
-    enabled: !!actor && !actorFetching,
-  });
-}
-
-export function useRecordBalance() {
-  const { actor } = useOisyActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ coinType, balance }: { coinType: CoinType; balance: bigint }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.recordBalance(coinType, balance);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['balances'] });
-    },
-  });
-}
-
-// Transaction Queries
+// Transaction History Queries
 export function useGetTransactionHistory() {
-  const { actor, isFetching: actorFetching } = useOisyActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<TransactionHistoryItem[]>({
     queryKey: ['transactionHistory'],
@@ -87,7 +54,7 @@ export function useGetTransactionHistory() {
 }
 
 export function useRecordTransaction() {
-  const { actor } = useOisyActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -101,23 +68,17 @@ export function useRecordTransaction() {
       coinType: CoinType;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.recordTransaction(recipient, amountE8, coinType);
-      return { recipient, amountE8, coinType };
+      return actor.recordTransaction(recipient, amountE8, coinType);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactionHistory'] });
-      queryClient.invalidateQueries({ queryKey: ['balances'] });
-      toast.success('Transaction recorded successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(`Transaction failed: ${error.message}`);
     },
   });
 }
 
 // Contact Queries
 export function useGetContacts() {
-  const { actor, isFetching: actorFetching } = useOisyActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Contact[]>({
     queryKey: ['contacts'],
@@ -130,7 +91,7 @@ export function useGetContacts() {
 }
 
 export function useSaveContact() {
-  const { actor } = useOisyActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -149,7 +110,7 @@ export function useSaveContact() {
 }
 
 export function useUpdateContact() {
-  const { actor } = useOisyActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -176,7 +137,7 @@ export function useUpdateContact() {
 }
 
 export function useDeleteContact() {
-  const { actor } = useOisyActor();
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -190,6 +151,35 @@ export function useDeleteContact() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete contact: ${error.message}`);
+    },
+  });
+}
+
+// Balance Queries (deprecated for Infinity Coin - kept for backward compatibility if needed)
+export function useGetBalances() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<[bigint, bigint]>({
+    queryKey: ['balances'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getBalances();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useRecordBalance() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ coinType, balance }: { coinType: CoinType; balance: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.recordBalance(coinType, balance);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['balances'] });
     },
   });
 }

@@ -1,4 +1,4 @@
-import { useGetBalances } from '../hooks/useQueries';
+import { useInfinityCoinBalance } from '../hooks/useInfinityCoinBalance';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,9 +14,7 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ onNavigate }: DashboardPageProps) {
-  const { data: balances, isLoading, error, refetch, isRefetching } = useGetBalances();
-
-  const infinityBalance = balances ? balances[1] : BigInt(0);
+  const { balance, isLoading, error, refetch, isRefetching } = useInfinityCoinBalance();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -42,7 +40,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
       {error && (
         <Alert variant="destructive" className="border-destructive/50 shadow-glow-sm">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Failed to load balances: {(error as Error).message}</AlertDescription>
+          <AlertDescription>Failed to load balance: {(error as Error).message}</AlertDescription>
         </Alert>
       )}
 
@@ -56,7 +54,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
                 <Skeleton className="h-12 w-48" />
               ) : (
                 <>
-                  {formatBalance(infinityBalance)} <span className="text-2xl">{TOKEN_INFINITY}</span>
+                  {formatBalance(balance)} <span className="text-2xl">{TOKEN_INFINITY}</span>
                 </>
               )}
             </CardTitle>
