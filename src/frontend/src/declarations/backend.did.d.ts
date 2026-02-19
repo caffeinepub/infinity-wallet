@@ -11,6 +11,9 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export type CoinType = { 'icp' : null } |
+  { 'ckBtc' : null } |
+  { 'ckEth' : null } |
+  { 'ckSol' : null } |
   { 'infinityCoin' : null };
 export interface Contact {
   'id' : bigint,
@@ -35,7 +38,7 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteContact' : ActorMethod<[bigint], undefined>,
-  'getBalances' : ActorMethod<[], [bigint, bigint]>,
+  'getBalances' : ActorMethod<[], [bigint, bigint, bigint, bigint, bigint]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getContacts' : ActorMethod<[], Array<Contact>>,

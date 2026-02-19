@@ -1,75 +1,165 @@
 {
   "kind": "build_request",
-  "title": "Fix subaccount field serialization for ICRC-1 balance queries",
+  "title": "Add multi-token support with ICP, ckBTC, ckETH, ckSOL balances and transfers",
   "projectName": "Infinity Wallet",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Fix the account object construction in useInfinityCoinBalance.ts to include the subaccount field as an optional array type ([Uint8Array] | []) instead of omitting it, ensuring the ICRC-1 Account record structure matches the ledger's expected format with owner (Principal) and subaccount (opt blob) fields",
+      "id": "REQ-4",
+      "text": "Create ICRC-1 ledger clients for ICP, ckBTC, ckETH, and ckSOL tokens following the same pattern as the existing Infinity Coin ledger client (frontend/src/lib/infinityLedger/client.ts), with proper canister ID configuration for each token",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-final"
+          "msg-last"
         ],
         "quotes": [
-          "Record is missing key \"subaccount\""
+          "can we intergrate ICP, ckBTC, ckEth, ckSol?"
         ]
       },
       "acceptanceCriteria": [
-        "The account object passed to icrc1_balance_of includes a subaccount field",
-        "The subaccount field is typed as an optional array: either [] for default subaccount or [Uint8Array] for a specific subaccount",
-        "Balance queries execute without the 'Record is missing key \"subaccount\"' error",
-        "Console logs show the complete account structure including the subaccount field"
+        "Each token has its own ledger client module with canister ID configuration",
+        "All clients implement ICRC-1 Account structure with owner (Principal) and subaccount (opt blob)",
+        "Clients support icrc1_balance_of and icrc1_transfer methods",
+        "Comprehensive debug logging is included for initialization and API calls"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Update the InfinityLedgerClient createInfinityLedgerClient function to ensure the Account type definition matches ICRC-1 specification with owner as Principal and subaccount as opt blob (represented as [] or [Uint8Array] in TypeScript)",
+      "id": "REQ-5",
+      "text": "Create React Query hooks for fetching balances for ICP, ckBTC, ckETH, and ckSOL tokens, following the pattern of useInfinityCoinBalance.ts, with proper error handling and loading states",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-final"
+          "msg-last"
         ],
         "quotes": [
-          "Record is missing key \"subaccount\""
+          "users will be able to send/transfer, and view balances"
         ]
       },
       "acceptanceCriteria": [
-        "The Account type in client.ts includes subaccount as an optional array field",
-        "TypeScript type checking enforces the correct Account structure throughout the codebase",
-        "All calls to ledger methods using Account objects compile without type errors"
+        "Each token has a dedicated balance hook (e.g., useIcpBalance, useCkBtcBalance)",
+        "Hooks properly construct Account objects with user's principal and default subaccount",
+        "Balance queries invalidate on identity changes",
+        "Error states are properly captured and exposed to components"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Verify and update the ICRC1Account interface and all account construction code to consistently use the format { owner: Principal, subaccount: [] } for default subaccount queries across the frontend codebase",
+      "id": "REQ-6",
+      "text": "Add Total Assets display section on the Dashboard that shows the combined portfolio value with a dropdown to select denomination currency (ckUSDT, ICP, ckBTC, ckETH, or ckSOL)",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-final"
+          "msg-last"
+        ],
+        "quotes": [
+          "Balance Display will display Total Assets in ckUSDT, ICP, ckBTC, ckEth, or ckSol choices"
         ]
       },
       "acceptanceCriteria": [
-        "All ICRC-1 account objects constructed in the frontend include the subaccount field",
-        "Default subaccount is represented as an empty array []",
-        "The dashboard successfully displays the Infinity Coin balance for principal czivj-wu7yw-hn3tf-dhe5l-pfvm6-lgejr-fqsbk-bosb3-qfjte-pni7k-kqe",
-        "No console errors related to missing subaccount field appear"
+        "Total Assets section is prominently displayed at the top of the Dashboard",
+        "User can select any of the 5 tokens as the denomination currency via dropdown",
+        "Total value is calculated by converting all token balances to the selected denomination",
+        "Selection preference is preserved in component state"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Display all token balances (Infinity Coin, ICP, ckBTC, ckETH, ckSOL) simultaneously on the Dashboard page as a list of balance cards, each showing the token name, balance amount, and a refresh button",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "a list of these coins and how much the total for each",
+          "all visible at once on the main screen"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Dashboard displays 5 balance cards in a grid or vertical list layout",
+        "Each card shows token icon/name, balance amount, and loading/error states",
+        "Each card has an individual refresh button to reload that specific balance",
+        "Layout is responsive and matches the existing neon/cosmic theme"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Update the SendPage to support selecting which token to send (Infinity Coin, ICP, ckBTC, ckETH, or ckSOL) via a dropdown, with the transfer logic dynamically using the appropriate ledger client based on selection",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "users will be able to send/transfer"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Token selector dropdown is added at the top of the Send form",
+        "Amount validation respects the selected token's balance",
+        "Transfer execution calls the correct ICRC-1 ledger for the selected token",
+        "Success/error messages include the token name for clarity",
+        "Transaction recording in backend includes token identifier"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Update the ReceivePage to display receiving addresses for all supported tokens (Infinity Coin, ICP, ckBTC, ckETH, ckSOL), showing the user's principal and explaining that the same address works for all ICRC-1 tokens",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "users will be able to send/transfer, and view balances"
+        ]
+      },
+      "acceptanceCriteria": [
+        "ReceivePage clearly states that one principal address works for all ICRC-1 tokens",
+        "Each token is listed with the same principal address and copy functionality",
+        "Instructional text explains unified ICRC-1 addressing",
+        "Layout remains clean and easy to understand"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Update the transaction history backend and HistoryPage to support recording and displaying transactions for all token types (ICP, ckBTC, ckETH, ckSOL, Infinity Coin), with each transaction showing which token was transferred",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "users will be able to send/transfer, and view balances"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Transaction records in backend include a token identifier field",
+        "HistoryPage displays token name/icon alongside amount for each transaction",
+        "Existing Infinity Coin transactions are preserved and labeled correctly",
+        "Transaction list supports filtering by token type"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the ICRC-1 ledger canister ID (atuk3-uqaaa-aaaam-qduwa-cai)",
-    "Preserve all existing debug logging functionality",
-    "Maintain compatibility with the ICRC-1 token standard specification"
+    "Follow the existing ICRC-1 Account structure pattern with owner (Principal) and subaccount (opt blob)",
+    "Maintain the existing neon/cosmic theme styling consistently across all new components",
+    "Use the same authentication and authorization patterns as existing Infinity Coin integration",
+    "Do not modify immutable frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui"
   ],
   "nonGoals": [
-    "Implementing custom subaccount selection UI",
-    "Modifying the backend ledger implementation",
-    "Changing authentication or identity management"
+    "Implementing real-time price feeds or exchange rate APIs",
+    "Adding support for non-ICRC-1 tokens",
+    "Implementing token swap/exchange functionality",
+    "Adding support for NFTs or multi-token standards beyond ICRC-1",
+    "Implementing hardware wallet integration"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "ICP token logo icon with blue and pink gradient colors (icp-logo.dim_64x64.png)",
+      "ckBTC token logo icon with orange bitcoin symbol on dark background (ckbtc-logo.dim_64x64.png)",
+      "ckETH token logo icon with purple ethereum diamond symbol (cketh-logo.dim_64x64.png)",
+      "ckSOL token logo icon with cyan and purple Solana gradient symbol (cksol-logo.dim_64x64.png)"
+    ],
     "edits": []
   }
 }

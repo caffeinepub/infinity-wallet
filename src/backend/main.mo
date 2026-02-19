@@ -9,12 +9,15 @@ import List "mo:core/List";
 import Order "mo:core/Order";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-
-
+(with migration = Migration.run)
 actor {
   type CoinType = {
     #icp;
+    #ckBtc;
+    #ckEth;
+    #ckSol;
     #infinityCoin;
   };
 
@@ -42,7 +45,7 @@ actor {
 
   module Contact {
     public func compareById(a : Contact, b : Contact) : Order.Order {
-      Nat32.compare(Nat32.fromNat(a.id), Nat32.fromNat(b.id));
+      Nat32.compare(Nat32.fromNat(a.id), Nat32.fromNat(a.id));
     };
   };
 
@@ -55,7 +58,7 @@ actor {
 
   var transactionCounter = 0;
   var contactCounter = 0;
-  let balancesVault = Map.empty<Principal, (Nat, Nat)>();
+  let balancesVault = Map.empty<Principal, (Nat, Nat, Nat, Nat, Nat)>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
   let transactionHistory = List.empty<TransactionHistoryItem>();
@@ -229,31 +232,39 @@ actor {
 
     switch (balancesVault.get(caller)) {
       case (null) {
-        switch (coinType) {
-          case (#icp) { balancesVault.add(caller, (balance, 0)) };
-          case (#infinityCoin) { balancesVault.add(caller, (0, balance)) };
-        };
+        balancesVault.add(
+          caller,
+          switch (coinType) {
+            case (#icp) { (balance, 0, 0, 0, 0) };
+            case (#ckBtc) { (0, balance, 0, 0, 0) };
+            case (#ckEth) { (0, 0, balance, 0, 0) };
+            case (#ckSol) { (0, 0, 0, balance, 0) };
+            case (#infinityCoin) { (0, 0, 0, 0, balance) };
+          },
+        );
       };
-      case (?currentBalances) {
-        switch (coinType) {
-          case (#icp) {
-            balancesVault.add(caller, (balance, currentBalances.1));
-          };
-          case (#infinityCoin) {
-            balancesVault.add(caller, (currentBalances.0, balance));
-          };
-        };
+      case (?balances) {
+        balancesVault.add(
+          caller,
+          switch (coinType) {
+            case (#icp) { (balance, balances.1, balances.2, balances.3, balances.4) };
+            case (#ckBtc) { (balances.0, balance, balances.2, balances.3, balances.4) };
+            case (#ckEth) { (balances.0, balances.1, balance, balances.3, balances.4) };
+            case (#ckSol) { (balances.0, balances.1, balances.2, balance, balances.4) };
+            case (#infinityCoin) { (balances.0, balances.1, balances.2, balances.3, balance) };
+          },
+        );
       };
     };
   };
 
-  public query ({ caller }) func getBalances() : async (Nat, Nat) {
+  public query ({ caller }) func getBalances() : async (Nat, Nat, Nat, Nat, Nat) {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view balances");
     };
 
     switch (balancesVault.get(caller)) {
-      case (null) { (0, 0) };
+      case (null) { (0, 0, 0, 0, 0) };
       case (?balances) { balances };
     };
   };

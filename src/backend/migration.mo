@@ -1,53 +1,89 @@
-import Time "mo:core/Time";
-import Principal "mo:core/Principal";
-import List "mo:core/List";
 import Map "mo:core/Map";
+import List "mo:core/List";
+import Principal "mo:core/Principal";
+import Time "mo:core/Time";
 
 module {
-  type CoinType = {
+  type OldCoinType = {
     #icp;
     #infinityCoin;
   };
 
-  type TransactionHistoryItem = {
+  type OldTransactionHistoryItem = {
     id : Nat;
     recipient : Text;
     amountE8 : Nat;
-    coinType : CoinType;
+    coinType : OldCoinType;
     sender : Principal;
     timestamp : Time.Time;
   };
 
-  public type Contact = {
+  type OldContact = {
     id : Nat;
     name : Text;
     address : Text;
     owner : Principal;
   };
 
-  public type UserProfile = {
-    name : Text;
-  };
-
   type OldActor = {
     transactionCounter : Nat;
     contactCounter : Nat;
     balancesVault : Map.Map<Principal, (Nat, Nat)>;
-    userProfiles : Map.Map<Principal, UserProfile>;
-    transactionHistory : List.List<TransactionHistoryItem>;
-    contacts : List.List<Contact>;
+    userProfiles : Map.Map<Principal, { name : Text }>;
+    transactionHistory : List.List<OldTransactionHistoryItem>;
+    contacts : List.List<OldContact>;
+  };
+
+  type NewCoinType = {
+    #icp;
+    #ckBtc;
+    #ckEth;
+    #ckSol;
+    #infinityCoin;
+  };
+
+  type NewTransactionHistoryItem = {
+    id : Nat;
+    recipient : Text;
+    amountE8 : Nat;
+    coinType : NewCoinType;
+    sender : Principal;
+    timestamp : Time.Time;
   };
 
   type NewActor = {
     transactionCounter : Nat;
     contactCounter : Nat;
-    balancesVault : Map.Map<Principal, (Nat, Nat)>;
-    userProfiles : Map.Map<Principal, UserProfile>;
-    transactionHistory : List.List<TransactionHistoryItem>;
-    contacts : List.List<Contact>;
+    balancesVault : Map.Map<Principal, (Nat, Nat, Nat, Nat, Nat)>;
+    userProfiles : Map.Map<Principal, { name : Text }>;
+    transactionHistory : List.List<NewTransactionHistoryItem>;
+    contacts : List.List<OldContact>;
   };
 
   public func run(old : OldActor) : NewActor {
-    old;
+    let newBalancesVault = Map.empty<Principal, (Nat, Nat, Nat, Nat, Nat)>();
+    for (
+      (principal, (icp, infinityCoin)) in old.balancesVault.entries()
+    ) {
+      newBalancesVault.add(principal, (icp, 0, 0, 0, infinityCoin));
+    };
+
+    let newTransactionHistory = old.transactionHistory.map<OldTransactionHistoryItem, NewTransactionHistoryItem>(
+      func(oldTx) {
+        {
+          oldTx with
+          coinType = switch (oldTx.coinType) {
+            case (#icp) { #icp };
+            case (#infinityCoin) { #infinityCoin };
+          };
+        };
+      }
+    );
+
+    {
+      old with
+      balancesVault = newBalancesVault;
+      transactionHistory = newTransactionHistory;
+    };
   };
 };

@@ -27,6 +27,9 @@ export interface UserProfile {
 }
 export enum CoinType {
     icp = "icp",
+    ckBtc = "ckBtc",
+    ckEth = "ckEth",
+    ckSol = "ckSol",
     infinityCoin = "infinityCoin"
 }
 export enum UserRole {
@@ -37,7 +40,7 @@ export enum UserRole {
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteContact(contactId: bigint): Promise<void>;
-    getBalances(): Promise<[bigint, bigint]>;
+    getBalances(): Promise<[bigint, bigint, bigint, bigint, bigint]>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContacts(): Promise<Array<Contact>>;

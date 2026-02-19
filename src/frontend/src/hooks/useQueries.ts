@@ -155,11 +155,12 @@ export function useDeleteContact() {
   });
 }
 
-// Balance Queries (deprecated for Infinity Coin - kept for backward compatibility if needed)
+// Balance Queries (deprecated - use direct ledger queries instead)
+// Returns: [ICP, ckBTC, ckETH, ckSOL, Infinity Coin]
 export function useGetBalances() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery<[bigint, bigint]>({
+  return useQuery<[bigint, bigint, bigint, bigint, bigint]>({
     queryKey: ['balances'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');

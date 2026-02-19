@@ -2,26 +2,41 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRecordTransaction } from '../hooks/useQueries';
 import { useInfinityCoinBalance } from '../hooks/useInfinityCoinBalance';
+import { useIcpBalance } from '../hooks/useIcpBalance';
+import { useCkBtcBalance } from '../hooks/useCkBtcBalance';
+import { useCkEthBalance } from '../hooks/useCkEthBalance';
+import { useCkSolBalance } from '../hooks/useCkSolBalance';
 import { useInfinityLedger } from '../hooks/useInfinityLedger';
+import { useIcpLedger } from '../hooks/useIcpLedger';
+import { useCkBtcLedger } from '../hooks/useCkBtcLedger';
+import { useCkEthLedger } from '../hooks/useCkEthLedger';
+import { useCkSolLedger } from '../hooks/useCkSolLedger';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { validateRecipient, validateAmount, parseAmountToE8, formatBalance } from '@/lib/validation';
-import { TOKEN_INFINITY } from '@/lib/branding';
+import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
 import { CoinType } from '../backend';
 import RecipientPicker from '../components/wallet/RecipientPicker';
 import { Principal } from '@dfinity/principal';
-import { formatTransferError, type ICRC1Account } from '@/lib/infinityLedger';
+import { formatTransferError as formatInfinityError, type ICRC1Account } from '@/lib/infinityLedger';
+import { formatTransferError as formatIcpError } from '@/lib/icpLedger';
+import { formatTransferError as formatCkBtcError } from '@/lib/ckBtcLedger';
+import { formatTransferError as formatCkEthError } from '@/lib/ckEthLedger';
+import { formatTransferError as formatCkSolError } from '@/lib/ckSolLedger';
 import { toast } from 'sonner';
 
 type SendStep = 'form' | 'confirm' | 'success';
+type TokenType = 'infinityCoin' | 'icp' | 'ckBtc' | 'ckEth' | 'ckSol';
 
 export default function SendPage() {
   const [step, setStep] = useState<SendStep>('form');
+  const [selectedToken, setSelectedToken] = useState<TokenType>('infinityCoin');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [errors, setErrors] = useState<{ recipient?: string; amount?: string }>({});
@@ -30,10 +45,105 @@ export default function SendPage() {
   const [sendError, setSendError] = useState<string | null>(null);
 
   const recordTransaction = useRecordTransaction();
-  const { balance } = useInfinityCoinBalance();
-  const { ledgerClient } = useInfinityLedger();
+  const infinityCoin = useInfinityCoinBalance();
+  const icp = useIcpBalance();
+  const ckBtc = useCkBtcBalance();
+  const ckEth = useCkEthBalance();
+  const ckSol = useCkSolBalance();
+  
+  const infinityLedger = useInfinityLedger();
+  const icpLedger = useIcpLedger();
+  const ckBtcLedger = useCkBtcLedger();
+  const ckEthLedger = useCkEthLedger();
+  const ckSolLedger = useCkSolLedger();
+  
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
+
+  const getSelectedBalance = () => {
+    switch (selectedToken) {
+      case 'infinityCoin':
+        return infinityCoin.balance;
+      case 'icp':
+        return icp.balance;
+      case 'ckBtc':
+        return ckBtc.balance;
+      case 'ckEth':
+        return ckEth.balance;
+      case 'ckSol':
+        return ckSol.balance;
+      default:
+        return BigInt(0);
+    }
+  };
+
+  const getSelectedLedgerClient = () => {
+    switch (selectedToken) {
+      case 'infinityCoin':
+        return infinityLedger.ledgerClient;
+      case 'icp':
+        return icpLedger.ledgerClient;
+      case 'ckBtc':
+        return ckBtcLedger.ledgerClient;
+      case 'ckEth':
+        return ckEthLedger.ledgerClient;
+      case 'ckSol':
+        return ckSolLedger.ledgerClient;
+      default:
+        return null;
+    }
+  };
+
+  const getTokenLabel = (token: TokenType): string => {
+    switch (token) {
+      case 'infinityCoin':
+        return TOKEN_INFINITY;
+      case 'icp':
+        return TOKEN_ICP;
+      case 'ckBtc':
+        return TOKEN_CKBTC;
+      case 'ckEth':
+        return TOKEN_CKETH;
+      case 'ckSol':
+        return TOKEN_CKSOL;
+      default:
+        return '';
+    }
+  };
+
+  const getCoinType = (token: TokenType): CoinType => {
+    switch (token) {
+      case 'infinityCoin':
+        return CoinType.infinityCoin;
+      case 'icp':
+        return CoinType.icp;
+      case 'ckBtc':
+        return CoinType.ckBtc;
+      case 'ckEth':
+        return CoinType.ckEth;
+      case 'ckSol':
+        return CoinType.ckSol;
+      default:
+        return CoinType.infinityCoin;
+    }
+  };
+
+  const formatError = (error: any, token: TokenType): string => {
+    switch (token) {
+      case 'infinityCoin':
+        return formatInfinityError(error);
+      case 'icp':
+        return formatIcpError(error);
+      case 'ckBtc':
+        return formatCkBtcError(error);
+      case 'ckEth':
+        return formatCkEthError(error);
+      case 'ckSol':
+        return formatCkSolError(error);
+      default:
+        return 'Unknown error occurred';
+    }
+  };
 
   const handleValidate = () => {
     const recipientValidation = validateRecipient(recipient);
@@ -55,6 +165,8 @@ export default function SendPage() {
   };
 
   const handleSend = async () => {
+    const ledgerClient = getSelectedLedgerClient();
+    
     if (!ledgerClient || !identity) {
       setSendError('Not authenticated. Please sign in.');
       return;
@@ -65,47 +177,44 @@ export default function SendPage() {
     setSendError(null);
 
     try {
-      // Parse recipient - support both Principal and Account ID formats
       let recipientAccount: ICRC1Account;
       
       try {
-        // Try parsing as Principal first
         const recipientPrincipal = Principal.fromText(recipient);
         recipientAccount = {
           owner: recipientPrincipal,
-          subaccount: [], // Default subaccount
+          subaccount: [],
         };
       } catch {
-        // If not a valid Principal, assume it's an Account ID
-        // For ICRC-1, we need a Principal, so this will fail
-        setSendError('Recipient must be a valid Principal for Infinity Coin transfers');
+        setSendError(`Recipient must be a valid Principal for ${getTokenLabel(selectedToken)} transfers`);
         setIsSending(false);
         return;
       }
 
-      // Execute the transfer on the ledger
       const transferResult = await ledgerClient.icrc1_transfer({
         to: recipientAccount,
         amount: amountE8,
-        fee: undefined, // Use default fee
+        fee: undefined,
         memo: undefined,
-        created_at_time: BigInt(Date.now()) * BigInt(1_000_000), // Current time in nanoseconds
+        created_at_time: BigInt(Date.now()) * BigInt(1_000_000),
       });
 
       if ('Ok' in transferResult) {
-        // Transfer succeeded
         const txBlockIndex = transferResult.Ok;
         setBlockIndex(txBlockIndex);
 
-        // Invalidate balance query to refresh
-        queryClient.invalidateQueries({ queryKey: ['infinityCoinBalance'] });
+        // Invalidate the appropriate balance query
+        const queryKey = selectedToken === 'infinityCoin' ? 'infinityCoinBalance' :
+                        selectedToken === 'icp' ? 'icpBalance' :
+                        selectedToken === 'ckBtc' ? 'ckBtcBalance' :
+                        selectedToken === 'ckEth' ? 'ckEthBalance' : 'ckSolBalance';
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
 
-        // Record transaction in local history (non-blocking)
         try {
           await recordTransaction.mutateAsync({
             recipient,
             amountE8,
-            coinType: CoinType.infinityCoin,
+            coinType: getCoinType(selectedToken),
           });
         } catch (historyError) {
           console.error('Failed to record transaction history:', historyError);
@@ -114,8 +223,7 @@ export default function SendPage() {
 
         setStep('success');
       } else {
-        // Transfer failed
-        const errorMessage = formatTransferError(transferResult.Err);
+        const errorMessage = formatError(transferResult.Err, selectedToken);
         setSendError(errorMessage);
       }
     } catch (error) {
@@ -146,13 +254,13 @@ export default function SendPage() {
             <CardTitle className="text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Transfer Successful
             </CardTitle>
-            <CardDescription>Your Infinity Coin has been sent on the ledger</CardDescription>
+            <CardDescription>Your {getTokenLabel(selectedToken)} has been sent on the ledger</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-4 space-y-2 shadow-glow-sm">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Asset:</span>
-                <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
+                <span className="font-medium text-primary">{getTokenLabel(selectedToken)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount:</span>
@@ -194,7 +302,7 @@ export default function SendPage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Asset:</span>
-                <span className="font-medium text-primary">{TOKEN_INFINITY}</span>
+                <span className="font-medium text-primary">{getTokenLabel(selectedToken)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Amount:</span>
@@ -206,7 +314,7 @@ export default function SendPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Your Balance:</span>
-                <span className="font-medium">{formatBalance(balance)} {TOKEN_INFINITY}</span>
+                <span className="font-medium">{formatBalance(getSelectedBalance())} {getTokenLabel(selectedToken)}</span>
               </div>
             </div>
 
@@ -254,19 +362,35 @@ export default function SendPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Send {TOKEN_INFINITY}
+          Send Tokens
         </h1>
-        <p className="text-muted-foreground">Transfer Infinity Coin to another wallet</p>
+        <p className="text-muted-foreground">Transfer tokens to another wallet</p>
       </div>
 
       <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow">
         <CardHeader>
           <CardTitle>Transfer Details</CardTitle>
           <CardDescription>
-            Your balance: {formatBalance(balance)} {TOKEN_INFINITY}
+            Your balance: {formatBalance(getSelectedBalance())} {getTokenLabel(selectedToken)}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="token">Select Token</Label>
+            <Select value={selectedToken} onValueChange={(value) => setSelectedToken(value as TokenType)}>
+              <SelectTrigger id="token">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="infinityCoin">{TOKEN_INFINITY}</SelectItem>
+                <SelectItem value="icp">{TOKEN_ICP}</SelectItem>
+                <SelectItem value="ckBtc">{TOKEN_CKBTC}</SelectItem>
+                <SelectItem value="ckEth">{TOKEN_CKETH}</SelectItem>
+                <SelectItem value="ckSol">{TOKEN_CKSOL}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="recipient">Recipient Principal</Label>
             <div className="flex gap-2">
@@ -304,6 +428,7 @@ export default function SendPage() {
             onClick={handleContinue}
             className="w-full shadow-glow hover:shadow-glow-lg transition-all"
           >
+            <Send className="mr-2 h-4 w-4" />
             Continue
           </Button>
         </CardContent>

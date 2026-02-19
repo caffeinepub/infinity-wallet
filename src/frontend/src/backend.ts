@@ -109,6 +109,9 @@ export interface UserProfile {
 }
 export enum CoinType {
     icp = "icp",
+    ckBtc = "ckBtc",
+    ckEth = "ckEth",
+    ckSol = "ckSol",
     infinityCoin = "infinityCoin"
 }
 export enum UserRole {
@@ -120,7 +123,7 @@ export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteContact(contactId: bigint): Promise<void>;
-    getBalances(): Promise<[bigint, bigint]>;
+    getBalances(): Promise<[bigint, bigint, bigint, bigint, bigint]>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContacts(): Promise<Array<Contact>>;
@@ -178,13 +181,16 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getBalances(): Promise<[bigint, bigint]> {
+    async getBalances(): Promise<[bigint, bigint, bigint, bigint, bigint]> {
         if (this.processError) {
             try {
                 const result = await this.actor.getBalances();
                 return [
                     result[0],
-                    result[1]
+                    result[1],
+                    result[2],
+                    result[3],
+                    result[4]
                 ];
             } catch (e) {
                 this.processError(e);
@@ -194,7 +200,10 @@ export class Backend implements backendInterface {
             const result = await this.actor.getBalances();
             return [
                 result[0],
-                result[1]
+                result[1],
+                result[2],
+                result[3],
+                result[4]
             ];
         }
     }
@@ -392,9 +401,15 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
 function from_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     icp: null;
 } | {
+    ckBtc: null;
+} | {
+    ckEth: null;
+} | {
+    ckSol: null;
+} | {
     infinityCoin: null;
 }): CoinType {
-    return "icp" in value ? CoinType.icp : "infinityCoin" in value ? CoinType.infinityCoin : value;
+    return "icp" in value ? CoinType.icp : "ckBtc" in value ? CoinType.ckBtc : "ckEth" in value ? CoinType.ckEth : "ckSol" in value ? CoinType.ckSol : "infinityCoin" in value ? CoinType.infinityCoin : value;
 }
 function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
@@ -417,10 +432,22 @@ function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint
 function to_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoinType): {
     icp: null;
 } | {
+    ckBtc: null;
+} | {
+    ckEth: null;
+} | {
+    ckSol: null;
+} | {
     infinityCoin: null;
 } {
     return value == CoinType.icp ? {
         icp: null
+    } : value == CoinType.ckBtc ? {
+        ckBtc: null
+    } : value == CoinType.ckEth ? {
+        ckEth: null
+    } : value == CoinType.ckSol ? {
+        ckSol: null
     } : value == CoinType.infinityCoin ? {
         infinityCoin: null
     } : value;

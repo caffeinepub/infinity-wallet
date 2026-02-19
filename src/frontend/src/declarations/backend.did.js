@@ -23,6 +23,9 @@ export const Contact = IDL.Record({
 export const Time = IDL.Int;
 export const CoinType = IDL.Variant({
   'icp' : IDL.Null,
+  'ckBtc' : IDL.Null,
+  'ckEth' : IDL.Null,
+  'ckSol' : IDL.Null,
   'infinityCoin' : IDL.Null,
 });
 export const TransactionHistoryItem = IDL.Record({
@@ -38,7 +41,11 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteContact' : IDL.Func([IDL.Nat], [], []),
-  'getBalances' : IDL.Func([], [IDL.Nat, IDL.Nat], ['query']),
+  'getBalances' : IDL.Func(
+      [],
+      [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
+      ['query'],
+    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getContacts' : IDL.Func([], [IDL.Vec(Contact)], ['query']),
@@ -76,7 +83,13 @@ export const idlFactory = ({ IDL }) => {
     'address' : IDL.Text,
   });
   const Time = IDL.Int;
-  const CoinType = IDL.Variant({ 'icp' : IDL.Null, 'infinityCoin' : IDL.Null });
+  const CoinType = IDL.Variant({
+    'icp' : IDL.Null,
+    'ckBtc' : IDL.Null,
+    'ckEth' : IDL.Null,
+    'ckSol' : IDL.Null,
+    'infinityCoin' : IDL.Null,
+  });
   const TransactionHistoryItem = IDL.Record({
     'id' : IDL.Nat,
     'recipient' : IDL.Text,
@@ -90,7 +103,11 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteContact' : IDL.Func([IDL.Nat], [], []),
-    'getBalances' : IDL.Func([], [IDL.Nat, IDL.Nat], ['query']),
+    'getBalances' : IDL.Func(
+        [],
+        [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
+        ['query'],
+      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getContacts' : IDL.Func([], [IDL.Vec(Contact)], ['query']),
