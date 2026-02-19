@@ -1,81 +1,40 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Integrate the Infinity Coin ICRC-1 token ledger into the app so it can read real balances and send/receive tokens on the live ledger.",
-  "architectural_notes": [
-    "Use ICRC-1 ledger canister interface (e.g., icrc1_balance_of, icrc1_transfer) against canister ID atuk3-uqaaa-aaaam-qduwa-cai."
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Previous attempts to integrate the ledger were blocked/failed (security checkpoint/build processing error), so ledger integration is not yet in code."
+    "Balance fetch failing with 'Record is missing key \"subaccount\"' error when calling icrc1_balance_of"
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-configure-the-app-to-use-the-infinity-coin-icrc-1-ledger-canister-id-atuk3-uqaaa-aaaam-qduwa-cai-as-the-single-source-of-truth-for-infinity-coin-on-chain-operations-balance-queries-and-transfers",
-      "title": "Configure the app to use the Infinity Coin ICRC-1 ledger canister ID `atuk3-uqaaa-aaaam-qduwa-cai` as the single source of truth for Infinity Coin on-chain operations (balance queries and transfers).",
+      "id": "feature-fix-the-account-object-construction-in-useinfinitycoinbalance-ts-to-include-the-subaccount-field-as-an-optional-array-type-uint8array-instead-of-omitting-it-ensuring-the-icrc-1-account-record-structure-matches-the-ledger-s-expected-format-with-owner-principal-and-subaccount-opt-blob-fields",
+      "title": "Fix the account object construction in useInfinityCoinBalance.ts to include the subaccount field as an optional array type ([Uint8Array] | []) instead of omitting it, ensuring the ICRC-1 Account record structure matches the ledger's expected format with owner (Principal) and subaccount (opt blob) fields",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-an-authenticated-icrc-1-ledger-client-in-the-frontend-that-uses-the-current-internet-identity-identity-to-call-the-infinity-coin-ledger-canister-methods-icrc1-balance-of-and-icrc1-transfer",
-      "title": "Implement an authenticated ICRC-1 ledger client in the frontend that uses the current Internet Identity identity to call the Infinity Coin ledger canister methods `icrc1_balance_of` and `icrc1_transfer`.",
+      "id": "feature-update-the-infinityledgerclient-createinfinityledgerclient-function-to-ensure-the-account-type-definition-matches-icrc-1-specification-with-owner-as-principal-and-subaccount-as-opt-blob-represented-as-or-uint8array-in-typescript",
+      "title": "Update the InfinityLedgerClient createInfinityLedgerClient function to ensure the Account type definition matches ICRC-1 specification with owner as Principal and subaccount as opt blob (represented as [] or [Uint8Array] in TypeScript)",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-wallet-balance-flow-react-query-hook-s-and-dashboard-ui-so-the-displayed-infinity-coin-balance-is-fetched-from-the-live-infinity-coin-icrc-1-ledger-via-icrc1-balance-of-instead-of-using-locally-recorded-balances-from-the-backend-canister",
-      "title": "Update the wallet balance flow (React Query hook(s) and Dashboard UI) so the displayed Infinity Coin balance is fetched from the live Infinity Coin ICRC-1 ledger via `icrc1_balance_of` instead of using locally recorded balances from the backend canister.",
+      "id": "feature-verify-and-update-the-icrc1account-interface-and-all-account-construction-code-to-consistently-use-the-format-owner-principal-subaccount-for-default-subaccount-queries-across-the-frontend-codebase",
+      "title": "Verify and update the ICRC1Account interface and all account construction code to consistently use the format { owner: Principal, subaccount: [] } for default subaccount queries across the frontend codebase",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-update-the-send-flow-so-that-confirming-a-send-performs-a-real-infinity-coin-transfer-on-the-live-ledger-by-calling-icrc1-transfer-on-atuk3-uqaaa-aaaam-qduwa-cai-and-only-shows-success-after-the-ledger-call-succeeds",
-      "title": "Update the Send flow so that confirming a send performs a real Infinity Coin transfer on the live ledger by calling `icrc1_transfer` on `atuk3-uqaaa-aaaam-qduwa-cai`, and only shows success after the ledger call succeeds.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-after-a-successful-on-ledger-transfer-record-the-transfer-in-the-app-s-local-transaction-history-backend-canister-so-it-appears-in-the-history-screen-while-clearly-treating-the-ledger-as-the-source-of-truth-for-funds",
-      "title": "After a successful on-ledger transfer, record the transfer in the app’s local transaction history (backend canister) so it appears in the History screen, while clearly treating the ledger as the source of truth for funds.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-receive-screen-to-show-the-correct-infinity-coin-receive-address-details-for-the-icrc-1-ledger-the-signed-in-user-s-owner-principal-and-the-default-subaccount-all-zeros-not-set-and-provide-copy-to-clipboard-actions",
-      "title": "Update the Receive screen to show the correct Infinity Coin receive address details for the ICRC-1 ledger: the signed-in user’s owner Principal and the default subaccount (all zeros / not set), and provide copy-to-clipboard actions.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-remove-or-update-any-user-facing-copy-in-the-send-confirmation-ui-that-claims-transfers-are-only-recorded-locally-or-are-a-demo-so-the-app-copy-accurately-reflects-that-infinity-coin-sends-are-executed-on-the-live-ledger",
-      "title": "Remove or update any user-facing copy in the Send confirmation UI that claims transfers are only recorded locally or are a demo, so the app copy accurately reflects that Infinity Coin sends are executed on the live ledger.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Integrate Infinity Coin ICRC-1 ledger canister (atuk3-uqaaa-aaaam-qduwa-cai): read balances, send via icrc1_transfer, and show correct deposit/receive address",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Integrate Infinity Coin ICRC-1 ledger (atuk3-uqaaa-aaaam-qduwa-cai) for real balances and transfers",
+  "new_feature_requests": [],
+  "projectName": "Infinity Wallet",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

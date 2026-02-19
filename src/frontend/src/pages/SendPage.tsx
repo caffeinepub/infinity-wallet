@@ -73,7 +73,7 @@ export default function SendPage() {
         const recipientPrincipal = Principal.fromText(recipient);
         recipientAccount = {
           owner: recipientPrincipal,
-          subaccount: undefined,
+          subaccount: [], // Default subaccount
         };
       } catch {
         // If not a valid Principal, assume it's an Account ID
@@ -198,42 +198,37 @@ export default function SendPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Amount:</span>
-                <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {amount}
-                </span>
+                <span className="font-medium text-primary">{amount}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Recipient:</span>
                 <span className="font-mono text-xs break-all">{recipient}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Your Balance:</span>
+                <span className="font-medium">{formatBalance(balance)} {TOKEN_INFINITY}</span>
+              </div>
             </div>
 
             {sendError && (
-              <Alert variant="destructive" className="border-destructive/50 shadow-glow-sm">
+              <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{sendError}</AlertDescription>
               </Alert>
             )}
 
-            <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
-              <AlertCircle className="h-4 w-4 text-accent" />
-              <AlertDescription className="text-xs">
-                This transaction will be executed on the Infinity Coin ledger. Once confirmed, it cannot be reversed.
-              </AlertDescription>
-            </Alert>
-
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setStep('form')} 
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setStep('form')}
                 disabled={isSending}
-                className="flex-1 border-primary/30 hover:shadow-glow-sm transition-all"
+                className="flex-1"
               >
                 Back
               </Button>
-              <Button 
-                onClick={handleSend} 
-                disabled={isSending} 
+              <Button
+                onClick={handleSend}
+                disabled={isSending}
                 className="flex-1 shadow-glow hover:shadow-glow-lg transition-all"
               >
                 {isSending ? (
@@ -244,7 +239,7 @@ export default function SendPage() {
                 ) : (
                   <>
                     <Send className="mr-2 h-4 w-4" />
-                    Confirm Send
+                    Confirm & Send
                   </>
                 )}
               </Button>
@@ -259,67 +254,57 @@ export default function SendPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Send
+          Send {TOKEN_INFINITY}
         </h1>
-        <p className="text-muted-foreground">Transfer Infinity Coin</p>
+        <p className="text-muted-foreground">Transfer Infinity Coin to another wallet</p>
       </div>
 
       <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow">
         <CardHeader>
-          <CardTitle>Send {TOKEN_INFINITY}</CardTitle>
+          <CardTitle>Transfer Details</CardTitle>
           <CardDescription>
-            Enter recipient's Principal address
+            Your balance: {formatBalance(balance)} {TOKEN_INFINITY}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="recipient">Recipient</Label>
+            <Label htmlFor="recipient">Recipient Principal</Label>
+            <div className="flex gap-2">
+              <Input
+                id="recipient"
+                placeholder="Enter recipient Principal"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className={errors.recipient ? 'border-destructive' : ''}
+              />
               <RecipientPicker onSelect={setRecipient} />
             </div>
-            <Input
-              id="recipient"
-              placeholder="Principal (e.g., aaaaa-aa)"
-              value={recipient}
-              onChange={(e) => {
-                setRecipient(e.target.value);
-                if (errors.recipient) setErrors({ ...errors, recipient: undefined });
-              }}
-              className={errors.recipient ? 'border-destructive' : ''}
-            />
-            {errors.recipient && <p className="text-xs text-destructive">{errors.recipient}</p>}
-            <p className="text-xs text-muted-foreground">
-              For Infinity Coin, use the recipient's Principal address (ICRC-1 format)
-            </p>
+            {errors.recipient && (
+              <p className="text-sm text-destructive">{errors.recipient}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="amount">Amount</Label>
-              <span className="text-xs text-muted-foreground">
-                Balance: {formatBalance(balance)} {TOKEN_INFINITY}
-              </span>
-            </div>
+            <Label htmlFor="amount">Amount</Label>
             <Input
               id="amount"
               type="number"
               step="0.00000001"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-                if (errors.amount) setErrors({ ...errors, amount: undefined });
-              }}
+              onChange={(e) => setAmount(e.target.value)}
               className={errors.amount ? 'border-destructive' : ''}
             />
-            {errors.amount && <p className="text-xs text-destructive">{errors.amount}</p>}
+            {errors.amount && (
+              <p className="text-sm text-destructive">{errors.amount}</p>
+            )}
           </div>
 
-          <Button 
-            onClick={handleContinue} 
+          <Button
+            onClick={handleContinue}
             className="w-full shadow-glow hover:shadow-glow-lg transition-all"
           >
-            Review Transaction
+            Continue
           </Button>
         </CardContent>
       </Card>

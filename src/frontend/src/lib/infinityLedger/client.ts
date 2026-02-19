@@ -8,14 +8,14 @@ import { INFINITY_COIN_LEDGER_CANISTER_ID } from './config';
  */
 export interface ICRC1Account {
   owner: Principal;
-  subaccount?: Uint8Array;
+  subaccount: [] | [Uint8Array];
 }
 
 /**
  * ICRC-1 Transfer Arguments
  */
 export interface ICRC1TransferArgs {
-  from_subaccount?: Uint8Array;
+  from_subaccount?: [] | [Uint8Array];
   to: ICRC1Account;
   amount: bigint;
   fee?: bigint;
@@ -103,40 +103,75 @@ const idlFactory = ({ IDL }: any) => {
 };
 
 /**
- * Create an authenticated ICRC-1 Ledger client
+ * Create an authenticated ICRC-1 Ledger client with comprehensive debugging
  */
 export async function createInfinityLedgerClient(
   identity: Identity,
   host?: string
 ): Promise<ICRC1LedgerActor> {
-  const agent = new HttpAgent({
-    identity,
-    host: host || window.location.origin,
-  });
+  const timestamp = new Date().toISOString();
+  console.group(`🏗️ [${timestamp}] Creating Infinity Ledger Client`);
 
-  // Fetch root key for local development
-  if (process.env.DFX_NETWORK !== 'ic') {
-    await agent.fetchRootKey().catch((err) => {
-      console.warn('Unable to fetch root key. Check to ensure that your local replica is running');
-      console.error(err);
+  try {
+    // Log identity information
+    console.log('📋 Identity Information:', {
+      identityType: identity.constructor.name,
+      isDefined: !!identity,
+      hasPrincipal: typeof identity.getPrincipal === 'function',
     });
+
+    // Log canister ID
+    console.log('🎯 Canister Configuration:', {
+      canisterId: INFINITY_COIN_LEDGER_CANISTER_ID,
+      canisterIdLength: INFINITY_COIN_LEDGER_CANISTER_ID.length,
+      host: host || window.location.origin,
+      network: process.env.DFX_NETWORK || 'local',
+    });
+
+    const agent = new HttpAgent({
+      identity,
+      host: host || window.location.origin,
+    });
+
+    // Fetch root key for local development
+    if (process.env.DFX_NETWORK !== 'ic') {
+      console.log('🔑 Fetching root key for local development...');
+      await agent.fetchRootKey().catch((err) => {
+        console.warn('⚠️ Unable to fetch root key. Check to ensure that your local replica is running');
+        console.error(err);
+      });
+    }
+
+    console.log('🎭 Creating actor with IDL...');
+    const actor = Actor.createActor<ICRC1LedgerActor>(idlFactory, {
+      agent,
+      canisterId: INFINITY_COIN_LEDGER_CANISTER_ID,
+    });
+
+    console.log('✅ Actor created successfully');
+    console.groupEnd();
+    return actor;
+  } catch (error: any) {
+    console.error('❌ Actor creation failed:', {
+      errorMessage: error?.message || 'Unknown error',
+      errorName: error?.name,
+      errorStack: error?.stack,
+      fullError: error,
+    });
+    console.groupEnd();
+    throw error;
   }
-
-  const actor = Actor.createActor<ICRC1LedgerActor>(idlFactory, {
-    agent,
-    canisterId: INFINITY_COIN_LEDGER_CANISTER_ID,
-  });
-
-  return actor;
 }
 
 /**
  * Get default ICRC-1 account for a principal
+ * 
+ * Returns account with default subaccount (empty array [] represents None/default in ICRC-1)
  */
 export function getDefaultAccount(owner: Principal): ICRC1Account {
   return {
     owner,
-    subaccount: undefined, // Default subaccount (all zeros)
+    subaccount: [], // Empty array represents the default subaccount (None in Candid opt type)
   };
 }
 

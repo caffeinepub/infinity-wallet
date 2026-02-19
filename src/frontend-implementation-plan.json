@@ -1,162 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend integration of Infinity Coin ICRC-1 ledger for live balances and transfers",
+  "title": "Fix subaccount field serialization for ICRC-1 balance queries",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a single frontend config constant for the Infinity Coin ICRC-1 ledger canister ID and ensure all Infinity Coin ledger calls use it.",
+      "summary": "Fix account object construction in useInfinityCoinBalance.ts to include subaccount field as optional array type",
       "acceptanceCriteria": [
-        "A single, clearly named frontend constant/config value exists for the Infinity Coin ledger canister ID and is set to `atuk3-uqaaa-aaaam-qduwa-cai`.",
-        "No other canister ID is used for Infinity Coin balance/transfer calls."
+        "The account object passed to icrc1_balance_of includes a subaccount field",
+        "The subaccount field is typed as an optional array: either [] for default subaccount or [Uint8Array] for a specific subaccount",
+        "Balance queries execute without the 'Record is missing key \"subaccount\"' error",
+        "Console logs show the complete account structure including the subaccount field"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/infinityLedger/config.ts",
-          "operation": "create",
-          "description": "Create a single exported constant (e.g., INFINITY_COIN_LEDGER_CANISTER_ID) set exactly to `atuk3-uqaaa-aaaam-qduwa-cai`, to be the only source of truth for Infinity Coin ledger calls."
-        },
-        {
-          "path": "frontend/src/lib/infinityLedger/index.ts",
-          "operation": "create",
-          "description": "Create a small module that imports the ledger canister ID constant and re-exports it (and related ledger helpers) so the rest of the app has one obvious import surface for Infinity Coin ledger integration."
+          "path": "frontend/src/hooks/useInfinityCoinBalance.ts",
+          "operation": "modify",
+          "description": "Update the account object construction in the queryFn to explicitly include the subaccount field as an empty array [] for the default subaccount. Change the account object from { owner: identity.getPrincipal() } to { owner: identity.getPrincipal(), subaccount: [] } to match the ICRC-1 Account record structure with owner (Principal) and subaccount (opt blob) fields."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement an authenticated ICRC-1 ledger client that uses the current Internet Identity identity to call icrc1_balance_of and icrc1_transfer, with signed-out gating.",
+      "summary": "Update InfinityLedgerClient Account type definition to match ICRC-1 specification",
       "acceptanceCriteria": [
-        "When a user is signed in with Internet Identity, the app can successfully call `icrc1_balance_of` against `atuk3-uqaaa-aaaam-qduwa-cai` for the user’s account.",
-        "When a user is signed in with Internet Identity, the app can submit `icrc1_transfer` against `atuk3-uqaaa-aaaam-qduwa-cai` signed by the user’s identity.",
-        "If the user is signed out, ledger calls are not attempted and the UI shows a clear error/gating state rather than failing silently."
+        "The Account type in client.ts includes subaccount as an optional array field",
+        "TypeScript type checking enforces the correct Account structure throughout the codebase",
+        "All calls to ledger methods using Account objects compile without type errors"
       ],
       "file_operations": [
         {
           "path": "frontend/src/lib/infinityLedger/client.ts",
-          "operation": "create",
-          "description": "Implement an ICRC-1 ledger client factory that builds an authenticated agent/actor using the current Internet Identity identity and the configured Infinity Coin ledger canister ID; expose high-level methods for `icrc1_balance_of` and `icrc1_transfer`."
-        },
-        {
-          "path": "frontend/src/hooks/useInfinityLedger.ts",
-          "operation": "create",
-          "description": "Create a hook that derives the authenticated Infinity Coin ledger client from `useInternetIdentity` (identity present => authenticated calls; identity absent => return null client and a clear gating state). Use the authorization component's Internet Identity guidance for sign-in gating. Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Update the Account interface definition to include the subaccount field as an optional array type. Change the Account type from { owner: Principal } to { owner: Principal; subaccount: [] | [Uint8Array] } to properly represent the ICRC-1 opt blob type as a TypeScript discriminated union where [] represents None and [Uint8Array] represents Some(blob)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Switch the Dashboard balance flow to fetch Infinity Coin balance from the live ICRC-1 ledger via icrc1_balance_of using React Query, without relying on backend balances.",
+      "summary": "Verify and update ICRC1Account interface and all account construction code to consistently include subaccount field",
       "acceptanceCriteria": [
-        "Dashboard Infinity Coin balance reflects the ledger balance returned by `icrc1_balance_of` for the signed-in user.",
-        "Refreshing the Dashboard triggers a refetch from the ledger canister.",
-        "The app does not require calling `backend.recordBalance` or `backend.getBalances` to show the Infinity Coin balance."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useInfinityCoinBalance.ts",
-          "operation": "create",
-          "description": "Create a dedicated React Query hook for Infinity Coin balance that calls the Infinity Coin ledger client `icrc1_balance_of` for the signed-in user's default ICRC-1 account (owner principal + default subaccount). Ensure the query is disabled when signed out and surfaces a clear error/gating state."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Update Dashboard to use the new Infinity Coin ledger balance hook instead of `useGetBalances()`, keeping the Refresh button wired to refetch the ledger-backed query and ensuring no backend balance calls are used to render the Infinity Coin balance."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Deprecate Infinity Coin usage of `useGetBalances()` in app wiring by updating comments and ensuring other flows no longer depend on it for Infinity Coin; keep the hook available only if still needed elsewhere for non-Infinity Coin balances, but do not use it for Infinity Coin display."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Update the Send flow so Confirm Send performs a real icrc1_transfer on the Infinity Coin ledger and only shows success after the ledger call succeeds, including showing the returned ledger transfer identifier and refetching balance.",
-      "acceptanceCriteria": [
-        "On the Confirm step, clicking “Confirm Send” triggers an `icrc1_transfer` call to `atuk3-uqaaa-aaaam-qduwa-cai`.",
-        "On success, the UI displays a real ledger transfer identifier (e.g., returned block index) instead of a locally generated placeholder TX id.",
-        "On failure, the UI displays an actionable error message and does not transition to the success step.",
-        "After a successful send, the Infinity Coin balance query is invalidated/refetched so the Dashboard shows the updated ledger balance."
+        "All ICRC-1 account objects constructed in the frontend include the subaccount field",
+        "Default subaccount is represented as an empty array []",
+        "The dashboard successfully displays the Infinity Coin balance for principal czivj-wu7yw-hn3tf-dhe5l-pfvm6-lgejr-fqsbk-bosb3-qfjte-pni7k-kqe",
+        "No console errors related to missing subaccount field appear"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/SendPage.tsx",
           "operation": "modify",
-          "description": "Replace the current 'record-only' send behavior with a real ledger transfer: on Confirm Send, call the Infinity Coin ledger client `icrc1_transfer` using the signed-in identity; on success, store/display the returned ledger transfer identifier (e.g., block index) and only then transition to success; on failure, keep the user on confirm and show an actionable error."
+          "description": "Review all account object constructions in the SendPage component and ensure any account objects passed to ICRC-1 ledger methods (such as icrc1_transfer) include the subaccount field set to [] for default subaccount. Update the from account construction in transfer calls to use { owner: identity.getPrincipal(), subaccount: [] } format."
         },
-        {
-          "path": "frontend/src/pages/SendPage.tsx",
-          "operation": "modify",
-          "description": "Wire post-success cache updates by invalidating/refetching the Infinity Coin ledger balance query (from the Infinity Coin balance hook) after a successful transfer so the Dashboard shows the updated on-ledger balance."
-        },
-        {
-          "path": "frontend/src/hooks/useInfinityCoinBalance.ts",
-          "operation": "modify",
-          "description": "Ensure the Infinity Coin balance query uses a stable queryKey suitable for invalidation from the Send flow (and supports manual refetch/refresh semantics)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "After a successful on-ledger transfer, record the transfer in local transaction history via backend recordTransaction without treating history recording as the source of truth for funds.",
-      "acceptanceCriteria": [
-        "After `icrc1_transfer` succeeds, the frontend calls the backend to record a transaction entry containing recipient text, amount (in e8s), and coin type = Infinity Coin.",
-        "The History page continues to load and render the recorded transactions for the signed-in user.",
-        "Recording history failure does not mark the ledger transfer as failed; the UI should still treat the transfer as successful if the ledger call succeeded (but show a non-blocking warning toast if history recording fails)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/SendPage.tsx",
-          "operation": "modify",
-          "description": "After ledger `icrc1_transfer` succeeds, call the backend `recordTransaction(recipient, amountE8, CoinType.infinityCoin)` to record local history; if history recording fails, keep the success UI and show a non-blocking warning toast indicating history could not be recorded."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Adjust the `useRecordTransaction` behavior (or add an alternate mutation export) so Send can record history without showing a blocking failure state for a successful ledger transfer (e.g., allow Send to catch errors and emit a warning toast rather than a 'Transaction failed' toast)."
-        },
-        {
-          "path": "frontend/src/pages/HistoryPage.tsx",
-          "operation": "modify",
-          "description": "Update the History page informational copy to clearly describe that items are locally recorded submissions while funds are controlled by the live ledger (keep English text), without implying that successful ledger transfers are fake."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Update Receive screen to show the signed-in user’s ICRC-1 receive account details (owner Principal + default subaccount) with copy-to-clipboard actions.",
-      "acceptanceCriteria": [
-        "Receive page displays the authenticated user’s Principal as the ICRC-1 account owner.",
-        "Receive page indicates the subaccount being used is the default (all zeros) and does not imply a custom subaccount unless implemented.",
-        "At least one copy button exists to copy the owner Principal, and the copied value matches the displayed owner Principal exactly.",
-        "User-facing text on the Receive page is in English."
-      ],
-      "file_operations": [
         {
           "path": "frontend/src/pages/ReceivePage.tsx",
           "operation": "modify",
-          "description": "Change Receive page from ICP Account ID focus to ICRC-1 account details for Infinity Coin: display the signed-in user's owner Principal and explicitly label the subaccount as default (all zeros / not set). Add copy-to-clipboard actions for the owner Principal (and optionally the subaccount representation), ensuring the copied Principal matches the displayed value exactly."
-        },
-        {
-          "path": "frontend/src/components/auth/PrincipalDisplay.tsx",
-          "operation": "modify",
-          "description": "If needed for consistency, extend PrincipalDisplay (or extract a small helper) to support rendering an un-truncated Principal value in contexts like Receive while preserving copy accuracy; keep copy-to-clipboard behavior reliable."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Update Send confirmation copy so it accurately states that Infinity Coin sends are executed on the live ledger (no demo/local-only claims).",
-      "acceptanceCriteria": [
-        "The Send confirmation screen no longer states that the wallet is a demo or that transactions do not represent actual blockchain transfers (for Infinity Coin).",
-        "All user-facing text changes are in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/SendPage.tsx",
-          "operation": "modify",
-          "description": "Replace the confirmation alert text that claims the wallet is a demo/local-only with English copy that reflects real on-ledger Infinity Coin transfers (while still allowing optional note that local history is recorded in-app)."
+          "description": "Review the account display logic in ReceivePage and ensure any account-related information shown to users reflects the complete ICRC-1 Account structure with both owner and subaccount fields. Update any account object constructions or displays to consistently show the default subaccount as an empty array []."
         }
       ]
     }
