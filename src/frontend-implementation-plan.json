@@ -1,225 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add multi-token support with ICP, ckBTC, ckETH, ckSOL balances and transfers",
+  "title": "Add on-chain BTC/ETH/SOL interoperability with unique receive addresses and dual sending modes",
   "requirements": [
     {
       "id": "REQ-4",
-      "summary": "Create ICRC-1 ledger clients for ICP, ckBTC, ckETH, and ckSOL tokens following the existing Infinity Coin pattern",
+      "summary": "Display unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page",
       "acceptanceCriteria": [
-        "Each token has its own ledger client module with canister ID configuration",
-        "All clients implement ICRC-1 Account structure with owner (Principal) and subaccount (opt blob)",
-        "Clients support icrc1_balance_of and icrc1_transfer methods",
-        "Comprehensive debug logging is included for initialization and API calls"
+        "The Receive page shows the user's BTC address with a copy button",
+        "The Receive page shows the user's ETH address with a copy button",
+        "The Receive page shows the user's SOL address with a copy button",
+        "Each address is labeled clearly to indicate which blockchain it belongs to",
+        "Addresses display loading states while being fetched"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/icpLedger/config.ts",
-          "operation": "create",
-          "description": "Create configuration file exporting the ICP ICRC-1 ledger canister ID constant (ryjl3-tyaaa-aaaaa-aaaba-cai)."
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks useGetBtcAddress, useGetEthAddress, and useGetSolAddress that call backend methods to fetch the user's unique chain-specific receive addresses. Each hook should handle loading states, errors, and be enabled only when actor is available."
         },
         {
-          "path": "frontend/src/lib/icpLedger/client.ts",
-          "operation": "create",
-          "description": "Create authenticated ICRC-1 ledger actor for ICP following the pattern in frontend/src/lib/infinityLedger/client.ts. Include TypeScript interfaces for Account, TransferArgs, TransferResult, and TransferError. Implement createIcpLedgerActor function with comprehensive debug logging for initialization and balance/transfer calls. Use the canister ID from config.ts."
-        },
-        {
-          "path": "frontend/src/lib/icpLedger/index.ts",
-          "operation": "create",
-          "description": "Main export module for ICP ledger integration, re-exporting configuration, client functions, and TypeScript types."
-        },
-        {
-          "path": "frontend/src/lib/ckBtcLedger/config.ts",
-          "operation": "create",
-          "description": "Create configuration file exporting the ckBTC ICRC-1 ledger canister ID constant (mxzaz-hqaaa-aaaar-qaada-cai)."
-        },
-        {
-          "path": "frontend/src/lib/ckBtcLedger/client.ts",
-          "operation": "create",
-          "description": "Create authenticated ICRC-1 ledger actor for ckBTC following the pattern in frontend/src/lib/infinityLedger/client.ts. Include TypeScript interfaces for Account, TransferArgs, TransferResult, and TransferError. Implement createCkBtcLedgerActor function with comprehensive debug logging. Use the canister ID from config.ts."
-        },
-        {
-          "path": "frontend/src/lib/ckBtcLedger/index.ts",
-          "operation": "create",
-          "description": "Main export module for ckBTC ledger integration, re-exporting configuration, client functions, and TypeScript types."
-        },
-        {
-          "path": "frontend/src/lib/ckEthLedger/config.ts",
-          "operation": "create",
-          "description": "Create configuration file exporting the ckETH ICRC-1 ledger canister ID constant (ss2fx-dyaaa-aaaar-qacoq-cai)."
-        },
-        {
-          "path": "frontend/src/lib/ckEthLedger/client.ts",
-          "operation": "create",
-          "description": "Create authenticated ICRC-1 ledger actor for ckETH following the pattern in frontend/src/lib/infinityLedger/client.ts. Include TypeScript interfaces for Account, TransferArgs, TransferResult, and TransferError. Implement createCkEthLedgerActor function with comprehensive debug logging. Use the canister ID from config.ts."
-        },
-        {
-          "path": "frontend/src/lib/ckEthLedger/index.ts",
-          "operation": "create",
-          "description": "Main export module for ckETH ledger integration, re-exporting configuration, client functions, and TypeScript types."
-        },
-        {
-          "path": "frontend/src/lib/ckSolLedger/config.ts",
-          "operation": "create",
-          "description": "Create configuration file exporting the ckSOL ICRC-1 ledger canister ID constant (zfcdd-tqaaa-aaaaq-aaaga-cai)."
-        },
-        {
-          "path": "frontend/src/lib/ckSolLedger/client.ts",
-          "operation": "create",
-          "description": "Create authenticated ICRC-1 ledger actor for ckSOL following the pattern in frontend/src/lib/infinityLedger/client.ts. Include TypeScript interfaces for Account, TransferArgs, TransferResult, and TransferError. Implement createCkSolLedgerActor function with comprehensive debug logging. Use the canister ID from config.ts."
-        },
-        {
-          "path": "frontend/src/lib/ckSolLedger/index.ts",
-          "operation": "create",
-          "description": "Main export module for ckSOL ledger integration, re-exporting configuration, client functions, and TypeScript types."
+          "path": "frontend/src/pages/ReceivePage.tsx",
+          "operation": "modify",
+          "description": "Extend the Receive page to display BTC, ETH, and SOL addresses alongside the existing Principal address. Add labeled sections for each blockchain with copy-to-clipboard buttons. Show loading spinners while addresses are being fetched. Include explanatory text that these are unique addresses for receiving native on-chain coins."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Create React Query hooks for fetching balances for ICP, ckBTC, ckETH, and ckSOL tokens",
+      "summary": "Add transfer mode selector to Send page for wrapped vs native transfers",
       "acceptanceCriteria": [
-        "Each token has a dedicated balance hook (e.g., useIcpBalance, useCkBtcBalance)",
-        "Hooks properly construct Account objects with user's principal and default subaccount",
-        "Balance queries invalidate on identity changes",
-        "Error states are properly captured and exposed to components"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useIcpLedger.ts",
-          "operation": "create",
-          "description": "Create React hook that creates and manages an authenticated ICRC-1 ICP ledger client, following the pattern in frontend/src/hooks/useInfinityLedger.ts. Initialize the client when an identity is available and provide comprehensive debug logging throughout initialization."
-        },
-        {
-          "path": "frontend/src/hooks/useIcpBalance.ts",
-          "operation": "create",
-          "description": "Create React Query hook that fetches the user's ICP balance from the ICRC-1 ledger, following the pattern in frontend/src/hooks/useInfinityCoinBalance.ts. Construct Account with owner (Principal) and default subaccount. Include comprehensive debug logging for account construction and balance calls. Invalidate on identity changes."
-        },
-        {
-          "path": "frontend/src/hooks/useCkBtcLedger.ts",
-          "operation": "create",
-          "description": "Create React hook that creates and manages an authenticated ICRC-1 ckBTC ledger client, following the pattern in frontend/src/hooks/useInfinityLedger.ts. Initialize when identity is available with debug logging."
-        },
-        {
-          "path": "frontend/src/hooks/useCkBtcBalance.ts",
-          "operation": "create",
-          "description": "Create React Query hook that fetches the user's ckBTC balance from the ICRC-1 ledger, following the pattern in frontend/src/hooks/useInfinityCoinBalance.ts. Construct Account with owner and default subaccount. Include debug logging and invalidate on identity changes."
-        },
-        {
-          "path": "frontend/src/hooks/useCkEthLedger.ts",
-          "operation": "create",
-          "description": "Create React hook that creates and manages an authenticated ICRC-1 ckETH ledger client, following the pattern in frontend/src/hooks/useInfinityLedger.ts. Initialize when identity is available with debug logging."
-        },
-        {
-          "path": "frontend/src/hooks/useCkEthBalance.ts",
-          "operation": "create",
-          "description": "Create React Query hook that fetches the user's ckETH balance from the ICRC-1 ledger, following the pattern in frontend/src/hooks/useInfinityCoinBalance.ts. Construct Account with owner and default subaccount. Include debug logging and invalidate on identity changes."
-        },
-        {
-          "path": "frontend/src/hooks/useCkSolLedger.ts",
-          "operation": "create",
-          "description": "Create React hook that creates and manages an authenticated ICRC-1 ckSOL ledger client, following the pattern in frontend/src/hooks/useInfinityLedger.ts. Initialize when identity is available with debug logging."
-        },
-        {
-          "path": "frontend/src/hooks/useCkSolBalance.ts",
-          "operation": "create",
-          "description": "Create React Query hook that fetches the user's ckSOL balance from the ICRC-1 ledger, following the pattern in frontend/src/hooks/useInfinityCoinBalance.ts. Construct Account with owner and default subaccount. Include debug logging and invalidate on identity changes."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Add Total Assets display section on Dashboard with denomination currency selector",
-      "acceptanceCriteria": [
-        "Total Assets section is prominently displayed at the top of the Dashboard",
-        "User can select any of the 5 tokens as the denomination currency via dropdown",
-        "Total value is calculated by converting all token balances to the selected denomination",
-        "Selection preference is preserved in component state"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-          "operation": "create",
-          "description": "Create component displaying Total Assets value with a dropdown to select denomination currency (ckUSDT, ICP, ckBTC, ckETH, ckSOL). Accept all token balances as props and calculate the total value converted to the selected denomination. Store selection in component state. Use neon/cosmic theme styling matching existing components. Display loading states while balances are being fetched and error states if any balance fails."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Import and add TotalAssetsDisplay component at the top of the Dashboard. Fetch all token balances using useInfinityCoinBalance, useIcpBalance, useCkBtcBalance, useCkEthBalance, and useCkSolBalance hooks. Pass all balance values to TotalAssetsDisplay. Maintain existing Infinity Coin balance display functionality below Total Assets section."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Display all token balances simultaneously on Dashboard as a list of balance cards",
-      "acceptanceCriteria": [
-        "Dashboard displays 5 balance cards in a grid or vertical list layout",
-        "Each card shows token icon/name, balance amount, and loading/error states",
-        "Each card has an individual refresh button to reload that specific balance",
-        "Layout is responsive and matches the existing neon/cosmic theme"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/wallet/BalanceCard.tsx",
-          "operation": "create",
-          "description": "Create reusable balance card component that displays a token icon from frontend/public/assets/generated/, token name, balance amount, loading state, error state, and an individual refresh button. Accept props for tokenName, tokenIcon (path), balance, isLoading, error, and onRefresh callback. Use neon/cosmic theme styling with card borders and glow effects matching existing UI. For token icons, reference the generated images at frontend/public/assets/generated/icp-logo.dim_64x64.png, frontend/public/assets/generated/ckbtc-logo.dim_64x64.png, frontend/public/assets/generated/cketh-logo.dim_64x64.png, and frontend/public/assets/generated/cksol-logo.dim_64x64.png. Use the existing Infinity Coin icon at frontend/public/assets/generated/infinity-coin-icon.dim_512x512.png."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Add a grid layout below the TotalAssetsDisplay to show 5 BalanceCard components for Infinity Coin, ICP, ckBTC, ckETH, and ckSOL. Each card should use its respective balance hook and token icon from frontend/public/assets/generated/. Pass the refetch function from each hook as the onRefresh callback. Ensure responsive grid layout (e.g., 1 column on mobile, 2-3 columns on larger screens)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "summary": "Update SendPage to support selecting which token to send with dynamic ledger client usage",
-      "acceptanceCriteria": [
-        "Token selector dropdown is added at the top of the Send form",
-        "Amount validation respects the selected token's balance",
-        "Transfer execution calls the correct ICRC-1 ledger for the selected token",
-        "Success/error messages include the token name for clarity",
-        "Transaction recording in backend includes token identifier"
+        "A radio button or toggle appears on the Send page for selecting transfer mode",
+        "The selector only appears when ckBTC, ckETH, or ckSOL is selected",
+        "The wrapped mode is the default selection",
+        "The UI clearly explains the difference between wrapped (ICRC-1 within IC) and native (on-chain) transfers"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/SendPage.tsx",
           "operation": "modify",
-          "description": "Add token selector dropdown at the top of the send form allowing selection between Infinity Coin, ICP, ckBTC, ckETH, and ckSOL. Store selected token in component state. Fetch the balance for the selected token using the appropriate hook (useInfinityCoinBalance, useIcpBalance, useCkBtcBalance, useCkEthBalance, useCkSolBalance) and validate the amount against that balance. Update transfer execution logic to call the correct ICRC-1 ledger client based on token selection (useInfinityLedger, useIcpLedger, useCkBtcLedger, useCkEthLedger, useCkSolLedger). Include the selected token in success/error messages. When calling recordTransaction mutation, pass the token type (from backend CoinType enum: icp, ckBtc, ckEth, ckSol, infinityCoin) along with recipient and amount."
+          "description": "Add a transfer mode selector (radio buttons or toggle) that appears only when ckBTC, ckETH, or ckSOL is selected. Default to 'Wrapped (Fast & Cheap)' mode. Add 'Native On-Chain' option with explanatory tooltips describing that wrapped transfers stay on IC using ICRC-1, while native transfers convert to real BTC/ETH/SOL and send on-chain. Store the selected mode in component state and use it to determine which transfer flow to execute."
         }
       ]
     },
     {
       "id": "REQ-9",
-      "summary": "Update ReceivePage to display receiving addresses for all supported tokens with unified ICRC-1 address explanation",
+      "summary": "Handle native on-chain transfers when Native On-Chain mode is selected",
       "acceptanceCriteria": [
-        "ReceivePage clearly states that one principal address works for all ICRC-1 tokens",
-        "Each token is listed with the same principal address and copy functionality",
-        "Instructional text explains unified ICRC-1 addressing",
-        "Layout remains clean and easy to understand"
+        "When 'Native On-Chain' is selected and user confirms, the frontend calls the native transfer method instead of ICRC-1 transfer",
+        "The recipient address validation accepts the appropriate format (BTC, ETH, or SOL address)",
+        "Success messages indicate that a native blockchain transaction was initiated",
+        "Error messages clearly distinguish between wrapped and native transfer failures",
+        "Transaction history records indicate whether the transfer was wrapped or native"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ReceivePage.tsx",
+          "path": "frontend/src/lib/validation.ts",
           "operation": "modify",
-          "description": "Update page to display an informational section explaining that the user's principal address works for all ICRC-1 tokens (Infinity Coin, ICP, ckBTC, ckETH, ckSOL). List all 5 tokens with the same principal address displayed for each, including copy-to-clipboard functionality per token. Add clear instructional text about unified ICRC-1 addressing. Use neon/cosmic theme styling and maintain existing layout cleanliness. Remove or update any token-specific address generation logic."
+          "description": "Extend address validation to accept native blockchain address formats: BTC addresses (base58/bech32), ETH addresses (0x-prefixed hex), and SOL addresses (base58). Add format detection logic that validates based on the selected coin type and transfer mode."
+        },
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "Update the transfer execution logic to call native conversion backend methods (sendNativeBtc, sendNativeEth, sendNativeSol) when Native On-Chain mode is selected. Pass the recipient address and amount to the appropriate backend method. Update success messages to indicate 'Native blockchain transaction initiated' vs 'Wrapped transfer completed'. Handle errors specific to native transfers (e.g., invalid blockchain address format, chain-key integration errors). Update the recordTransaction call to include transfer mode metadata."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add mutation hooks useSendNativeBtc, useSendNativeEth, and useSendNativeSol that call the corresponding backend conversion methods. Each mutation should handle success/error states and invalidate relevant queries (balances, transaction history) on success."
         }
       ]
     },
     {
       "id": "REQ-10",
-      "summary": "Update HistoryPage to display transactions for all token types with token identifiers",
+      "summary": "Update transaction history to distinguish wrapped vs native transfers",
       "acceptanceCriteria": [
-        "Transaction records in backend include a token identifier field",
-        "HistoryPage displays token name/icon alongside amount for each transaction",
-        "Existing Infinity Coin transactions are preserved and labeled correctly",
-        "Transaction list supports filtering by token type"
+        "Transaction records include a field indicating transfer type (wrapped or native)",
+        "The History page displays an indicator showing which type of transfer was used",
+        "Native transfers show the blockchain transaction hash or ID when available",
+        "Filtering options allow users to view only wrapped or only native transfers"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/HistoryPage.tsx",
           "operation": "modify",
-          "description": "Update transaction history display to show the token type (coinType field from TransactionHistoryItem) alongside each transaction. Display token icon from frontend/public/assets/generated/ next to the token name (use icp-logo.dim_64x64.png for ICP, ckbtc-logo.dim_64x64.png for ckBTC, cketh-logo.dim_64x64.png for ckETH, cksol-logo.dim_64x64.png for ckSOL, and infinity-coin-icon.dim_512x512.png for Infinity Coin). Add a filter dropdown above the transaction list allowing users to filter by token type (All, ICP, ckBTC, ckETH, ckSOL, Infinity Coin). Apply filter logic to display only transactions matching the selected token type. Ensure existing Infinity Coin transactions display correctly with the infinityCoin token type."
+          "description": "Update the transaction history display to show transfer type badges ('Wrapped' or 'Native On-Chain') for each transaction. Display blockchain transaction hashes when available for native transfers. Add filter controls (dropdown or tabs) to allow users to view all transactions, only wrapped transfers, or only native transfers. Apply filtering logic based on the transaction type metadata."
+        },
+        {
+          "path": "frontend/src/backend.d.ts",
+          "operation": "modify",
+          "description": "Update the TransactionHistoryItem interface to include an optional transferType field (enum: 'wrapped' | 'native') and an optional blockchainTxHash field for storing native transaction identifiers."
         }
       ]
     }

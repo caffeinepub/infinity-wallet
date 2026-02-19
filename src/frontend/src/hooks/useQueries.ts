@@ -184,3 +184,101 @@ export function useRecordBalance() {
     },
   });
 }
+
+// Chain-specific address queries
+export function useGetBtcAddress() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<string>({
+    queryKey: ['btcAddress'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('getBtcAddress not yet implemented in backend');
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+}
+
+export function useGetEthAddress() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<string>({
+    queryKey: ['ethAddress'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('getEthAddress not yet implemented in backend');
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+}
+
+export function useGetSolAddress() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<string>({
+    queryKey: ['solAddress'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('getSolAddress not yet implemented in backend');
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+}
+
+// Native transfer mutations
+export function useSendNativeBtc() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ address, amountE8 }: { address: string; amountE8: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('sendNativeBtc not yet implemented in backend');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ckBtcBalance'] });
+      queryClient.invalidateQueries({ queryKey: ['transactionHistory'] });
+    },
+  });
+}
+
+export function useSendNativeEth() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ address, amountWei }: { address: string; amountWei: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('sendNativeEth not yet implemented in backend');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ckEthBalance'] });
+      queryClient.invalidateQueries({ queryKey: ['transactionHistory'] });
+    },
+  });
+}
+
+export function useSendNativeSol() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ address, amountLamports }: { address: string; amountLamports: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend method to be implemented
+      throw new Error('sendNativeSol not yet implemented in backend');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ckSolBalance'] });
+      queryClient.invalidateQueries({ queryKey: ['transactionHistory'] });
+    },
+  });
+}

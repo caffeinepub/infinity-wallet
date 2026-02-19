@@ -1,64 +1,82 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T21:41:48.796Z",
-  "summary": "The implementation successfully delivers multi-token support for ICP, ckBTC, ckETH, and ckSOL with comprehensive ICRC-1 ledger clients, balance hooks, UI components, and transaction history support. All major requirements are implemented with proper structure, debugging, and theme consistency. However, the Total Assets display uses a simplified approach showing only the selected token's balance rather than converting all balances to a common denomination, and there are minor issues with missing image files and a reference to ckUSDT in the Total Assets component despite it not being part of the requirements.",
+  "generatedAt": "2026-02-19T22:16:56.239Z",
+  "summary": "The diff implements frontend UI and validation infrastructure for dual-mode transfers (wrapped vs. native) but lacks all backend chain-key cryptography integration. No methods exist to generate unique receive addresses or execute native blockchain transfers for Bitcoin, Ethereum, or Solana. Transaction history distinguishes transfer types only at the schema level, with no actual implementation or filtering logic.",
   "missing_requirements": [
     {
-      "id": "REQ-6",
-      "requirement": "Total value is calculated by converting all token balances to the selected denomination",
-      "reason": "The TotalAssetsDisplay component shows only the balance of the selected denomination token instead of converting all token balances to the selected denomination. The code contains a comment 'Since we don't have real exchange rates, we'll just show the balance of the selected token'",
+      "id": "REQ-1",
+      "requirement": "Generate unique Bitcoin receive addresses for each authenticated user that can receive native BTC on-chain",
+      "reason": "No backend method implementation found to generate Bitcoin addresses. The frontend calls useGetBtcAddress() but backend has no corresponding getBtcAddress method using chain-key Bitcoin API.",
       "evidence": [
-        "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "ckUSDT token support in Total Assets denomination selector",
-      "reason": "The TotalAssetsDisplay component includes 'ckUSDT' as a denomination option in the dropdown, but ckUSDT is explicitly listed in non-goals and is not part of the supported tokens (only ICP, ckBTC, ckETH, ckSOL, and Infinity Coin are requested)",
-      "evidence": [
-        "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
+        "backend/main.mo"
       ]
     },
     {
-      "description": "Backend migration module for upgrading state schema",
-      "reason": "A migration.mo module was added to handle backend state transitions, but no requirement specified backend migration or state schema changes",
+      "id": "REQ-2",
+      "requirement": "Generate unique Ethereum receive addresses for each authenticated user that can receive native ETH on-chain",
+      "reason": "No backend method implementation found to generate Ethereum addresses. The frontend calls useGetEthAddress() but backend has no corresponding getEthAddress method using chain-key Ethereum API.",
       "evidence": [
-        "backend/migration.mo"
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Generate unique Solana receive addresses for each authenticated user that can receive native SOL on-chain",
+      "reason": "No backend method implementation found to generate Solana addresses. The frontend calls useGetSolAddress() but backend has no corresponding getSolAddress method using chain-key Solana API.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Implement backend method to convert ckBTC to native BTC and send to an external Bitcoin address using chain-key Bitcoin integration",
+      "reason": "No backend implementation of sendNativeBtc method found. The frontend mutation exists but backend has no method to burn ckBTC and initiate native Bitcoin transactions.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Implement backend method to convert ckETH to native ETH and send to an external Ethereum address using chain-key Ethereum integration",
+      "reason": "No backend implementation of sendNativeEth method found. The frontend mutation exists but backend has no method to burn ckETH and initiate native Ethereum transactions.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "requirement": "Implement backend method to convert ckSOL to native SOL and send to an external Solana address using chain-key Solana integration",
+      "reason": "No backend implementation of sendNativeSol method found. The frontend mutation exists but backend has no method to burn ckSOL and initiate native Solana transactions.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Filtering options allow users to view only wrapped or only native transfers",
+      "reason": "HistoryPage.tsx implements token filtering but no transfer type filtering (wrapped vs. native). The filterToken state and UI only filter by coin type, not by transfer mode.",
+      "evidence": [
+        "frontend/src/pages/HistoryPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Native transfers show the blockchain transaction hash or ID when available",
+      "reason": "TransactionHistoryItem schema has no field for blockchain transaction hash/ID. No display logic exists in HistoryPage to show transaction hashes for native transfers.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/pages/HistoryPage.tsx"
       ]
     }
   ],
-  "confidence": 0.85,
+  "hallucinated_features": [],
+  "confidence": 0.92,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/wallet/BalanceCard.tsx",
-    "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-    "frontend/src/hooks/useCkBtcBalance.ts",
-    "frontend/src/hooks/useCkBtcLedger.ts",
-    "frontend/src/hooks/useCkEthBalance.ts",
-    "frontend/src/hooks/useCkEthLedger.ts",
-    "frontend/src/hooks/useCkSolBalance.ts",
-    "frontend/src/hooks/useCkSolLedger.ts",
-    "frontend/src/hooks/useIcpBalance.ts",
-    "frontend/src/hooks/useIcpLedger.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/lib/branding.ts",
-    "frontend/src/lib/ckBtcLedger/client.ts",
-    "frontend/src/lib/ckBtcLedger/config.ts",
-    "frontend/src/lib/ckBtcLedger/index.ts",
-    "frontend/src/lib/ckEthLedger/client.ts",
-    "frontend/src/lib/ckEthLedger/config.ts",
-    "frontend/src/lib/ckEthLedger/index.ts",
-    "frontend/src/lib/ckSolLedger/client.ts",
-    "frontend/src/lib/ckSolLedger/config.ts",
-    "frontend/src/lib/ckSolLedger/index.ts",
-    "frontend/src/lib/icpLedger/client.ts",
-    "frontend/src/lib/icpLedger/config.ts",
-    "frontend/src/lib/icpLedger/index.ts",
-    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/lib/validation.ts",
     "frontend/src/pages/HistoryPage.tsx",
     "frontend/src/pages/ReceivePage.tsx",
     "frontend/src/pages/SendPage.tsx",

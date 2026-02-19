@@ -1,174 +1,118 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T21:41:48.800Z",
+  "generatedAt": "2026-02-19T22:16:56.242Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 7,
-    "implemented": 7,
+    "total": 10,
+    "implemented": 4,
     "items": [
       {
+        "id": "REQ-1",
+        "summary": "Generate unique Bitcoin receive addresses for each authenticated user that can receive native BTC on-chain",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
         "id": "REQ-10",
-        "summary": "Update the transaction history backend and HistoryPage to support recording and displaying transactions for all token types (ICP, ckBTC, ckETH, ckSOL, Infinity Coin), with each transaction showing which token was transferred",
+        "summary": "Update transaction history recording to distinguish between wrapped ICRC-1 transfers and native on-chain conversions",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/HistoryPage.tsx"
+          "frontend/src/pages/HistoryPage.tsx",
+          "frontend/src/backend.d.ts"
         ],
         "matchedFiles": [
           "frontend/src/pages/HistoryPage.tsx"
         ]
       },
       {
+        "id": "REQ-2",
+        "summary": "Generate unique Ethereum receive addresses for each authenticated user that can receive native ETH on-chain",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Generate unique Solana receive addresses for each authenticated user that can receive native SOL on-chain",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
         "id": "REQ-4",
-        "summary": "Create ICRC-1 ledger clients for ICP, ckBTC, ckETH, and ckSOL tokens following the same pattern as the existing Infinity Coin ledger client (frontend/src/lib/infinityLedger/client.ts), with proper canister ID configuration for each token",
+        "summary": "Display the user's unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page alongside the existing Principal address",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/lib/icpLedger/config.ts",
-          "frontend/src/lib/icpLedger/client.ts",
-          "frontend/src/lib/icpLedger/index.ts",
-          "frontend/src/lib/ckBtcLedger/config.ts",
-          "frontend/src/lib/ckBtcLedger/client.ts",
-          "frontend/src/lib/ckBtcLedger/index.ts",
-          "frontend/src/lib/ckEthLedger/config.ts",
-          "frontend/src/lib/ckEthLedger/client.ts",
-          "frontend/src/lib/ckEthLedger/index.ts",
-          "frontend/src/lib/ckSolLedger/config.ts",
-          "frontend/src/lib/ckSolLedger/client.ts",
-          "frontend/src/lib/ckSolLedger/index.ts"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ReceivePage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/lib/icpLedger/config.ts",
-          "frontend/src/lib/icpLedger/client.ts",
-          "frontend/src/lib/icpLedger/index.ts",
-          "frontend/src/lib/ckBtcLedger/config.ts",
-          "frontend/src/lib/ckBtcLedger/client.ts",
-          "frontend/src/lib/ckBtcLedger/index.ts",
-          "frontend/src/lib/ckEthLedger/config.ts",
-          "frontend/src/lib/ckEthLedger/client.ts",
-          "frontend/src/lib/ckEthLedger/index.ts",
-          "frontend/src/lib/ckSolLedger/config.ts",
-          "frontend/src/lib/ckSolLedger/client.ts",
-          "frontend/src/lib/ckSolLedger/index.ts"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ReceivePage.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Create React Query hooks for fetching balances for ICP, ckBTC, ckETH, and ckSOL tokens, following the pattern of useInfinityCoinBalance.ts, with proper error handling and loading states",
+        "summary": "Add a transfer mode selector to the Send page allowing users to choose between 'Wrapped (Fast & Cheap)' and 'Native On-Chain' when sending ckBTC, ckETH, or ckSOL",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useIcpLedger.ts",
-          "frontend/src/hooks/useIcpBalance.ts",
-          "frontend/src/hooks/useCkBtcLedger.ts",
-          "frontend/src/hooks/useCkBtcBalance.ts",
-          "frontend/src/hooks/useCkEthLedger.ts",
-          "frontend/src/hooks/useCkEthBalance.ts",
-          "frontend/src/hooks/useCkSolLedger.ts",
-          "frontend/src/hooks/useCkSolBalance.ts"
+          "frontend/src/pages/SendPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useIcpLedger.ts",
-          "frontend/src/hooks/useIcpBalance.ts",
-          "frontend/src/hooks/useCkBtcLedger.ts",
-          "frontend/src/hooks/useCkBtcBalance.ts",
-          "frontend/src/hooks/useCkEthLedger.ts",
-          "frontend/src/hooks/useCkEthBalance.ts",
-          "frontend/src/hooks/useCkSolLedger.ts",
-          "frontend/src/hooks/useCkSolBalance.ts"
+          "frontend/src/pages/SendPage.tsx"
         ]
       },
       {
         "id": "REQ-6",
-        "summary": "Add Total Assets display section on the Dashboard that shows the combined portfolio value with a dropdown to select denomination currency (ckUSDT, ICP, ckBTC, ckETH, or ckSOL)",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ]
+        "summary": "Implement backend method to convert ckBTC to native BTC and send to an external Bitcoin address using chain-key Bitcoin integration",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-7",
-        "summary": "Display all token balances (Infinity Coin, ICP, ckBTC, ckETH, ckSOL) simultaneously on the Dashboard page as a list of balance cards, each showing the token name, balance amount, and a refresh button",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/wallet/BalanceCard.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/wallet/BalanceCard.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ]
+        "summary": "Implement backend method to convert ckETH to native ETH and send to an external Ethereum address using chain-key Ethereum integration",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-8",
-        "summary": "Update the SendPage to support selecting which token to send (Infinity Coin, ICP, ckBTC, ckETH, or ckSOL) via a dropdown, with the transfer logic dynamically using the appropriate ledger client based on selection",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/SendPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/SendPage.tsx"
-        ]
+        "summary": "Implement backend method to convert ckSOL to native SOL and send to an external Solana address using chain-key Solana integration",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-9",
-        "summary": "Update the ReceivePage to display receiving addresses for all supported tokens (Infinity Coin, ICP, ckBTC, ckETH, ckSOL), showing the user's principal and explaining that the same address works for all ICRC-1 tokens",
+        "summary": "Update the Send page to handle native on-chain transfers when the 'Native On-Chain' mode is selected, calling the appropriate chain-key conversion method",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ReceivePage.tsx"
+          "frontend/src/lib/validation.ts",
+          "frontend/src/pages/SendPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ReceivePage.tsx"
+          "frontend/src/lib/validation.ts",
+          "frontend/src/pages/SendPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/ckbtc-logo.dim_64x64.png",
-    "frontend/public/assets/generated/cketh-logo.dim_64x64.png",
-    "frontend/public/assets/generated/cksol-logo.dim_64x64.png",
-    "frontend/public/assets/generated/icp-logo.dim_64x64.png",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/wallet/BalanceCard.tsx",
-    "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useCkBtcBalance.ts",
-    "frontend/src/hooks/useCkBtcLedger.ts",
-    "frontend/src/hooks/useCkEthBalance.ts",
-    "frontend/src/hooks/useCkEthLedger.ts",
-    "frontend/src/hooks/useCkSolBalance.ts",
-    "frontend/src/hooks/useCkSolLedger.ts",
-    "frontend/src/hooks/useIcpBalance.ts",
-    "frontend/src/hooks/useIcpLedger.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/lib/branding.ts",
-    "frontend/src/lib/ckBtcLedger/client.ts",
-    "frontend/src/lib/ckBtcLedger/config.ts",
-    "frontend/src/lib/ckBtcLedger/index.ts",
-    "frontend/src/lib/ckEthLedger/client.ts",
-    "frontend/src/lib/ckEthLedger/config.ts",
-    "frontend/src/lib/ckEthLedger/index.ts",
-    "frontend/src/lib/ckSolLedger/client.ts",
-    "frontend/src/lib/ckSolLedger/config.ts",
-    "frontend/src/lib/ckSolLedger/index.ts",
-    "frontend/src/lib/icpLedger/client.ts",
-    "frontend/src/lib/icpLedger/config.ts",
-    "frontend/src/lib/icpLedger/index.ts",
-    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/lib/validation.ts",
     "frontend/src/pages/HistoryPage.tsx",
     "frontend/src/pages/ReceivePage.tsx",
     "frontend/src/pages/SendPage.tsx",

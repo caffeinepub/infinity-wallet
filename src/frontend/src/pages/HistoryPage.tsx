@@ -79,7 +79,7 @@ export default function HistoryPage() {
       <Alert className="border-accent/30 bg-accent/5 shadow-glow-sm">
         <AlertCircle className="h-4 w-4 text-accent" />
         <AlertDescription className="text-xs">
-          This displays locally recorded transaction submissions. Your actual token balances and transfers are controlled by the live ICRC-1 ledgers.
+          This displays locally recorded transaction submissions. Your actual token balances and transfers are controlled by the live ICRC-1 ledgers. Native on-chain transfers will be marked accordingly once chain-key integration is complete.
         </AlertDescription>
       </Alert>
 
@@ -133,7 +133,7 @@ export default function HistoryPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <img src={getTokenIcon(tx.coinType)} alt={getTokenLabel(tx.coinType)} className="h-6 w-6 rounded-full" />
                       <ArrowUpRight className="h-4 w-4 text-accent" />
                       <CardTitle className="text-base">Sent</CardTitle>
