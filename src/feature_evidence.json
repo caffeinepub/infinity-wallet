@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-display-the-user-s-unique-bitcoin-ethereum-and-solana-receive-addresses-on-the-receive-page-alongside-the-existing-principal-address",
-      "featureTitle": "Display the user's unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page alongside the existing Principal address",
+      "featureId": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositaddress-hook-where-the-principal-is-being-sent-as-a-json-object-principal-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-get-btc-address-method",
+      "featureTitle": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/ReceivePage.tsx"
+        "frontend/src/hooks/useCkBtcDepositAddress.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -14,18 +13,19 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-transfer-mode-selector-to-the-send-page-allowing-users-to-choose-between-wrapped-fast-cheap-and-native-on-chain-when-sending-ckbtc-cketh-or-cksol",
-      "featureTitle": "Add a transfer mode selector to the Send page allowing users to choose between 'Wrapped (Fast & Cheap)' and 'Native On-Chain' when sending ckBTC, ckETH, or ckSOL",
+      "featureId": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositstatus-hook-where-the-principal-is-being-sent-as-a-json-object-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-update-balance-method",
+      "featureTitle": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
       "files": [
-        "frontend/src/pages/SendPage.tsx"
+        "frontend/src/hooks/useCkBtcDepositStatus.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -33,50 +33,11 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-send-page-to-handle-native-on-chain-transfers-when-the-native-on-chain-mode-is-selected-calling-the-appropriate-chain-key-conversion-method",
-      "featureTitle": "Update the Send page to handle native on-chain transfers when the 'Native On-Chain' mode is selected, calling the appropriate chain-key conversion method",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/lib/validation.ts",
-        "frontend/src/pages/SendPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-transaction-history-recording-to-distinguish-between-wrapped-icrc-1-transfers-and-native-on-chain-conversions",
-      "featureTitle": "Update transaction history recording to distinguish between wrapped ICRC-1 transfers and native on-chain conversions",
-      "files": [
-        "frontend/src/pages/HistoryPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-10"
+        "REQ-2"
       ],
       "confidence": "high"
     }

@@ -62,13 +62,15 @@ export function useRecordTransaction() {
       recipient,
       amountE8,
       coinType,
+      blockHeight,
     }: {
       recipient: string;
       amountE8: bigint;
       coinType: CoinType;
+      blockHeight?: bigint | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.recordTransaction(recipient, amountE8, coinType);
+      return actor.recordTransaction(recipient, amountE8, coinType, blockHeight ?? null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactionHistory'] });

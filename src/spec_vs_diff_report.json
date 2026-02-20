@@ -1,85 +1,16 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T22:16:56.239Z",
-  "summary": "The diff implements frontend UI and validation infrastructure for dual-mode transfers (wrapped vs. native) but lacks all backend chain-key cryptography integration. No methods exist to generate unique receive addresses or execute native blockchain transfers for Bitcoin, Ethereum, or Solana. Transaction history distinguishes transfer types only at the schema level, with no actual implementation or filtering logic.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Generate unique Bitcoin receive addresses for each authenticated user that can receive native BTC on-chain",
-      "reason": "No backend method implementation found to generate Bitcoin addresses. The frontend calls useGetBtcAddress() but backend has no corresponding getBtcAddress method using chain-key Bitcoin API.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Generate unique Ethereum receive addresses for each authenticated user that can receive native ETH on-chain",
-      "reason": "No backend method implementation found to generate Ethereum addresses. The frontend calls useGetEthAddress() but backend has no corresponding getEthAddress method using chain-key Ethereum API.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Generate unique Solana receive addresses for each authenticated user that can receive native SOL on-chain",
-      "reason": "No backend method implementation found to generate Solana addresses. The frontend calls useGetSolAddress() but backend has no corresponding getSolAddress method using chain-key Solana API.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Implement backend method to convert ckBTC to native BTC and send to an external Bitcoin address using chain-key Bitcoin integration",
-      "reason": "No backend implementation of sendNativeBtc method found. The frontend mutation exists but backend has no method to burn ckBTC and initiate native Bitcoin transactions.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "requirement": "Implement backend method to convert ckETH to native ETH and send to an external Ethereum address using chain-key Ethereum integration",
-      "reason": "No backend implementation of sendNativeEth method found. The frontend mutation exists but backend has no method to burn ckETH and initiate native Ethereum transactions.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "requirement": "Implement backend method to convert ckSOL to native SOL and send to an external Solana address using chain-key Solana integration",
-      "reason": "No backend implementation of sendNativeSol method found. The frontend mutation exists but backend has no method to burn ckSOL and initiate native Solana transactions.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "requirement": "Filtering options allow users to view only wrapped or only native transfers",
-      "reason": "HistoryPage.tsx implements token filtering but no transfer type filtering (wrapped vs. native). The filterToken state and UI only filter by coin type, not by transfer mode.",
-      "evidence": [
-        "frontend/src/pages/HistoryPage.tsx"
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "requirement": "Native transfers show the blockchain transaction hash or ID when available",
-      "reason": "TransactionHistoryItem schema has no field for blockchain transaction hash/ID. No display logic exists in HistoryPage to show transaction hashes for native transfers.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/pages/HistoryPage.tsx"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-20T02:08:56.671Z",
+  "summary": "The diff successfully implements both requirements to fix Principal serialization issues in the ckBTC minter hooks. REQ-1 is addressed by modifying useCkBtcDepositAddress to pass empty arrays for optional owner/subaccount fields instead of serialized Principal objects. REQ-2 is addressed similarly in useCkBtcDepositStatus. Both hooks now let the minter use the caller's principal by default when owner is not specified. The changes align with the build request constraints and acceptance criteria.",
+  "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.92,
+  "confidence": 0.95,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/lib/validation.ts",
-    "frontend/src/pages/HistoryPage.tsx",
-    "frontend/src/pages/ReceivePage.tsx",
-    "frontend/src/pages/SendPage.tsx",
+    "frontend/src/hooks/useCkBtcDepositAddress.ts",
+    "frontend/src/hooks/useCkBtcDepositStatus.ts",
+    "frontend/src/lib/ckBtcMinter/client.ts",
     "project_state.json"
   ]
 }

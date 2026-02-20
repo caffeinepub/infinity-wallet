@@ -3,12 +3,13 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
 import Time "mo:core/Time";
-import Text "mo:core/Text";
 import Nat32 "mo:core/Nat32";
 import List "mo:core/List";
 import Order "mo:core/Order";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+
+
 
 actor {
   type CoinType = {
@@ -26,6 +27,7 @@ actor {
     coinType : CoinType;
     sender : Principal;
     timestamp : Time.Time;
+    blockHeight : ?Nat;
   };
 
   module TransactionHistoryItem {
@@ -83,7 +85,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  public shared ({ caller }) func recordTransaction(recipient : Text, amountE8 : Nat, coinType : CoinType) : async () {
+  public shared ({ caller }) func recordTransaction(recipient : Text, amountE8 : Nat, coinType : CoinType, blockHeight : ?Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can record transactions");
     };
@@ -95,6 +97,7 @@ actor {
       amountE8;
       coinType;
       sender = caller;
+      blockHeight;
       timestamp = Time.now();
     };
     transactionHistory.add(newTransaction);

@@ -1,222 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Add on-chain BTC/ETH/SOL interoperability with unique receive addresses and dual sending modes",
+  "title": "Fix ckBTC wallet address generation",
   "projectName": "Infinity Wallet",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Generate unique Bitcoin receive addresses for each authenticated user that can receive native BTC on-chain",
-      "target": "backend",
+      "text": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-user-ckbtc-fix"
         ],
         "quotes": [
-          "yes generate unique receieve addresses for each user for btc,etc,sol"
+          "why is not btc wallet generating?"
         ]
       },
       "acceptanceCriteria": [
-        "Each user has a unique, persistent Bitcoin address generated from their identity",
-        "The Bitcoin address follows the correct format for the Bitcoin network",
-        "The address can be retrieved via a query method",
-        "The address is deterministically derived so it remains consistent across sessions"
+        "The ckBTC minter receives a properly formatted Candid Account type with a valid Principal",
+        "Bitcoin deposit addresses are successfully generated when users navigate to the Receive page",
+        "The 'Invalid opt principal argument' error no longer appears in the console",
+        "Generated Bitcoin addresses are displayed correctly in the ReceivePage component"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Generate unique Ethereum receive addresses for each authenticated user that can receive native ETH on-chain",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes generate unique receieve addresses for each user for btc,etc,sol"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each user has a unique, persistent Ethereum address generated from their identity",
-        "The Ethereum address follows the correct 0x-prefixed format",
-        "The address can be retrieved via a query method",
-        "The address is deterministically derived so it remains consistent across sessions"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Generate unique Solana receive addresses for each authenticated user that can receive native SOL on-chain",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes generate unique receieve addresses for each user for btc,etc,sol"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each user has a unique, persistent Solana address generated from their identity",
-        "The Solana address follows the correct base58 format",
-        "The address can be retrieved via a query method",
-        "The address is deterministically derived so it remains consistent across sessions"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Display the user's unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page alongside the existing Principal address",
+      "text": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-user-ckbtc-fix"
         ],
         "quotes": [
-          "yes generate unique receieve addresses for each user for btc,etc,sol"
+          "why is not btc wallet generating?"
         ]
       },
       "acceptanceCriteria": [
-        "The Receive page shows the user's BTC address with a copy button",
-        "The Receive page shows the user's ETH address with a copy button",
-        "The Receive page shows the user's SOL address with a copy button",
-        "Each address is labeled clearly to indicate which blockchain it belongs to",
-        "Addresses display loading states while being fetched"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Add a transfer mode selector to the Send page allowing users to choose between 'Wrapped (Fast & Cheap)' and 'Native On-Chain' when sending ckBTC, ckETH, or ckSOL",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A radio button or toggle appears on the Send page for selecting transfer mode",
-        "The selector only appears when ckBTC, ckETH, or ckSOL is selected",
-        "The wrapped mode is the default selection",
-        "The UI clearly explains the difference between wrapped (ICRC-1 within IC) and native (on-chain) transfers"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Implement backend method to convert ckBTC to native BTC and send to an external Bitcoin address using chain-key Bitcoin integration",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options",
-          "send it as on chain coins BTC, ETH, SOL"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend accepts a Bitcoin address and amount in e8s",
-        "The method burns the equivalent ckBTC from the user's balance",
-        "The method initiates a native Bitcoin transaction to the provided address",
-        "The method returns success or error status with transaction details",
-        "Proper error handling for insufficient balance, invalid addresses, and network errors"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Implement backend method to convert ckETH to native ETH and send to an external Ethereum address using chain-key Ethereum integration",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options",
-          "send it as on chain coins BTC, ETH, SOL"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend accepts an Ethereum address and amount in wei",
-        "The method burns the equivalent ckETH from the user's balance",
-        "The method initiates a native Ethereum transaction to the provided address",
-        "The method returns success or error status with transaction details",
-        "Proper error handling for insufficient balance, invalid addresses, and network errors"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Implement backend method to convert ckSOL to native SOL and send to an external Solana address using chain-key Solana integration",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options",
-          "send it as on chain coins BTC, ETH, SOL"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend accepts a Solana address and amount in lamports",
-        "The method burns the equivalent ckSOL from the user's balance",
-        "The method initiates a native Solana transaction to the provided address",
-        "The method returns success or error status with transaction details",
-        "Proper error handling for insufficient balance, invalid addresses, and network errors"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Update the Send page to handle native on-chain transfers when the 'Native On-Chain' mode is selected, calling the appropriate chain-key conversion method",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When 'Native On-Chain' is selected and user confirms, the frontend calls the native transfer method instead of ICRC-1 transfer",
-        "The recipient address validation accepts the appropriate format (BTC, ETH, or SOL address)",
-        "Success messages indicate that a native blockchain transaction was initiated",
-        "Error messages clearly distinguish between wrapped and native transfer failures",
-        "Transaction history records indicate whether the transfer was wrapped or native"
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "text": "Update transaction history recording to distinguish between wrapped ICRC-1 transfers and native on-chain conversions",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "yes to all options"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Transaction records include a field indicating transfer type (wrapped or native)",
-        "The History page displays an indicator showing which type of transfer was used",
-        "Native transfers show the blockchain transaction hash or ID when available",
-        "Filtering options allow users to view only wrapped or only native transfers"
+        "The update_balance method successfully processes deposit status checks",
+        "Pending Bitcoin deposits are correctly detected and displayed in the BitcoinDepositStatus component",
+        "The deposit status polling works without Principal encoding errors"
       ]
     }
   ],
   "constraints": [
-    "Use Internet Computer's chain-key cryptography APIs for Bitcoin, Ethereum, and Solana integrations",
-    "Do not modify existing ICRC-1 ledger client implementations in frontend/src/lib/*/client.ts",
-    "Maintain the existing 5-coin balance tuple structure in the backend",
-    "Do not edit frontend/src/hooks/useInternetIdentity.ts or frontend/src/main.tsx",
-    "Keep all backend logic in the single main actor (backend/main.mo)",
-    "Only generate backend/migration.mo if the state schema changes require it"
+    "Do not modify the ckBTC minter canister ID or other ledger configurations",
+    "Preserve the existing authentication flow using Internet Identity",
+    "Maintain the current UI structure and component hierarchy",
+    "Keep the existing hook architecture and React Query patterns"
   ],
   "nonGoals": [
-    "Real-time monitoring of incoming Bitcoin, Ethereum, or Solana transactions",
-    "Automatic conversion of received native coins to wrapped tokens",
-    "Support for ERC-20 tokens or Bitcoin tokens (only native coins)",
-    "Multi-signature wallet functionality",
-    "Integration with external wallets like MetaMask or hardware wallets"
+    "Adding new token types or blockchain integrations",
+    "Modifying the backend Motoko actor",
+    "Changing the UI design or styling",
+    "Adding additional Bitcoin-related features beyond fixing address generation"
   ],
   "imageRequirements": {
     "required": [],

@@ -33,6 +33,7 @@ export const TransactionHistoryItem = IDL.Record({
   'recipient' : IDL.Text,
   'amountE8' : IDL.Nat,
   'sender' : IDL.Principal,
+  'blockHeight' : IDL.Opt(IDL.Nat),
   'timestamp' : Time,
   'coinType' : CoinType,
 });
@@ -61,7 +62,11 @@ export const idlService = IDL.Service({
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'recordBalance' : IDL.Func([CoinType, IDL.Nat], [], []),
-  'recordTransaction' : IDL.Func([IDL.Text, IDL.Nat, CoinType], [], []),
+  'recordTransaction' : IDL.Func(
+      [IDL.Text, IDL.Nat, CoinType, IDL.Opt(IDL.Nat)],
+      [],
+      [],
+    ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveContact' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'updateContact' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
@@ -95,6 +100,7 @@ export const idlFactory = ({ IDL }) => {
     'recipient' : IDL.Text,
     'amountE8' : IDL.Nat,
     'sender' : IDL.Principal,
+    'blockHeight' : IDL.Opt(IDL.Nat),
     'timestamp' : Time,
     'coinType' : CoinType,
   });
@@ -123,7 +129,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'recordBalance' : IDL.Func([CoinType, IDL.Nat], [], []),
-    'recordTransaction' : IDL.Func([IDL.Text, IDL.Nat, CoinType], [], []),
+    'recordTransaction' : IDL.Func(
+        [IDL.Text, IDL.Nat, CoinType, IDL.Opt(IDL.Nat)],
+        [],
+        [],
+      ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveContact' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'updateContact' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),

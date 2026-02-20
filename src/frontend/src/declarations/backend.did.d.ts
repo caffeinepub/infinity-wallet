@@ -27,6 +27,7 @@ export interface TransactionHistoryItem {
   'recipient' : string,
   'amountE8' : bigint,
   'sender' : Principal,
+  'blockHeight' : [] | [bigint],
   'timestamp' : Time,
   'coinType' : CoinType,
 }
@@ -46,7 +47,10 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'recordBalance' : ActorMethod<[CoinType, bigint], undefined>,
-  'recordTransaction' : ActorMethod<[string, bigint, CoinType], undefined>,
+  'recordTransaction' : ActorMethod<
+    [string, bigint, CoinType, [] | [bigint]],
+    undefined
+  >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveContact' : ActorMethod<[string, string], undefined>,
   'updateContact' : ActorMethod<[bigint, string, string], undefined>,

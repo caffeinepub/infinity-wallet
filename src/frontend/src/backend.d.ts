@@ -12,6 +12,7 @@ export interface TransactionHistoryItem {
     recipient: string;
     amountE8: bigint;
     sender: Principal;
+    blockHeight?: bigint;
     timestamp: Time;
     coinType: CoinType;
 }
@@ -48,7 +49,7 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     recordBalance(coinType: CoinType, balance: bigint): Promise<void>;
-    recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType): Promise<void>;
+    recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType, blockHeight: bigint | null): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveContact(name: string, address: string): Promise<void>;
     updateContact(contactId: bigint, name: string, address: string): Promise<void>;

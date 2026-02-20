@@ -1,122 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Web3 multi-chain wallet application with on-chain interoperability for BTC, ETH, and SOL",
+  "summary": "Infinity Wallet with multi-token support (Infinity Coin, ckBTC, ckETH, ckUSDC, ckUSDT). Critical bug: ckBTC wallet address generation failing due to Principal serialization issue in ckBTC minter integration.",
   "architectural_notes": [
-    "Multi-chain wallet with on-chain interoperability for BTC, ETH, and SOL",
-    "Chain-key integration required for native blockchain transactions",
-    "Dual transfer mechanism: wrapped tokens (fast/cheap) and native coins (external chains)"
+    "ckBTC minter canister requires proper Candid Principal type formatting, not JSON serialized objects",
+    "Bitcoin deposit address generation uses ckBTC minter's update_balance method, separate from ledger queries"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "ckBTC wallet address generation fails with 'Invalid opt principal argument' - Principal being sent as JSON object instead of Candid type to minter canister"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-display-the-user-s-unique-bitcoin-ethereum-and-solana-receive-addresses-on-the-receive-page-alongside-the-existing-principal-address",
-      "title": "Display the user's unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page alongside the existing Principal address",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-transfer-mode-selector-to-the-send-page-allowing-users-to-choose-between-wrapped-fast-cheap-and-native-on-chain-when-sending-ckbtc-cketh-or-cksol",
-      "title": "Add a transfer mode selector to the Send page allowing users to choose between 'Wrapped (Fast & Cheap)' and 'Native On-Chain' when sending ckBTC, ckETH, or ckSOL",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-send-page-to-handle-native-on-chain-transfers-when-the-native-on-chain-mode-is-selected-calling-the-appropriate-chain-key-conversion-method",
-      "title": "Update the Send page to handle native on-chain transfers when the 'Native On-Chain' mode is selected, calling the appropriate chain-key conversion method",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-transaction-history-recording-to-distinguish-between-wrapped-icrc-1-transfers-and-native-on-chain-conversions",
-      "title": "Update transaction history recording to distinguish between wrapped ICRC-1 transfers and native on-chain conversions",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    }
-  ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Generate unique receive addresses for each user for BTC, ETH, and SOL",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Enable sending tokens as wrapped versions (ckBTC/ckETH/ckSOL) within Internet Computer network",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Enable converting and sending tokens as native coins (BTC/ETH/SOL) to external blockchain addresses",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Provide users choice between wrapped token transfers and native coin transfers when sending",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Generate unique Bitcoin receive addresses for each authenticated user that can receive native BTC on-chain",
+      "id": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositaddress-hook-where-the-principal-is-being-sent-as-a-json-object-principal-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-get-btc-address-method",
+      "title": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-6",
-      "summary": "Generate unique Ethereum receive addresses for each authenticated user that can receive native ETH on-chain",
+      "id": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositstatus-hook-where-the-principal-is-being-sent-as-a-json-object-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-update-balance-method",
+      "title": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
       "reqIds": [
         "REQ-2"
       ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Generate unique Solana receive addresses for each authenticated user that can receive native SOL on-chain",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "Implement backend method to convert ckBTC to native BTC and send to an external Bitcoin address using chain-key Bitcoin integration",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-11",
-      "summary": "Implement backend method to convert ckETH to native ETH and send to an external Ethereum address using chain-key Ethereum integration",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-12",
-      "summary": "Implement backend method to convert ckSOL to native SOL and send to an external Solana address using chain-key Solana integration",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "status": "pending"
+      "version": 1
     }
   ],
+  "new_feature_requests": [],
   "projectName": "Infinity Wallet",
   "clarification_mode": "instant",
   "clarification_rounds": 0

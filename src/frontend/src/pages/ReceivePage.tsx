@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Copy, CheckCircle2, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetBtcAddress, useGetEthAddress, useGetSolAddress } from '../hooks/useQueries';
+import { useCkBtcDepositAddress } from '../hooks/useCkBtcDepositAddress';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
@@ -12,7 +13,14 @@ export default function ReceivePage() {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const { identity } = useInternetIdentity();
 
-  const { data: btcAddress, isLoading: btcLoading, error: btcError } = useGetBtcAddress();
+  const { 
+    data: btcDepositAddress, 
+    isLoading: btcDepositLoading, 
+    error: btcDepositError,
+    refetch: refetchBtcAddress,
+    isFetching: btcDepositRefetching
+  } = useCkBtcDepositAddress();
+  
   const { data: ethAddress, isLoading: ethLoading, error: ethError } = useGetEthAddress();
   const { data: solAddress, isLoading: solLoading, error: solError } = useGetSolAddress();
 
@@ -22,6 +30,10 @@ export default function ReceivePage() {
     navigator.clipboard.writeText(text);
     setCopiedToken(tokenName);
     setTimeout(() => setCopiedToken(null), 2000);
+  };
+
+  const handleRetryBtcAddress = async () => {
+    await refetchBtcAddress();
   };
 
   const wrappedTokens = [
@@ -123,160 +135,124 @@ export default function ReceivePage() {
       <Separator className="my-8" />
 
       <div>
-        <h2 className="text-xl font-semibold mb-2 text-foreground">Native Blockchain Addresses</h2>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">Native Bitcoin Deposits</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Receive native BTC, ETH, and SOL directly from external wallets
+          Send native Bitcoin to this address to receive ckBTC tokens
         </p>
 
         <div className="grid gap-3">
-          {/* Bitcoin Address */}
-          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
+          {/* Bitcoin Deposit Address */}
+          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow">
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <img src="/assets/generated/ckbtc-logo.dim_64x64.png" alt="Bitcoin" className="h-10 w-10 rounded-full" />
                   <div className="flex-1">
                     <p className="font-medium">Bitcoin (BTC)</p>
-                    <p className="text-xs text-muted-foreground">Native Bitcoin address</p>
+                    <p className="text-xs text-muted-foreground">Deposit native Bitcoin → Receive ckBTC</p>
                   </div>
                 </div>
-                {btcLoading ? (
+                {btcDepositLoading || btcDepositRefetching ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading address...</span>
+                    <span>{btcDepositRefetching ? 'Retrying...' : 'Generating your Bitcoin deposit address...'}</span>
                   </div>
-                ) : btcError ? (
-                  <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      Chain-key Bitcoin integration coming soon
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-3">
-                      <p className="font-mono text-xs break-all text-foreground">{btcAddress}</p>
-                    </div>
+                ) : btcDepositError ? (
+                  <div className="space-y-3">
+                    <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="text-xs">
+                        Failed to generate Bitcoin address. Please try again.
+                      </AlertDescription>
+                    </Alert>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleCopy(btcAddress || '', 'BTC')}
+                      onClick={handleRetryBtcAddress}
                       className="gap-2 border-primary/30 hover:bg-primary/10 shadow-glow-sm"
                     >
-                      {copiedToken === 'BTC' ? (
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
+                      <RefreshCw className="h-4 w-4" />
+                      Retry
                     </Button>
                   </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-3">
+                        <p className="font-mono text-xs break-all text-foreground">{btcDepositAddress}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCopy(btcDepositAddress || '', 'BTC-Deposit')}
+                        className="gap-2 border-primary/30 hover:bg-primary/10 shadow-glow-sm"
+                      >
+                        {copiedToken === 'BTC-Deposit' ? (
+                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <Alert className="border-accent/30 bg-accent/5">
+                      <AlertDescription className="text-xs space-y-1">
+                        <p className="font-medium text-accent">How it works:</p>
+                        <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                          <li>Send Bitcoin to this address from any wallet</li>
+                          <li>Wait for 6 Bitcoin confirmations (~60 minutes)</li>
+                          <li>ckBTC will be automatically minted to your account</li>
+                          <li>Minimum deposit: 0.0001 BTC</li>
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  </>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Ethereum Address */}
-          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
+          {/* Ethereum Address - Coming Soon */}
+          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm opacity-60">
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <img src="/assets/generated/cketh-logo.dim_64x64.png" alt="Ethereum" className="h-10 w-10 rounded-full" />
                   <div className="flex-1">
                     <p className="font-medium">Ethereum (ETH)</p>
-                    <p className="text-xs text-muted-foreground">Native Ethereum address</p>
+                    <p className="text-xs text-muted-foreground">Native Ethereum deposits coming soon</p>
                   </div>
                 </div>
-                {ethLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading address...</span>
-                  </div>
-                ) : ethError ? (
-                  <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      Chain-key Ethereum integration coming soon
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-3">
-                      <p className="font-mono text-xs break-all text-foreground">{ethAddress}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopy(ethAddress || '', 'ETH')}
-                      className="gap-2 border-primary/30 hover:bg-primary/10 shadow-glow-sm"
-                    >
-                      {copiedToken === 'ETH' ? (
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                )}
+                <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    Chain-key Ethereum integration coming soon
+                  </AlertDescription>
+                </Alert>
               </div>
             </CardContent>
           </Card>
 
-          {/* Solana Address */}
-          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm">
+          {/* Solana Address - Coming Soon */}
+          <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm opacity-60">
             <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <img src="/assets/generated/cksol-logo.dim_64x64.png" alt="Solana" className="h-10 w-10 rounded-full" />
                   <div className="flex-1">
                     <p className="font-medium">Solana (SOL)</p>
-                    <p className="text-xs text-muted-foreground">Native Solana address</p>
+                    <p className="text-xs text-muted-foreground">Native Solana deposits coming soon</p>
                   </div>
                 </div>
-                {solLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading address...</span>
-                  </div>
-                ) : solError ? (
-                  <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      Chain-key Solana integration coming soon
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-lg border border-primary/20 bg-muted/30 backdrop-blur-sm p-3">
-                      <p className="font-mono text-xs break-all text-foreground">{solAddress}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopy(solAddress || '', 'SOL')}
-                      className="gap-2 border-primary/30 hover:bg-primary/10 shadow-glow-sm"
-                    >
-                      {copiedToken === 'SOL' ? (
-                        <CheckCircle2 className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                )}
+                <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    Chain-key Solana integration coming soon
+                  </AlertDescription>
+                </Alert>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      <div className="rounded-lg border border-accent/20 bg-accent/5 p-4 space-y-2">
-        <h3 className="font-medium text-sm text-accent">How to Receive</h3>
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-          <li><strong>Wrapped tokens:</strong> Share your Principal with the sender for ICRC-1 transfers</li>
-          <li><strong>Native coins:</strong> Share the specific blockchain address (BTC, ETH, or SOL)</li>
-          <li>Funds will appear in your balance automatically</li>
-          <li>Native coins are automatically converted to wrapped tokens (ckBTC, ckETH, ckSOL)</li>
-        </ul>
       </div>
     </div>
   );

@@ -11,19 +11,22 @@ import { useIcpLedger } from '../hooks/useIcpLedger';
 import { useCkBtcLedger } from '../hooks/useCkBtcLedger';
 import { useCkEthLedger } from '../hooks/useCkEthLedger';
 import { useCkSolLedger } from '../hooks/useCkSolLedger';
+import { useCkBtcWithdraw } from '../hooks/useCkBtcWithdraw';
+import { useCkBtcMinterInfo } from '../hooks/useCkBtcMinterInfo';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Send, CheckCircle2, AlertCircle, Info } from 'lucide-react';
-import { validateRecipient, validateBtcAddress, validateEthAddress, validateSolAddress, validateAmount, parseAmountToE8, formatBalance } from '@/lib/validation';
+import { Loader2, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { validateRecipient, validateBtcAddress, validateEthAddress, validateSolAddress, validateAmount, parseAmountToE8, formatBalance, parseBtcToSatoshis, formatSatoshisToBtc } from '@/lib/validation';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
 import { CoinType } from '../backend';
 import RecipientPicker from '../components/wallet/RecipientPicker';
+import TransferModeSelector from '../components/wallet/TransferModeSelector';
+import BitcoinFeeDisplay from '../components/wallet/BitcoinFeeDisplay';
 import { Principal } from '@dfinity/principal';
 import { formatTransferError as formatInfinityError, type ICRC1Account } from '@/lib/infinityLedger';
 import { formatTransferError as formatIcpError } from '@/lib/icpLedger';
@@ -51,6 +54,8 @@ export default function SendPage() {
   const sendNativeBtc = useSendNativeBtc();
   const sendNativeEth = useSendNativeEth();
   const sendNativeSol = useSendNativeSol();
+  const ckBtcWithdraw = useCkBtcWithdraw();
+  const { data: minterInfo } = useCkBtcMinterInfo();
 
   const infinityCoin = useInfinityCoinBalance();
   const icp = useIcpBalance();
@@ -67,7 +72,7 @@ export default function SendPage() {
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
 
-  const showTransferModeSelector = ['ckBtc', 'ckEth', 'ckSol'].includes(selectedToken);
+  const showTransferModeSelector = selectedToken === 'ckBtc';
 
   const getSelectedBalance = () => {
     switch (selectedToken) {
@@ -157,16 +162,12 @@ export default function SendPage() {
   const handleValidate = () => {
     let recipientValidation;
     
-    if (transferMode === 'native') {
-      if (selectedToken === 'ckBtc') {
-        recipientValidation = validateBtcAddress(recipient);
-      } else if (selectedToken === 'ckEth') {
-        recipientValidation = validateEthAddress(recipient);
-      } else if (selectedToken === 'ckSol') {
-        recipientValidation = validateSolAddress(recipient);
-      } else {
-        recipientValidation = validateRecipient(recipient);
-      }
+    if (transferMode === 'native' && selectedToken === 'ckBtc') {
+      recipientValidation = validateBtcAddress(recipient);
+    } else if (transferMode === 'native' && selectedToken === 'ckEth') {
+      recipientValidation = validateEthAddress(recipient);
+    } else if (transferMode === 'native' && selectedToken === 'ckSol') {
+      recipientValidation = validateSolAddress(recipient);
     } else {
       recipientValidation = validateRecipient(recipient);
     }
@@ -176,6 +177,14 @@ export default function SendPage() {
     const newErrors: { recipient?: string; amount?: string } = {};
     if (!recipientValidation.valid) newErrors.recipient = recipientValidation.error;
     if (!amountValidation.valid) newErrors.amount = amountValidation.error;
+
+    // Additional validation for Bitcoin withdrawal minimum
+    if (transferMode === 'native' && selectedToken === 'ckBtc' && minterInfo) {
+      const satoshis = parseBtcToSatoshis(amount);
+      if (satoshis < minterInfo.retrieve_btc_min_amount) {
+        newErrors.amount = `Minimum withdrawal: ${formatSatoshisToBtc(minterInfo.retrieve_btc_min_amount)} BTC`;
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -188,15 +197,51 @@ export default function SendPage() {
     }
   };
 
+  const handleSendBitcoinWithdrawal = async () => {
+    const satoshis = parseBtcToSatoshis(amount);
+    setIsSending(true);
+    setSendError(null);
+
+    try {
+      const blockIdx = await ckBtcWithdraw.mutateAsync({
+        address: recipient,
+        amountSatoshis: satoshis,
+      });
+
+      try {
+        await recordTransaction.mutateAsync({
+          recipient,
+          amountE8: satoshis,
+          coinType: CoinType.ckBtc,
+          blockHeight: blockIdx ?? null,
+        });
+      } catch (historyError) {
+        console.error('Failed to record transaction history:', historyError);
+        toast.warning('Withdrawal initiated but history recording failed');
+      }
+
+      setBlockIndex(blockIdx ?? null);
+      setStep('success');
+    } catch (error) {
+      console.error('Bitcoin withdrawal failed:', error);
+      setSendError(error instanceof Error ? error.message : 'Bitcoin withdrawal failed. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleSendNative = async () => {
+    if (selectedToken === 'ckBtc') {
+      await handleSendBitcoinWithdrawal();
+      return;
+    }
+
     const amountE8 = parseAmountToE8(amount);
     setIsSending(true);
     setSendError(null);
 
     try {
-      if (selectedToken === 'ckBtc') {
-        await sendNativeBtc.mutateAsync({ address: recipient, amountE8 });
-      } else if (selectedToken === 'ckEth') {
+      if (selectedToken === 'ckEth') {
         await sendNativeEth.mutateAsync({ address: recipient, amountWei: amountE8 });
       } else if (selectedToken === 'ckSol') {
         await sendNativeSol.mutateAsync({ address: recipient, amountLamports: amountE8 });
@@ -207,13 +252,14 @@ export default function SendPage() {
           recipient,
           amountE8,
           coinType: getCoinType(selectedToken),
+          blockHeight: null,
         });
       } catch (historyError) {
         console.error('Failed to record transaction history:', historyError);
         toast.warning('Transaction succeeded but history recording failed');
       }
 
-      setBlockIndex(BigInt(0)); // Native transfers don't have block index yet
+      setBlockIndex(BigInt(0));
       setStep('success');
     } catch (error) {
       console.error('Native transfer failed:', error);
@@ -273,6 +319,7 @@ export default function SendPage() {
             recipient,
             amountE8,
             coinType: getCoinType(selectedToken),
+            blockHeight: txBlockIndex,
           });
         } catch (historyError) {
           console.error('Failed to record transaction history:', historyError);
@@ -319,11 +366,13 @@ export default function SendPage() {
               <CheckCircle2 className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Transfer Successful
+              {transferMode === 'native' && selectedToken === 'ckBtc' ? 'Bitcoin Withdrawal Initiated' : 'Transfer Successful'}
             </CardTitle>
             <CardDescription>
-              {transferMode === 'native' 
-                ? `Your native blockchain transaction has been initiated`
+              {transferMode === 'native' && selectedToken === 'ckBtc'
+                ? 'Your ckBTC has been burned and native Bitcoin is being sent'
+                : transferMode === 'native' 
+                ? 'Your native blockchain transaction has been initiated'
                 : `Your ${getTokenLabel(selectedToken)} has been sent on the ledger`}
             </CardDescription>
           </CardHeader>
@@ -335,7 +384,9 @@ export default function SendPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Transfer Type:</span>
-                <span className="font-medium text-accent capitalize">{transferMode}</span>
+                <span className="font-medium text-accent capitalize">
+                  {transferMode === 'native' && selectedToken === 'ckBtc' ? 'Bitcoin Withdrawal' : transferMode}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount:</span>
@@ -345,13 +396,21 @@ export default function SendPage() {
                 <span className="text-muted-foreground">Recipient:</span>
                 <span className="font-mono text-xs">{recipient.slice(0, 20)}...</span>
               </div>
-              {transferMode === 'wrapped' && blockIndex !== null && (
+              {blockIndex !== null && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Block Index:</span>
                   <span className="font-mono text-xs text-accent">{blockIndex.toString()}</span>
                 </div>
               )}
             </div>
+            {transferMode === 'native' && selectedToken === 'ckBtc' && (
+              <Alert className="border-accent/30 bg-accent/5">
+                <AlertDescription className="text-xs">
+                  Your Bitcoin withdrawal will be processed after 6 Bitcoin network confirmations (~60 minutes).
+                  You can track the status in your transaction history.
+                </AlertDescription>
+              </Alert>
+            )}
             <Button onClick={handleReset} className="w-full shadow-glow hover:shadow-glow-lg transition-all">
               Send Another Transaction
             </Button>
@@ -383,7 +442,9 @@ export default function SendPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Transfer Type:</span>
-                <span className="font-medium text-accent capitalize">{transferMode}</span>
+                <span className="font-medium text-accent capitalize">
+                  {transferMode === 'native' && selectedToken === 'ckBtc' ? 'Bitcoin Withdrawal' : transferMode}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Amount:</span>
@@ -398,6 +459,10 @@ export default function SendPage() {
                 <span className="font-medium">{formatBalance(getSelectedBalance())} {getTokenLabel(selectedToken)}</span>
               </div>
             </div>
+
+            {transferMode === 'native' && selectedToken === 'ckBtc' && (
+              <BitcoinFeeDisplay feeSatoshis={minterInfo?.kyt_fee} />
+            )}
 
             {sendError && (
               <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
@@ -423,7 +488,7 @@ export default function SendPage() {
                 {isSending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
+                    {transferMode === 'native' && selectedToken === 'ckBtc' ? 'Withdrawing...' : 'Sending...'}
                   </>
                 ) : (
                   <>
@@ -473,73 +538,47 @@ export default function SendPage() {
                 <SelectItem value="ckSol">{TOKEN_CKSOL}</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               Balance: {formatBalance(getSelectedBalance())} {getTokenLabel(selectedToken)}
-            </p>
+            </div>
           </div>
 
           {showTransferModeSelector && (
-            <div className="space-y-3">
-              <Label>Transfer Mode</Label>
-              <RadioGroup value={transferMode} onValueChange={(value) => {
-                setTransferMode(value as TransferMode);
+            <TransferModeSelector
+              mode={transferMode}
+              onChange={(mode) => {
+                setTransferMode(mode);
                 setRecipient('');
                 setErrors({});
-              }}>
-                <div className="flex items-center space-x-2 rounded-lg border border-primary/20 bg-muted/20 p-3">
-                  <RadioGroupItem value="wrapped" id="wrapped" />
-                  <Label htmlFor="wrapped" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Wrapped (ICRC-1)</div>
-                    <div className="text-xs text-muted-foreground">Fast & cheap transfers within Internet Computer</div>
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2 rounded-lg border border-accent/20 bg-accent/5 p-3">
-                  <RadioGroupItem value="native" id="native" />
-                  <Label htmlFor="native" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Native On-Chain</div>
-                    <div className="text-xs text-muted-foreground">
-                      Send to external {selectedToken === 'ckBtc' ? 'Bitcoin' : selectedToken === 'ckEth' ? 'Ethereum' : 'Solana'} addresses
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
-              <Alert className="border-accent/30 bg-accent/5">
-                <Info className="h-4 w-4 text-accent" />
-                <AlertDescription className="text-xs">
-                  {transferMode === 'wrapped' 
-                    ? 'Wrapped transfers use ICRC-1 standard and stay on the Internet Computer network.'
-                    : `Native transfers convert your ${getTokenLabel(selectedToken)} to real ${selectedToken === 'ckBtc' ? 'BTC' : selectedToken === 'ckEth' ? 'ETH' : 'SOL'} and send on-chain.`}
-                </AlertDescription>
-              </Alert>
-            </div>
+              }}
+              tokenName={getTokenLabel(selectedToken)}
+            />
           )}
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="recipient">
-                {transferMode === 'native' 
-                  ? `${selectedToken === 'ckBtc' ? 'Bitcoin' : selectedToken === 'ckEth' ? 'Ethereum' : 'Solana'} Address`
-                  : 'Recipient Address'}
+                {transferMode === 'native' && selectedToken === 'ckBtc' ? 'Bitcoin Address' : 'Recipient Address'}
               </Label>
               {transferMode === 'wrapped' && <RecipientPicker onSelect={setRecipient} />}
             </div>
             <Input
               id="recipient"
               placeholder={
-                transferMode === 'native'
-                  ? selectedToken === 'ckBtc' 
-                    ? 'bc1q... or 1... or 3...'
-                    : selectedToken === 'ckEth'
-                    ? '0x...'
-                    : 'Base58 Solana address'
+                transferMode === 'native' && selectedToken === 'ckBtc'
+                  ? 'bc1q...'
+                  : transferMode === 'native' && selectedToken === 'ckEth'
+                  ? '0x...'
+                  : transferMode === 'native' && selectedToken === 'ckSol'
+                  ? 'Solana address'
                   : 'Principal or Account ID'
               }
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
-              className={`font-mono text-sm border-primary/30 ${errors.recipient ? 'border-destructive' : ''}`}
+              className={`border-primary/30 ${errors.recipient ? 'border-destructive' : ''}`}
             />
             {errors.recipient && (
-              <p className="text-xs text-destructive">{errors.recipient}</p>
+              <p className="text-sm text-destructive">{errors.recipient}</p>
             )}
           </div>
 
@@ -549,13 +588,18 @@ export default function SendPage() {
               id="amount"
               type="number"
               step="0.00000001"
-              placeholder="0.00"
+              placeholder="0.00000000"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className={`border-primary/30 ${errors.amount ? 'border-destructive' : ''}`}
             />
             {errors.amount && (
-              <p className="text-xs text-destructive">{errors.amount}</p>
+              <p className="text-sm text-destructive">{errors.amount}</p>
+            )}
+            {transferMode === 'native' && selectedToken === 'ckBtc' && minterInfo && (
+              <p className="text-xs text-muted-foreground">
+                Minimum: {formatSatoshisToBtc(minterInfo.retrieve_btc_min_amount)} BTC
+              </p>
             )}
           </div>
 
@@ -563,8 +607,8 @@ export default function SendPage() {
             onClick={handleContinue}
             className="w-full gap-2 shadow-glow hover:shadow-glow-lg transition-all"
           >
-            Continue
             <Send className="h-4 w-4" />
+            Continue
           </Button>
         </CardContent>
       </Card>

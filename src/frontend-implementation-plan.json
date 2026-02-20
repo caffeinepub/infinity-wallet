@@ -1,95 +1,48 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add on-chain BTC/ETH/SOL interoperability with unique receive addresses and dual sending modes",
+  "title": "Fix ckBTC wallet address generation",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Display unique Bitcoin, Ethereum, and Solana receive addresses on the Receive page",
+      "id": "REQ-1",
+      "summary": "Fix Principal serialization in useCkBtcDepositAddress hook to send proper Candid Principal type to ckBTC minter's get_btc_address method",
       "acceptanceCriteria": [
-        "The Receive page shows the user's BTC address with a copy button",
-        "The Receive page shows the user's ETH address with a copy button",
-        "The Receive page shows the user's SOL address with a copy button",
-        "Each address is labeled clearly to indicate which blockchain it belongs to",
-        "Addresses display loading states while being fetched"
+        "The ckBTC minter receives a properly formatted Candid Account type with a valid Principal",
+        "Bitcoin deposit addresses are successfully generated when users navigate to the Receive page",
+        "The 'Invalid opt principal argument' error no longer appears in the console",
+        "Generated Bitcoin addresses are displayed correctly in the ReceivePage component"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/hooks/useCkBtcDepositAddress.ts",
           "operation": "modify",
-          "description": "Add React Query hooks useGetBtcAddress, useGetEthAddress, and useGetSolAddress that call backend methods to fetch the user's unique chain-specific receive addresses. Each hook should handle loading states, errors, and be enabled only when actor is available."
+          "description": "Fix the Principal serialization issue where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type. Ensure the Account parameter passed to get_btc_address contains a Principal instance, not a serialized object. The owner field must be a Principal created via Principal.fromText() or obtained directly from the identity, and subaccount must be properly encoded as an optional array of numbers if provided."
         },
         {
           "path": "frontend/src/pages/ReceivePage.tsx",
           "operation": "modify",
-          "description": "Extend the Receive page to display BTC, ETH, and SOL addresses alongside the existing Principal address. Add labeled sections for each blockchain with copy-to-clipboard buttons. Show loading spinners while addresses are being fetched. Include explanatory text that these are unique addresses for receiving native on-chain coins."
+          "description": "Verify that the Bitcoin deposit address display and error handling properly reflects the fixed Principal serialization. Ensure the retry button and loading states work correctly with the updated hook implementation."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Add transfer mode selector to Send page for wrapped vs native transfers",
+      "id": "REQ-2",
+      "summary": "Fix Principal serialization in useCkBtcDepositStatus hook to send proper Candid Principal type to ckBTC minter's update_balance method",
       "acceptanceCriteria": [
-        "A radio button or toggle appears on the Send page for selecting transfer mode",
-        "The selector only appears when ckBTC, ckETH, or ckSOL is selected",
-        "The wrapped mode is the default selection",
-        "The UI clearly explains the difference between wrapped (ICRC-1 within IC) and native (on-chain) transfers"
+        "The update_balance method successfully processes deposit status checks",
+        "Pending Bitcoin deposits are correctly detected and displayed in the BitcoinDepositStatus component",
+        "The deposit status polling works without Principal encoding errors"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SendPage.tsx",
+          "path": "frontend/src/hooks/useCkBtcDepositStatus.ts",
           "operation": "modify",
-          "description": "Add a transfer mode selector (radio buttons or toggle) that appears only when ckBTC, ckETH, or ckSOL is selected. Default to 'Wrapped (Fast & Cheap)' mode. Add 'Native On-Chain' option with explanatory tooltips describing that wrapped transfers stay on IC using ICRC-1, while native transfers convert to real BTC/ETH/SOL and send on-chain. Store the selected mode in component state and use it to determine which transfer flow to execute."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Handle native on-chain transfers when Native On-Chain mode is selected",
-      "acceptanceCriteria": [
-        "When 'Native On-Chain' is selected and user confirms, the frontend calls the native transfer method instead of ICRC-1 transfer",
-        "The recipient address validation accepts the appropriate format (BTC, ETH, or SOL address)",
-        "Success messages indicate that a native blockchain transaction was initiated",
-        "Error messages clearly distinguish between wrapped and native transfer failures",
-        "Transaction history records indicate whether the transfer was wrapped or native"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/lib/validation.ts",
-          "operation": "modify",
-          "description": "Extend address validation to accept native blockchain address formats: BTC addresses (base58/bech32), ETH addresses (0x-prefixed hex), and SOL addresses (base58). Add format detection logic that validates based on the selected coin type and transfer mode."
+          "description": "Fix the Principal serialization issue where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling update_balance. Ensure the Account parameter contains a Principal instance (not a serialized object) for the owner field, and that the subaccount is properly encoded as an optional array of numbers if needed."
         },
         {
-          "path": "frontend/src/pages/SendPage.tsx",
+          "path": "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
           "operation": "modify",
-          "description": "Update the transfer execution logic to call native conversion backend methods (sendNativeBtc, sendNativeEth, sendNativeSol) when Native On-Chain mode is selected. Pass the recipient address and amount to the appropriate backend method. Update success messages to indicate 'Native blockchain transaction initiated' vs 'Wrapped transfer completed'. Handle errors specific to native transfers (e.g., invalid blockchain address format, chain-key integration errors). Update the recordTransaction call to include transfer mode metadata."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add mutation hooks useSendNativeBtc, useSendNativeEth, and useSendNativeSol that call the corresponding backend conversion methods. Each mutation should handle success/error states and invalidate relevant queries (balances, transaction history) on success."
-        }
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "summary": "Update transaction history to distinguish wrapped vs native transfers",
-      "acceptanceCriteria": [
-        "Transaction records include a field indicating transfer type (wrapped or native)",
-        "The History page displays an indicator showing which type of transfer was used",
-        "Native transfers show the blockchain transaction hash or ID when available",
-        "Filtering options allow users to view only wrapped or only native transfers"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/HistoryPage.tsx",
-          "operation": "modify",
-          "description": "Update the transaction history display to show transfer type badges ('Wrapped' or 'Native On-Chain') for each transaction. Display blockchain transaction hashes when available for native transfers. Add filter controls (dropdown or tabs) to allow users to view all transactions, only wrapped transfers, or only native transfers. Apply filtering logic based on the transaction type metadata."
-        },
-        {
-          "path": "frontend/src/backend.d.ts",
-          "operation": "modify",
-          "description": "Update the TransactionHistoryItem interface to include an optional transferType field (enum: 'wrapped' | 'native') and an optional blockchainTxHash field for storing native transaction identifiers."
+          "description": "Verify that the pending deposit status display correctly reflects the fixed Principal serialization. Ensure the component properly handles loading states and displays deposit information when the update_balance call succeeds."
         }
       ]
     }

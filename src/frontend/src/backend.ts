@@ -94,6 +94,7 @@ export interface TransactionHistoryItem {
     recipient: string;
     amountE8: bigint;
     sender: Principal;
+    blockHeight?: bigint;
     timestamp: Time;
     coinType: CoinType;
 }
@@ -131,7 +132,7 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     recordBalance(coinType: CoinType, balance: bigint): Promise<void>;
-    recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType): Promise<void>;
+    recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType, blockHeight: bigint | null): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveContact(name: string, address: string): Promise<void>;
     updateContact(contactId: bigint, name: string, address: string): Promise<void>;
@@ -294,28 +295,28 @@ export class Backend implements backendInterface {
     async recordBalance(arg0: CoinType, arg1: bigint): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.recordBalance(to_candid_CoinType_n11(this._uploadFile, this._downloadFile, arg0), arg1);
+                const result = await this.actor.recordBalance(to_candid_CoinType_n12(this._uploadFile, this._downloadFile, arg0), arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.recordBalance(to_candid_CoinType_n11(this._uploadFile, this._downloadFile, arg0), arg1);
+            const result = await this.actor.recordBalance(to_candid_CoinType_n12(this._uploadFile, this._downloadFile, arg0), arg1);
             return result;
         }
     }
-    async recordTransaction(arg0: string, arg1: bigint, arg2: CoinType): Promise<void> {
+    async recordTransaction(arg0: string, arg1: bigint, arg2: CoinType, arg3: bigint | null): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.recordTransaction(arg0, arg1, to_candid_CoinType_n11(this._uploadFile, this._downloadFile, arg2));
+                const result = await this.actor.recordTransaction(arg0, arg1, to_candid_CoinType_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n14(this._uploadFile, this._downloadFile, arg3));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.recordTransaction(arg0, arg1, to_candid_CoinType_n11(this._uploadFile, this._downloadFile, arg2));
+            const result = await this.actor.recordTransaction(arg0, arg1, to_candid_CoinType_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n14(this._uploadFile, this._downloadFile, arg3));
             return result;
         }
     }
@@ -362,8 +363,8 @@ export class Backend implements backendInterface {
         }
     }
 }
-function from_candid_CoinType_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CoinType): CoinType {
-    return from_candid_variant_n10(_uploadFile, _downloadFile, value);
+function from_candid_CoinType_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CoinType): CoinType {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
 }
 function from_candid_TransactionHistoryItem_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TransactionHistoryItem): TransactionHistoryItem {
     return from_candid_record_n8(_uploadFile, _downloadFile, value);
@@ -374,11 +375,15 @@ function from_candid_UserRole_n4(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
+function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
+}
 function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     recipient: string;
     amountE8: bigint;
     sender: Principal;
+    blockHeight: [] | [bigint];
     timestamp: _Time;
     coinType: _CoinType;
 }): {
@@ -386,6 +391,7 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
     recipient: string;
     amountE8: bigint;
     sender: Principal;
+    blockHeight?: bigint;
     timestamp: Time;
     coinType: CoinType;
 } {
@@ -394,11 +400,12 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
         recipient: value.recipient,
         amountE8: value.amountE8,
         sender: value.sender,
+        blockHeight: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.blockHeight)),
         timestamp: value.timestamp,
-        coinType: from_candid_CoinType_n9(_uploadFile, _downloadFile, value.coinType)
+        coinType: from_candid_CoinType_n10(_uploadFile, _downloadFile, value.coinType)
     };
 }
-function from_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     icp: null;
 } | {
     ckBtc: null;
@@ -423,13 +430,16 @@ function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uin
 function from_candid_vec_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_TransactionHistoryItem>): Array<TransactionHistoryItem> {
     return value.map((x)=>from_candid_TransactionHistoryItem_n7(_uploadFile, _downloadFile, x));
 }
-function to_candid_CoinType_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoinType): _CoinType {
-    return to_candid_variant_n12(_uploadFile, _downloadFile, value);
+function to_candid_CoinType_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoinType): _CoinType {
+    return to_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
 }
-function to_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoinType): {
+function to_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+    return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CoinType): {
     icp: null;
 } | {
     ckBtc: null;
