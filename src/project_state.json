@@ -1,35 +1,43 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Infinity Wallet with multi-token support (Infinity Coin, ckBTC, ckETH, ckUSDC, ckUSDT). Critical bug: ckBTC wallet address generation failing due to Principal serialization issue in ckBTC minter integration.",
-  "architectural_notes": [
-    "ckBTC minter canister requires proper Candid Principal type formatting, not JSON serialized objects",
-    "Bitcoin deposit address generation uses ckBTC minter's update_balance method, separate from ledger queries"
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "ckBTC wallet address generation fails with 'Invalid opt principal argument' - Principal being sent as JSON object instead of Candid type to minter canister"
+    "ckBTC minter canister missing 'get_btc_address' query method - causing Bitcoin deposit address generation to fail",
+    "useCkBtcDepositStatus hook throwing 'Not a vector type' decoding error",
+    "Agent configuration conflict warning: 'Detected both agent and agentOptions passed to createActor'"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositaddress-hook-where-the-principal-is-being-sent-as-a-json-object-principal-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-get-btc-address-method",
-      "title": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
+      "id": "feature-fix-the-useckbtcdepositaddress-hook-to-use-the-correct-ckbtc-minter-canister-method-for-fetching-bitcoin-deposit-addresses-the-current-implementation-calls-get-btc-address-which-does-not-exist-on-canister-mqygn-kiaaa-aaaar-qaadq-cai-replace-with-the-correct-method-name-from-the-ckbtc-minter-idl",
+      "title": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-principal-serialization-issue-in-useckbtcdepositstatus-hook-where-the-principal-is-being-sent-as-a-json-object-instead-of-a-proper-candid-principal-type-when-calling-the-ckbtc-minter-s-update-balance-method",
-      "title": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
+      "id": "feature-fix-the-useckbtcdepositstatus-hook-to-properly-decode-the-response-from-the-ckbtc-minter-canister-the-current-implementation-throws-not-a-vector-type-error-when-checking-deposit-status-review-the-return-type-from-the-minter-s-deposit-status-method-and-update-the-decoding-logic-accordingly",
+      "title": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Infinity Wallet",
+  "new_feature_requests": [
+    {
+      "id": "AR-3",
+      "summary": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Fix ckBTC minter integration errors",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

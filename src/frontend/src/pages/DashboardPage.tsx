@@ -8,7 +8,7 @@ import { Download, History } from 'lucide-react';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
 import TotalAssetsDisplay from '../components/wallet/TotalAssetsDisplay';
 import BalanceCard from '../components/wallet/BalanceCard';
-import BitcoinDepositStatus from '../components/wallet/BitcoinDepositStatus';
+import { BitcoinDepositStatus } from '../components/wallet/BitcoinDepositStatus';
 
 type Page = 'dashboard' | 'send' | 'contacts' | 'history' | 'receive' | 'contracts';
 

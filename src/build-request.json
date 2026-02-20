@@ -1,58 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Fix ckBTC wallet address generation",
-  "projectName": "Infinity Wallet",
+  "title": "Fix ckBTC minter integration errors",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
+      "text": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-ckbtc-fix"
+          "msg-current"
         ],
         "quotes": [
-          "why is not btc wallet generating?"
+          "Error from Canister mqygn-kiaaa-aaaar-qaadq-cai: Canister has no query method 'get_btc_address'",
+          "Failed to generate Bitcoin address. Please try again."
         ]
       },
       "acceptanceCriteria": [
-        "The ckBTC minter receives a properly formatted Candid Account type with a valid Principal",
-        "Bitcoin deposit addresses are successfully generated when users navigate to the Receive page",
-        "The 'Invalid opt principal argument' error no longer appears in the console",
-        "Generated Bitcoin addresses are displayed correctly in the ReceivePage component"
+        "The ckBTC deposit address is successfully retrieved from the minter canister",
+        "No 'method not found' errors appear in the console",
+        "The Bitcoin deposit address is displayed in the Receive page"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
+      "text": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-ckbtc-fix"
+          "msg-current"
         ],
         "quotes": [
-          "why is not btc wallet generating?"
+          "[useCkBtcDepositStatus] Error checking deposit status: Error: Not a vector type"
         ]
       },
       "acceptanceCriteria": [
-        "The update_balance method successfully processes deposit status checks",
-        "Pending Bitcoin deposits are correctly detected and displayed in the BitcoinDepositStatus component",
-        "The deposit status polling works without Principal encoding errors"
+        "No 'Not a vector type' decoding errors occur",
+        "Deposit status is successfully retrieved and displayed",
+        "The BitcoinDepositStatus component shows pending deposits correctly"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-current"
+        ],
+        "quotes": [
+          "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
+        ]
+      },
+      "acceptanceCriteria": [
+        "No 'Detected both agent and agentOptions' warnings appear in console",
+        "All ledger clients initialize without configuration conflicts"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the ckBTC minter canister ID or other ledger configurations",
-    "Preserve the existing authentication flow using Internet Identity",
-    "Maintain the current UI structure and component hierarchy",
-    "Keep the existing hook architecture and React Query patterns"
+    "Do not modify the ckBTC minter canister ID (mqygn-kiaaa-aaaar-qaadq-cai)",
+    "Maintain compatibility with existing ICRC-1 ledger implementations",
+    "Do not change the backend schema or main.mo file"
   ],
   "nonGoals": [
-    "Adding new token types or blockchain integrations",
-    "Modifying the backend Motoko actor",
-    "Changing the UI design or styling",
-    "Adding additional Bitcoin-related features beyond fixing address generation"
+    "Implementing native Ethereum or Solana deposit functionality",
+    "Modifying the ckBTC minter canister itself",
+    "Changing the authentication flow or Internet Identity integration"
   ],
   "imageRequirements": {
     "required": [],

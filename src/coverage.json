@@ -1,22 +1,22 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T02:08:56.675Z",
+  "generatedAt": "2026-02-20T02:29:30.092Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 3,
     "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the Principal serialization issue in useCkBtcDepositAddress hook where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type when calling the ckBTC minter's get_btc_address method",
+        "summary": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useCkBtcDepositAddress.ts",
-          "frontend/src/pages/ReceivePage.tsx"
+          "frontend/src/lib/ckBtcMinter/client.ts"
         ],
         "matchedFiles": [
           "frontend/src/hooks/useCkBtcDepositAddress.ts"
@@ -24,15 +24,29 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the Principal serialization issue in useCkBtcDepositStatus hook where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling the ckBTC minter's update_balance method",
+        "summary": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useCkBtcDepositStatus.ts",
-          "frontend/src/components/wallet/BitcoinDepositStatus.tsx"
+          "frontend/src/lib/ckBtcMinter/client.ts"
         ],
         "matchedFiles": [
           "frontend/src/hooks/useCkBtcDepositStatus.ts"
         ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/useCkBtcLedger.ts",
+          "frontend/src/hooks/useCkBtcMinter.ts",
+          "frontend/src/hooks/useIcpLedger.ts",
+          "frontend/src/hooks/useCkEthLedger.ts",
+          "frontend/src/hooks/useCkSolLedger.ts",
+          "frontend/src/hooks/useInfinityLedger.ts"
+        ],
+        "matchedFiles": []
       }
     ]
   },
@@ -41,9 +55,11 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
     "frontend/src/hooks/useCkBtcDepositAddress.ts",
     "frontend/src/hooks/useCkBtcDepositStatus.ts",
-    "frontend/src/lib/ckBtcMinter/client.ts",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/ReceivePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

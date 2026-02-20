@@ -1,16 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T02:08:56.671Z",
-  "summary": "The diff successfully implements both requirements to fix Principal serialization issues in the ckBTC minter hooks. REQ-1 is addressed by modifying useCkBtcDepositAddress to pass empty arrays for optional owner/subaccount fields instead of serialized Principal objects. REQ-2 is addressed similarly in useCkBtcDepositStatus. Both hooks now let the minter use the caller's principal by default when owner is not specified. The changes align with the build request constraints and acceptance criteria.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-20T02:29:30.089Z",
+  "summary": "The diff implements fixes for ckBTC minter integration issues. REQ-1 and REQ-2 are addressed with updates to the deposit address and status hooks, including error handling for local development. REQ-3 (agent configuration conflict) is not addressed in the provided diff. The BitcoinDepositStatus component is properly integrated into the dashboard.",
+  "missing_requirements": [
+    {
+      "id": "REQ-3",
+      "requirement": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both",
+      "reason": "No changes to any createActor calls or agent initialization logic are present in the diff. The warning about 'Detected both agent and agentOptions' would still occur in ledger client initialization paths.",
+      "evidence": []
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.95,
+  "confidence": 0.85,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
     "frontend/src/hooks/useCkBtcDepositAddress.ts",
     "frontend/src/hooks/useCkBtcDepositStatus.ts",
-    "frontend/src/lib/ckBtcMinter/client.ts",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/ReceivePage.tsx",
     "project_state.json"
   ]
 }

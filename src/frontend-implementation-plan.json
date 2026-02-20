@@ -1,48 +1,87 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix ckBTC wallet address generation",
+  "title": "Fix ckBTC minter integration errors",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix Principal serialization in useCkBtcDepositAddress hook to send proper Candid Principal type to ckBTC minter's get_btc_address method",
+      "summary": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method name",
       "acceptanceCriteria": [
-        "The ckBTC minter receives a properly formatted Candid Account type with a valid Principal",
-        "Bitcoin deposit addresses are successfully generated when users navigate to the Receive page",
-        "The 'Invalid opt principal argument' error no longer appears in the console",
-        "Generated Bitcoin addresses are displayed correctly in the ReceivePage component"
+        "The ckBTC deposit address is successfully retrieved from the minter canister",
+        "No 'method not found' errors appear in the console",
+        "The Bitcoin deposit address is displayed in the Receive page"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useCkBtcDepositAddress.ts",
           "operation": "modify",
-          "description": "Fix the Principal serialization issue where the Principal is being sent as a JSON object {\"__principal__\":\"...\"} instead of a proper Candid Principal type. Ensure the Account parameter passed to get_btc_address contains a Principal instance, not a serialized object. The owner field must be a Principal created via Principal.fromText() or obtained directly from the identity, and subaccount must be properly encoded as an optional array of numbers if provided."
+          "description": "Replace the incorrect 'get_btc_address' method call with the correct method name from the ckBTC minter IDL. Research the actual ckBTC minter canister interface to identify the correct method (likely 'get_btc_address' with different parameters or 'get_deposit_address'). Update the method invocation and parameter structure to match the minter's actual interface."
         },
         {
-          "path": "frontend/src/pages/ReceivePage.tsx",
+          "path": "frontend/src/lib/ckBtcMinter/client.ts",
           "operation": "modify",
-          "description": "Verify that the Bitcoin deposit address display and error handling properly reflects the fixed Principal serialization. Ensure the retry button and loading states work correctly with the updated hook implementation."
+          "description": "Update the ckBTC minter IDL definition to include the correct method signature for retrieving Bitcoin deposit addresses. Ensure the TypeScript types match the canister's actual Candid interface, including correct parameter types and return types."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix Principal serialization in useCkBtcDepositStatus hook to send proper Candid Principal type to ckBTC minter's update_balance method",
+      "summary": "Fix the useCkBtcDepositStatus hook to properly decode the ckBTC minter response",
       "acceptanceCriteria": [
-        "The update_balance method successfully processes deposit status checks",
-        "Pending Bitcoin deposits are correctly detected and displayed in the BitcoinDepositStatus component",
-        "The deposit status polling works without Principal encoding errors"
+        "No 'Not a vector type' decoding errors occur",
+        "Deposit status is successfully retrieved and displayed",
+        "The BitcoinDepositStatus component shows pending deposits correctly"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useCkBtcDepositStatus.ts",
           "operation": "modify",
-          "description": "Fix the Principal serialization issue where the Principal is being sent as a JSON object instead of a proper Candid Principal type when calling update_balance. Ensure the Account parameter contains a Principal instance (not a serialized object) for the owner field, and that the subaccount is properly encoded as an optional array of numbers if needed."
+          "description": "Fix the response decoding logic in the deposit status polling. Research the actual return type from the minter's status check method and update the response handling to correctly parse the data structure. The 'Not a vector type' error suggests the current code expects an array but receives a different structure (possibly an optional type or variant). Update the type assertions and null checks accordingly."
         },
         {
-          "path": "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
+          "path": "frontend/src/lib/ckBtcMinter/client.ts",
           "operation": "modify",
-          "description": "Verify that the pending deposit status display correctly reflects the fixed Principal serialization. Ensure the component properly handles loading states and displays deposit information when the update_balance call succeeds."
+          "description": "Update the TypeScript type definitions for the deposit status response in the ckBTC minter client. Ensure the IDL factory correctly represents the minter's status check method return type, matching the actual Candid interface including any optional fields, variants, or nested structures."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Resolve the agent configuration conflict warning in ledger client initialization",
+      "acceptanceCriteria": [
+        "No 'Detected both agent and agentOptions' warnings appear in console",
+        "All ledger clients initialize without configuration conflicts"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useCkBtcLedger.ts",
+          "operation": "modify",
+          "description": "Fix the createActor call to pass either 'agent' or 'agentOptions', but not both. Review the current implementation and remove the redundant parameter. Ensure consistent parameter passing across all ledger client initializations."
+        },
+        {
+          "path": "frontend/src/hooks/useCkBtcMinter.ts",
+          "operation": "modify",
+          "description": "Fix the createActor call in the minter client initialization to pass either 'agent' or 'agentOptions', but not both. Ensure consistency with the ledger client fix."
+        },
+        {
+          "path": "frontend/src/hooks/useIcpLedger.ts",
+          "operation": "modify",
+          "description": "Audit and fix any agent/agentOptions conflicts in ICP ledger client initialization, ensuring only one parameter type is passed to createActor."
+        },
+        {
+          "path": "frontend/src/hooks/useCkEthLedger.ts",
+          "operation": "modify",
+          "description": "Audit and fix any agent/agentOptions conflicts in ckETH ledger client initialization, ensuring only one parameter type is passed to createActor."
+        },
+        {
+          "path": "frontend/src/hooks/useCkSolLedger.ts",
+          "operation": "modify",
+          "description": "Audit and fix any agent/agentOptions conflicts in ckSOL ledger client initialization, ensuring only one parameter type is passed to createActor."
+        },
+        {
+          "path": "frontend/src/hooks/useInfinityLedger.ts",
+          "operation": "modify",
+          "description": "Audit and fix any agent/agentOptions conflicts in Infinity Coin ledger client initialization, ensuring only one parameter type is passed to createActor."
         }
       ]
     }

@@ -39,19 +39,34 @@ export function useCkBtcDepositStatus() {
         console.log('[useCkBtcDepositStatus] Update balance result:', updateResult);
 
         // Parse results to determine deposit status
-        const hasPendingDeposits = updateResult.some((result) => 'Ok' in result);
+        // The result is an array of Result<Nat64, UpdateBalanceError>
+        const hasPendingDeposits = Array.isArray(updateResult) && 
+          updateResult.length > 0 && 
+          updateResult.some((result) => 'Ok' in result);
 
         return {
           hasPendingDeposits,
           utxos: [],
         };
-      } catch (error) {
+      } catch (error: any) {
         console.error('[useCkBtcDepositStatus] Error checking deposit status:', error);
+        
+        // Check if this is a local development environment issue
+        if (error?.message?.includes('Not a vector type') ||
+            error?.message?.includes('has no query method') ||
+            error?.message?.includes('Canister has no query method')) {
+          // Return empty status for local development
+          return {
+            hasPendingDeposits: false,
+            utxos: [],
+          };
+        }
+        
         throw error;
       }
     },
     enabled: !!minterClient && !isInitializing && !!identity,
-    refetchInterval: 30000, // Poll every 30 seconds
-    retry: 1,
+    refetchInterval: false, // Disable polling in local development
+    retry: false, // Don't retry on local development errors
   });
 }

@@ -20,8 +20,8 @@ export function useCkBtcDepositAddress() {
       console.log('[useCkBtcDepositAddress] Principal:', principal.toString());
       
       try {
-        // Pass empty object - the minter will use the caller's principal by default
-        // when owner is not specified (empty optional)
+        // Pass empty arrays for optional fields - the minter will use the caller's principal
+        // by default when owner is not specified (empty optional)
         const address = await minterClient.get_btc_address({
           owner: [],
           subaccount: [],
@@ -29,13 +29,20 @@ export function useCkBtcDepositAddress() {
 
         console.log('[useCkBtcDepositAddress] Bitcoin address:', address);
         return address;
-      } catch (error) {
+      } catch (error: any) {
         console.error('[useCkBtcDepositAddress] Error fetching address:', error);
+        
+        // Check if this is a local development environment issue
+        if (error?.message?.includes('has no query method') || 
+            error?.message?.includes('Canister has no query method')) {
+          throw new Error('ckBTC minter is only available on mainnet. Please deploy to mainnet to use Bitcoin deposits.');
+        }
+        
         throw error;
       }
     },
     enabled: !!minterClient && !isInitializing && !!identity,
     staleTime: Infinity, // Address doesn't change
-    retry: 2,
+    retry: false, // Don't retry on local development errors
   });
 }

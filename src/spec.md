@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix ckBTC wallet address generation by resolving Principal serialization issues in the deposit address and deposit status hooks.
+**Goal:** Fix ckBTC minter canister integration errors to enable proper Bitcoin deposit address generation and status checking.
 
 **Planned changes:**
-- Fix Principal serialization in useCkBtcDepositAddress hook to send proper Candid Principal type instead of JSON object when calling ckBTC minter's get_btc_address method
-- Fix Principal serialization in useCkBtcDepositStatus hook to send proper Candid Principal type instead of JSON object when calling ckBTC minter's update_balance method
+- Update useCkBtcDepositAddress hook to use the correct ckBTC minter canister method name for fetching Bitcoin deposit addresses
+- Fix useCkBtcDepositStatus hook to properly decode the deposit status response from the ckBTC minter canister
+- Resolve agent configuration conflict warnings by ensuring only 'agent' or 'agentOptions' is passed to createActor functions, not both
 
-**User-visible outcome:** Users can successfully generate Bitcoin deposit addresses on the Receive page and view pending Bitcoin deposit status without errors.
+**User-visible outcome:** Users can successfully generate Bitcoin deposit addresses and view their deposit status without errors in the Receive page.

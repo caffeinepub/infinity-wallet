@@ -9,7 +9,7 @@
   "frontend/src/components/auth/AuthButton.tsx": "Authentication button for Internet Identity sign-in/sign-out with loading states and cache clearing.",
   "frontend/src/components/auth/PrincipalDisplay.tsx": "Principal display component with optional truncation and copy-to-clipboard, supporting both compact and full display modes.",
   "frontend/src/components/auth/ProfileSetupDialog.tsx": "Modal dialog for first-time user profile setup requiring name input.",
-  "frontend/src/pages/DashboardPage.tsx": "Dashboard displaying Total Assets section, BitcoinDepositStatus component for pending deposits, and grid of balance cards for all five tokens with individual refresh functionality.",
+  "frontend/src/pages/DashboardPage.tsx": "Dashboard displaying Total Assets section, BitcoinDepositStatus component for pending deposits, and grid of balance cards for all five tokens with individual refresh functionality, using correct named import for BitcoinDepositStatus.",
   "frontend/src/pages/SendPage.tsx": "Send flow with token selector, transfer mode selector for ckBTC (wrapped ICRC-1 vs native Bitcoin withdrawal), dynamic address validation, Bitcoin withdrawal via ckBTC minter with minimum amount validation and fee display, proper handling of undefined blockIndex values using nullish coalescing operator, and comprehensive error handling.",
   "frontend/src/pages/ContactsPage.tsx": "Contacts page with glassmorphic cards, gradient contact names, neon borders, and glow effects on interactive elements.",
   "frontend/src/pages/HistoryPage.tsx": "Transaction history page displaying token icons, names, amounts, and filter dropdown with updated alert message mentioning native on-chain transfers will be marked once chain-key integration is complete.",
@@ -18,7 +18,7 @@
   "frontend/src/index.css": "Global styles with futuristic neon theme using OKLCH colors (cyan/purple/magenta accents), cosmic background gradients, and custom glow utilities for dark space aesthetic.",
   "frontend/tailwind.config.js": "Tailwind configuration extended with neon glow shadows, cosmic gradient utilities, and glow-pulse animation for futuristic digital theme.",
   "frontend/src/lib/icpAccountId.ts": "Utility for deriving ICP Ledger Account Identifiers from Principals using SHA-224 hashing and CRC32 checksums with default subaccount.",
-  "frontend/src/pages/ReceivePage.tsx": "Receive page displaying unified ICRC-1 Principal address for wrapped tokens and Bitcoin deposit address with copy-to-clipboard functionality, error handling, and manual retry button for failed address generation.",
+  "frontend/src/pages/ReceivePage.tsx": "Receive page displaying Principal address for wrapped tokens and Bitcoin deposit address with improved error messaging for mainnet-only features, using correct default import for PrincipalDisplay component and displaying the principal as plain text.",
   "frontend/src/hooks/useOisyWallet.tsx": "Oisy Wallet authentication provider with mock implementation managing connection state, identity generation, and connect/disconnect methods for demo purposes.",
   "frontend/src/hooks/useOisyActor.ts": "Actor creation hook using Oisy-backed identity with React Query pattern matching useActor, properly awaiting actor creation and managing query invalidation.",
   "frontend/src/pages/ContractsPage.tsx": "Authenticated Contracts page with form for canister calls, simulating execution with Internet Identity and displaying success/error feedback.",
@@ -55,12 +55,12 @@
   "frontend/src/lib/ckBtcMinter/client.ts": "ckBTC minter client with TypeScript types using proper Candid optional encoding (empty arrays [] for None values) and simplified IDL factory for get_btc_address, update_balance, retrieve_btc, retrieve_btc_status, and get_minter_info methods, including authenticated actor creation with debugging logs.",
   "frontend/src/lib/ckBtcMinter/index.ts": "Re-exports ckBTC minter configuration, client functions, and TypeScript types for external consumption.",
   "frontend/src/hooks/useCkBtcMinter.ts": "React hook that initializes and manages an authenticated ckBTC minter client, creating it when identity is available.",
-  "frontend/src/hooks/useCkBtcDepositAddress.ts": "React Query hook that fetches a unique Bitcoin deposit address from the ckBTC minter using get_btc_address, passing empty arrays for optional owner/subaccount fields to use caller's principal by default, with refetch functionality for manual retry.",
-  "frontend/src/hooks/useCkBtcDepositStatus.ts": "React Query hook that polls the ckBTC minter's update_balance method to check for pending Bitcoin deposits, passing empty arrays for optional owner/subaccount fields to use caller's principal by default.",
+  "frontend/src/hooks/useCkBtcDepositAddress.ts": "React Query hook that fetches a unique Bitcoin deposit address from the ckBTC minter, with improved error handling for local development environments where the mainnet minter canister is not available.",
+  "frontend/src/hooks/useCkBtcDepositStatus.ts": "React Query hook that checks for pending Bitcoin deposits via the ckBTC minter's update_balance method, with graceful handling of local development errors and disabled polling when not on mainnet.",
   "frontend/src/hooks/useCkBtcWithdraw.ts": "React mutation hook that calls retrieve_btc on the ckBTC minter to initiate Bitcoin withdrawal, accepting destination address and amount in satoshis, invalidating balance and history queries on success.",
   "frontend/src/hooks/useCkBtcWithdrawalStatus.ts": "React Query hook that monitors withdrawal status by tracking retrieve_btc_status requests, polling every 10 seconds until confirmed.",
   "frontend/src/hooks/useCkBtcMinterInfo.ts": "React Query hook that fetches ckBTC minter configuration including minimum withdrawal amount, confirmation requirements, and KYT fee.",
   "frontend/src/components/wallet/TransferModeSelector.tsx": "Reusable component with radio buttons for selecting transfer mode (ICRC-1 Transfer vs Bitcoin Withdrawal) with descriptive labels and icons.",
   "frontend/src/components/wallet/BitcoinFeeDisplay.tsx": "Component that displays estimated Bitcoin network fee in satoshis and BTC, plus warning about 40+ minute confirmation time for withdrawals.",
-  "frontend/src/components/wallet/BitcoinDepositStatus.tsx": "Component that displays pending Bitcoin deposits using useCkBtcDepositStatus hook, showing confirmation progress and minting status with automatic refresh."
+  "frontend/src/components/wallet/BitcoinDepositStatus.tsx": "Component that displays pending Bitcoin deposit status with refresh functionality, gracefully hiding when there are no deposits or when errors occur in local development."
 }
