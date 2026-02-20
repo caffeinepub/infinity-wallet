@@ -1,69 +1,39 @@
 {
   "kind": "build_request",
-  "title": "Fix USD value display with extended decimal precision",
+  "title": "Reduce UI component size from large to medium",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places (e.g., 8-12 decimals) to show non-zero values for very small amounts instead of displaying 0.00",
+      "text": "Reduce the size of UI components from large to medium throughout the application. This applies to buttons, cards, input fields, text elements, and other interface components that are currently rendered at large scale.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "i still see total assets 0.00",
-          "i need it to show more 000000000s so that it has some type of value displayed in wallet no matter how small it is"
+          "yes can you make the size medium its kinda large"
         ]
       },
       "acceptanceCriteria": [
-        "Total Assets USD value displays with at least 8 decimal places",
-        "Small token values (like 495.33682336 Infinity Coin) show a non-zero USD equivalent",
-        "Formatting remains readable and does not use scientific notation"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Apply the same extended decimal precision formatting to individual token balance USD values in BalanceCard component",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Individual token balance cards show USD values with extended decimal precision",
-        "Formatting is consistent with TotalAssetsDisplay"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "[useCkBtcDepositStatus] Error checking deposit status: Error: Not a vector type"
-        ]
-      },
-      "acceptanceCriteria": [
-        "ckBTC deposit status queries complete without decoding errors",
-        "BitcoinDepositStatus component displays pending deposits correctly or remains hidden when no deposits exist"
+        "All UI components display at medium size instead of large",
+        "Text, buttons, cards, and form inputs are proportionally scaled down",
+        "Layout remains coherent and usable at the reduced size",
+        "Spacing and padding are adjusted to match medium scale"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files in frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Maintain all existing functionality in TotalAssetsDisplay and BalanceCard components",
-    "Keep the existing USD value calculation logic intact"
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts",
+    "Do not modify frontend/src/hooks/useInternetIdentity.tsx",
+    "Do not modify frontend/src/hooks/useActor.ts",
+    "Do not modify frontend/src/main.tsx",
+    "Do not modify frontend/src/components/ui directory"
   ],
   "nonGoals": [
-    "Changing the token balance fetching mechanism",
-    "Modifying exchange rate calculation or API integration",
-    "Adding new tokens or currencies",
-    "Changing the overall wallet layout or navigation"
+    "Changing functionality or behavior of components",
+    "Modifying backend logic",
+    "Adding new features or capabilities"
   ],
   "imageRequirements": {
     "required": [],

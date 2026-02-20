@@ -2,10 +2,19 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-investigate-and-fix-the-ckbtc-deposit-status-decoding-error-not-a-vector-type-that-appears-in-useckbtcdepositstatus-hook",
-      "featureTitle": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
+      "featureId": "feature-reduce-the-size-of-ui-components-from-large-to-medium-throughout-the-application-this-applies-to-buttons-cards-input-fields-text-elements-and-other-interface-components-that-are-currently-rendered-at-large-scale",
+      "featureTitle": "Reduce the size of UI components from large to medium throughout the application. This applies to buttons, cards, input fields, text elements, and other interface components that are currently rendered at large scale.",
       "files": [
-        "frontend/src/hooks/useCkBtcDepositStatus.ts"
+        "frontend/src/components/auth/AuthButton.tsx",
+        "frontend/src/components/auth/PrincipalDisplay.tsx",
+        "frontend/src/components/auth/ProfileSetupDialog.tsx",
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/WalletLogo.tsx",
+        "frontend/src/components/wallet/BalanceCard.tsx",
+        "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+        "frontend/src/index.css",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,7 +26,7 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "confidence": "high"
     }

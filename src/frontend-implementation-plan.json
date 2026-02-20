@@ -1,56 +1,127 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix USD value display with extended decimal precision",
+  "title": "Reduce UI component size from large to medium",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Modify TotalAssetsDisplay component to format USD values with 8-12 decimal places to show non-zero values for very small amounts",
+      "summary": "Reduce the size of UI components from large to medium throughout the application",
       "acceptanceCriteria": [
-        "Total Assets USD value displays with at least 8 decimal places",
-        "Small token values (like 495.33682336 Infinity Coin) show a non-zero USD equivalent",
-        "Formatting remains readable and does not use scientific notation"
+        "All UI components display at medium size instead of large",
+        "Text, buttons, cards, and form inputs are proportionally scaled down",
+        "Layout remains coherent and usable at the reduced size",
+        "Spacing and padding are adjusted to match medium scale"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Update the USD value formatting logic to display 8-12 decimal places instead of the current 2 decimal places. Modify the calculation and display logic where total USD value is shown to use a format like toFixed(12) or a custom formatter that shows sufficient precision for very small values (e.g., values under $0.01 should show 12 decimals, values under $1 should show 8 decimals). Ensure the formatting does not use scientific notation and remains human-readable. The existing USD calculation logic using exchange rates and token balances should remain unchanged."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Apply extended decimal precision formatting to individual token balance USD values in BalanceCard component",
-      "acceptanceCriteria": [
-        "Individual token balance cards show USD values with extended decimal precision",
-        "Formatting is consistent with TotalAssetsDisplay"
-      ],
-      "file_operations": [
+          "description": "Adjust base typography scale and spacing variables to reduce overall component size. Reduce base font sizes, heading scales, and default spacing units to achieve medium-scale UI. Update any large-scale utility classes to medium equivalents."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Adjust Tailwind theme configuration to reduce default sizing scales. Update fontSize presets, spacing scale, and any custom size configurations to support medium-scale components throughout the application."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Reduce header height, navigation spacing, and container padding to medium scale. Adjust logo size and navigation item padding to match the new medium sizing scheme."
+        },
+        {
+          "path": "frontend/src/components/layout/WalletLogo.tsx",
+          "operation": "modify",
+          "description": "Reduce logo image dimensions and text size to medium scale. Adjust spacing and glow effects proportionally to maintain visual coherence at the smaller size."
+        },
         {
           "path": "frontend/src/components/wallet/BalanceCard.tsx",
           "operation": "modify",
-          "description": "Update the USD value formatting in BalanceCard to match the extended decimal precision implemented in TotalAssetsDisplay (8-12 decimals). Modify the rendering logic where the optional usdValue prop is displayed to use the same formatting approach as REQ-1. Ensure consistency in how small USD amounts are displayed across both components, avoiding scientific notation and maintaining readability."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Fix the ckBTC deposit status decoding error 'Not a vector type' in useCkBtcDepositStatus hook",
-      "acceptanceCriteria": [
-        "ckBTC deposit status queries complete without decoding errors",
-        "BitcoinDepositStatus component displays pending deposits correctly or remains hidden when no deposits exist"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useCkBtcDepositStatus.ts",
-          "operation": "modify",
-          "description": "Investigate and fix the 'Not a vector type' decoding error that occurs when querying deposit status from the ckBTC minter. Review the IDL type definitions and the response parsing logic to ensure the minter's get_btc_address response structure matches the expected type. The error suggests a type mismatch in how the response is being decoded. Check if the response format changed or if the IDL definition needs updating. Add proper error handling and type guards to gracefully handle unexpected response formats. Ensure the hook returns appropriate states (loading, error, no deposits) so BitcoinDepositStatus component can render correctly."
+          "description": "Reduce card padding, icon sizes, balance text sizes, and spacing between elements to medium scale. Ensure USD values and labels are proportionally smaller while maintaining readability."
         },
         {
-          "path": "frontend/src/lib/ckBtcMinter/client.ts",
+          "path": "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
           "operation": "modify",
-          "description": "Review and fix the IDL factory definition for the ckBTC minter's get_btc_address method and related deposit status queries. Ensure the response type definitions match the actual minter canister interface. The 'Not a vector type' error suggests the IDL expects a vector but receives a different type. Verify the UTXOStatus and pending deposit response structures align with the official ckBTC minter interface. Update type definitions if necessary to resolve the decoding error."
+          "description": "Reduce total assets text size, currency selector dimensions, and container padding to medium scale. Adjust the overall card height and internal spacing to match the new sizing scheme."
+        },
+        {
+          "path": "frontend/src/components/auth/AuthButton.tsx",
+          "operation": "modify",
+          "description": "Reduce button padding, font size, and rounded corners to medium scale. Adjust disabled and hover state styling proportionally."
+        },
+        {
+          "path": "frontend/src/components/auth/PrincipalDisplay.tsx",
+          "operation": "modify",
+          "description": "Reduce text size, padding, border width, and glow effect intensity to medium scale. Ensure the component remains readable and the copy functionality is easily accessible."
+        },
+        {
+          "path": "frontend/src/components/auth/ProfileSetupDialog.tsx",
+          "operation": "modify",
+          "description": "Reduce dialog dimensions, input field sizes, button sizes, and internal spacing to medium scale. Ensure the modal remains centered and usable at the smaller size."
+        },
+        {
+          "path": "frontend/src/components/contacts/ContactEditorDialog.tsx",
+          "operation": "modify",
+          "description": "Reduce dialog dimensions, form input heights, label sizes, button dimensions, and spacing to medium scale. Maintain validation message visibility at the smaller size."
+        },
+        {
+          "path": "frontend/src/components/wallet/RecipientPicker.tsx",
+          "operation": "modify",
+          "description": "Reduce popover dimensions, list item heights, search input size, and spacing to medium scale. Ensure the contact list remains scrollable and clickable at the smaller size."
+        },
+        {
+          "path": "frontend/src/components/wallet/TransferModeSelector.tsx",
+          "operation": "modify",
+          "description": "Reduce radio button sizes, label text sizes, and spacing between options to medium scale. Maintain clear visual distinction between selected and unselected states."
+        },
+        {
+          "path": "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
+          "operation": "modify",
+          "description": "Reduce alert component padding, text sizes, and icon dimensions to medium scale. Ensure the refresh button remains easily clickable."
+        },
+        {
+          "path": "frontend/src/components/wallet/BitcoinFeeDisplay.tsx",
+          "operation": "modify",
+          "description": "Reduce alert component padding, text sizes, and spacing to medium scale. Maintain readability of fee information and processing time details."
+        },
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "modify",
+          "description": "Reduce page container padding, spacing between balance cards, and section headings to medium scale. Ensure the grid layout adapts gracefully to the smaller component sizes."
+        },
+        {
+          "path": "frontend/src/pages/SendPage.tsx",
+          "operation": "modify",
+          "description": "Reduce form field heights, button sizes, step indicator dimensions, and page padding to medium scale. Adjust spacing between form sections and ensure validation messages remain visible."
+        },
+        {
+          "path": "frontend/src/pages/ReceivePage.tsx",
+          "operation": "modify",
+          "description": "Reduce address display card sizes, QR code dimensions if present, copy button sizes, and text sizes to medium scale. Maintain clear separation between Principal and Bitcoin address sections."
+        },
+        {
+          "path": "frontend/src/pages/ContactsPage.tsx",
+          "operation": "modify",
+          "description": "Reduce contact list item heights, button sizes, table/list padding, and action button dimensions to medium scale. Ensure add/edit/delete actions remain easily accessible."
+        },
+        {
+          "path": "frontend/src/pages/HistoryPage.tsx",
+          "operation": "modify",
+          "description": "Reduce transaction list item heights, filter button sizes, icon dimensions, and table cell padding to medium scale. Maintain timestamp and amount readability at the smaller size."
+        },
+        {
+          "path": "frontend/src/pages/ContractsPage.tsx",
+          "operation": "modify",
+          "description": "Reduce form input heights, button sizes, text areas, and page padding to medium scale. Ensure JSON argument input and method name fields remain usable."
+        },
+        {
+          "path": "frontend/src/components/errors/AppErrorBoundary.tsx",
+          "operation": "modify",
+          "description": "Reduce error message text sizes, reload button dimensions, and container padding to medium scale. Ensure error details remain readable."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Reduce loading spinner size, error message dimensions, and any app-level spacing to medium scale. Ensure loading and error states are proportionally sized with the rest of the application."
         }
       ]
     }

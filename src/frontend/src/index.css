@@ -76,6 +76,7 @@
     body {
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;
+        font-size: 14px;
         /* Subtle animated starfield background */
         background-image: 
             radial-gradient(circle at 20% 30%, oklch(0.20 0.08 195 / 0.15) 0%, transparent 50%),
@@ -84,22 +85,22 @@
         background-attachment: fixed;
     }
 
-    /* Neon glow utilities */
+    /* Neon glow utilities - reduced intensity for medium size */
     .glow-cyan {
-        box-shadow: 0 0 20px oklch(0.75 0.20 195 / 0.4), 0 0 40px oklch(0.75 0.20 195 / 0.2);
+        box-shadow: 0 0 12px oklch(0.75 0.20 195 / 0.3), 0 0 24px oklch(0.75 0.20 195 / 0.15);
     }
 
     .glow-purple {
-        box-shadow: 0 0 20px oklch(0.60 0.22 285 / 0.4), 0 0 40px oklch(0.60 0.22 285 / 0.2);
+        box-shadow: 0 0 12px oklch(0.60 0.22 285 / 0.3), 0 0 24px oklch(0.60 0.22 285 / 0.15);
     }
 
     .glow-magenta {
-        box-shadow: 0 0 20px oklch(0.65 0.24 320 / 0.4), 0 0 40px oklch(0.65 0.24 320 / 0.2);
+        box-shadow: 0 0 12px oklch(0.65 0.24 320 / 0.3), 0 0 24px oklch(0.65 0.24 320 / 0.15);
     }
 
     /* Enhanced focus states with neon glow */
     *:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 2px oklch(var(--background)), 0 0 0 4px oklch(var(--ring)), 0 0 20px oklch(var(--ring) / 0.5);
+        box-shadow: 0 0 0 2px oklch(var(--background)), 0 0 0 3px oklch(var(--ring)), 0 0 12px oklch(var(--ring) / 0.4);
     }
 }

@@ -9,12 +9,40 @@ export default {
     theme: {
         container: {
             center: true,
-            padding: '2rem',
+            padding: '1.5rem',
             screens: {
-                '2xl': '1400px'
+                '2xl': '1200px'
             }
         },
         extend: {
+            fontSize: {
+                xs: ['0.7rem', { lineHeight: '1rem' }],
+                sm: ['0.8125rem', { lineHeight: '1.25rem' }],
+                base: ['0.875rem', { lineHeight: '1.5rem' }],
+                lg: ['1rem', { lineHeight: '1.5rem' }],
+                xl: ['1.125rem', { lineHeight: '1.75rem' }],
+                '2xl': ['1.375rem', { lineHeight: '2rem' }],
+                '3xl': ['1.75rem', { lineHeight: '2.25rem' }],
+                '4xl': ['2rem', { lineHeight: '2.5rem' }],
+            },
+            spacing: {
+                '0.5': '0.1rem',
+                '1': '0.2rem',
+                '1.5': '0.3rem',
+                '2': '0.4rem',
+                '2.5': '0.5rem',
+                '3': '0.6rem',
+                '3.5': '0.7rem',
+                '4': '0.8rem',
+                '5': '1rem',
+                '6': '1.2rem',
+                '7': '1.4rem',
+                '8': '1.6rem',
+                '10': '2rem',
+                '12': '2.4rem',
+                '16': '3.2rem',
+                '20': '4rem',
+            },
             colors: {
                 border: 'oklch(var(--border))',
                 input: 'oklch(var(--input))',
@@ -82,12 +110,12 @@ export default {
             },
             boxShadow: {
                 xs: '0 1px 2px 0 rgba(0,0,0,0.05)',
-                'glow-sm': '0 0 10px oklch(var(--primary) / 0.3)',
-                'glow': '0 0 20px oklch(var(--primary) / 0.4), 0 0 40px oklch(var(--primary) / 0.2)',
-                'glow-lg': '0 0 30px oklch(var(--primary) / 0.5), 0 0 60px oklch(var(--primary) / 0.3)',
-                'glow-purple': '0 0 20px oklch(var(--secondary) / 0.4), 0 0 40px oklch(var(--secondary) / 0.2)',
-                'glow-accent': '0 0 20px oklch(var(--accent) / 0.4), 0 0 40px oklch(var(--accent) / 0.2)',
-                'neon': '0 0 5px oklch(var(--primary)), 0 0 10px oklch(var(--primary) / 0.8), 0 0 20px oklch(var(--primary) / 0.6)'
+                'glow-sm': '0 0 8px oklch(var(--primary) / 0.25)',
+                'glow': '0 0 12px oklch(var(--primary) / 0.3), 0 0 24px oklch(var(--primary) / 0.15)',
+                'glow-lg': '0 0 20px oklch(var(--primary) / 0.4), 0 0 40px oklch(var(--primary) / 0.2)',
+                'glow-purple': '0 0 12px oklch(var(--secondary) / 0.3), 0 0 24px oklch(var(--secondary) / 0.15)',
+                'glow-accent': '0 0 12px oklch(var(--accent) / 0.3), 0 0 24px oklch(var(--accent) / 0.15)',
+                'neon': '0 0 4px oklch(var(--primary)), 0 0 8px oklch(var(--primary) / 0.8), 0 0 12px oklch(var(--primary) / 0.6)'
             },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -104,10 +132,10 @@ export default {
                 },
                 'glow-pulse': {
                     '0%, 100%': { 
-                        boxShadow: '0 0 20px oklch(var(--primary) / 0.4), 0 0 40px oklch(var(--primary) / 0.2)' 
+                        boxShadow: '0 0 12px oklch(var(--primary) / 0.3), 0 0 24px oklch(var(--primary) / 0.15)' 
                     },
                     '50%': { 
-                        boxShadow: '0 0 30px oklch(var(--primary) / 0.6), 0 0 60px oklch(var(--primary) / 0.3)' 
+                        boxShadow: '0 0 20px oklch(var(--primary) / 0.5), 0 0 40px oklch(var(--primary) / 0.25)' 
                     }
                 }
             },

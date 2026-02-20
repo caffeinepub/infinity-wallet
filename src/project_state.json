@@ -1,26 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Cryptocurrency wallet application with multi-token support (ICP, ckBTC, ckETH, ckSOL, Infinity Coin)",
-  "architectural_notes": [
-    "Uses ICRC-1 standard for token balance queries across multiple ledgers",
-    "Supports ICP, ckBTC, ckETH, ckSOL, and Infinity Coin tokens",
-    "Implements ckBTC minter client for Bitcoin bridge functionality",
-    "Frontend built with React/Vite (bundle: index-CLj00lOV.js)",
-    "Uses Internet Computer agent with local development root key fetching"
-  ],
-  "known_issues": [
-    "Total Assets USD value displays as 0.00 for small amounts - needs extended decimal precision",
-    "ckBTC deposit status query fails with 'Not a vector type' decoding error",
-    "Multiple actor creation warnings about duplicate agent/agentOptions parameters"
-  ],
-  "isFixRequest": true,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-investigate-and-fix-the-ckbtc-deposit-status-decoding-error-not-a-vector-type-that-appears-in-useckbtcdepositstatus-hook",
-      "title": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
+      "id": "feature-reduce-the-size-of-ui-components-from-large-to-medium-throughout-the-application-this-applies-to-buttons-cards-input-fields-text-elements-and-other-interface-components-that-are-currently-rendered-at-large-scale",
+      "title": "Reduce the size of UI components from large to medium throughout the application. This applies to buttons, cards, input fields, text elements, and other interface components that are currently rendered at large scale.",
       "reqIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "version": 1
     }
@@ -28,28 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Display USD values with extended decimal precision to show non-zero values for small amounts",
+      "summary": "Make size medium (currently too large)",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places (e.g., 8-12 decimals) to show non-zero values for very small amounts instead of displaying 0.00",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Apply the same extended decimal precision formatting to individual token balance USD values in BalanceCard component",
-      "reqIds": [
-        "REQ-2"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Fix USD value display with extended decimal precision",
+  "projectName": "Reduce UI component size from large to medium",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

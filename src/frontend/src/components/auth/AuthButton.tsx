@@ -33,21 +33,21 @@ export default function AuthButton() {
       disabled={isLoggingIn}
       variant={isAuthenticated ? 'outline' : 'default'}
       size="sm"
-      className="gap-2"
+      className="gap-1.5 text-xs h-7 px-2.5"
     >
       {isLoggingIn ? (
         <>
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3 w-3 animate-spin" />
           Signing in...
         </>
       ) : isAuthenticated ? (
         <>
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-3 w-3" />
           Sign out
         </>
       ) : (
         <>
-          <LogIn className="h-4 w-4" />
+          <LogIn className="h-3 w-3" />
           Sign in
         </>
       )}

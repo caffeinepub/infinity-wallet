@@ -1,43 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T04:19:30.137Z",
+  "generatedAt": "2026-02-20T04:48:01.810Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 1,
     "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places (e.g., 8-12 decimals) to show non-zero values for very small amounts instead of displaying 0.00",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Apply the same extended decimal precision formatting to individual token balance USD values in BalanceCard component",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/components/wallet/BalanceCard.tsx"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
+        "summary": "Reduce the size of UI components from large to medium throughout the application. This applies to buttons, cards, input fields, text elements, and other interface components that are currently rendered at large scale.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useCkBtcDepositStatus.ts",
-          "frontend/src/lib/ckBtcMinter/client.ts"
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/WalletLogo.tsx",
+          "frontend/src/components/wallet/BalanceCard.tsx",
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+          "frontend/src/components/auth/AuthButton.tsx",
+          "frontend/src/components/auth/PrincipalDisplay.tsx",
+          "frontend/src/components/auth/ProfileSetupDialog.tsx",
+          "frontend/src/components/contacts/ContactEditorDialog.tsx",
+          "frontend/src/components/wallet/RecipientPicker.tsx",
+          "frontend/src/components/wallet/TransferModeSelector.tsx",
+          "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
+          "frontend/src/components/wallet/BitcoinFeeDisplay.tsx",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/pages/SendPage.tsx",
+          "frontend/src/pages/ReceivePage.tsx",
+          "frontend/src/pages/ContactsPage.tsx",
+          "frontend/src/pages/HistoryPage.tsx",
+          "frontend/src/pages/ContractsPage.tsx",
+          "frontend/src/components/errors/AppErrorBoundary.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useCkBtcDepositStatus.ts"
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/WalletLogo.tsx",
+          "frontend/src/components/wallet/BalanceCard.tsx",
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+          "frontend/src/components/auth/AuthButton.tsx",
+          "frontend/src/components/auth/PrincipalDisplay.tsx",
+          "frontend/src/components/auth/ProfileSetupDialog.tsx",
+          "frontend/src/pages/DashboardPage.tsx"
         ]
       }
     ]
@@ -47,8 +58,16 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useCkBtcDepositStatus.ts",
-    "frontend/src/lib/validation.ts",
+    "frontend/src/components/auth/AuthButton.tsx",
+    "frontend/src/components/auth/PrincipalDisplay.tsx",
+    "frontend/src/components/auth/ProfileSetupDialog.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/WalletLogo.tsx",
+    "frontend/src/components/wallet/BalanceCard.tsx",
+    "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+    "frontend/src/index.css",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

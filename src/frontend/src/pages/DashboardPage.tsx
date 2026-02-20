@@ -41,13 +41,13 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
   const ckSolUsd = calculateUsdValue(ckSol.balance, exchangeRates?.ckSOL);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Dashboard
           </h1>
-          <p className="text-muted-foreground">View your wallet balances</p>
+          <p className="text-xs text-muted-foreground">View your wallet balances</p>
         </div>
       </div>
 
@@ -67,8 +67,8 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
 
       {/* Individual Token Balances */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-foreground">Token Balances</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <h2 className="text-base font-semibold mb-3 text-foreground">Token Balances</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <BalanceCard
             tokenName={TOKEN_INFINITY}
             tokenIcon="/assets/generated/infinity-coin-icon.dim_512x512.png"
@@ -123,21 +123,23 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex gap-3 justify-center pt-4">
+      <div className="flex gap-2 justify-center pt-3">
         <Button
           onClick={() => onNavigate('receive')}
           variant="outline"
-          className="gap-2 border-primary/30 hover:shadow-glow-sm transition-all"
+          size="sm"
+          className="gap-1.5 text-xs border-primary/30 hover:shadow-glow-sm transition-all"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-3.5 w-3.5" />
           Receive
         </Button>
         <Button
           onClick={() => onNavigate('history')}
           variant="outline"
-          className="gap-2 border-primary/30 hover:shadow-glow-sm transition-all"
+          size="sm"
+          className="gap-1.5 text-xs border-primary/30 hover:shadow-glow-sm transition-all"
         >
-          <History className="h-4 w-4" />
+          <History className="h-3.5 w-3.5" />
           View History
         </Button>
       </div>

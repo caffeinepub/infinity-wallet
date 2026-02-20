@@ -25,14 +25,14 @@ export default function ProfileSetupDialog() {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-sm" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Welcome to Infinity Wallet</DialogTitle>
-          <DialogDescription>Please enter your name to complete your profile setup.</DialogDescription>
+          <DialogTitle className="text-base">Welcome to Infinity Wallet</DialogTitle>
+          <DialogDescription className="text-xs">Please enter your name to complete your profile setup.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Your Name</Label>
+        <div className="space-y-3 py-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className="text-xs">Your Name</Label>
             <Input
               id="name"
               placeholder="Enter your name"
@@ -43,14 +43,15 @@ export default function ProfileSetupDialog() {
                   handleSave();
                 }
               }}
+              className="h-8 text-sm"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSave} disabled={!name.trim() || saveProfile.isPending} className="w-full">
+          <Button onClick={handleSave} disabled={!name.trim() || saveProfile.isPending} className="w-full h-8 text-xs">
             {saveProfile.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                 Saving...
               </>
             ) : (

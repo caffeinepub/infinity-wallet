@@ -6,9 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, DollarSign } from 'lucide-react';
 import { formatBalance, formatUSD } from '@/lib/validation';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
-import { useExchangeRates } from '@/hooks/useExchangeRates';
-
-type TokenType = 'infinityCoin' | 'icp' | 'ckBtc' | 'ckEth' | 'ckSol';
+import { useExchangeRates } from '../../hooks/useExchangeRates';
 
 interface TotalAssetsDisplayProps {
   infinityCoinBalance: bigint;
@@ -20,6 +18,8 @@ interface TotalAssetsDisplayProps {
   hasError: boolean;
 }
 
+type DenominationOption = 'USD' | 'Infinity Coin' | 'ICP' | 'ckBTC' | 'ckETH' | 'ckSOL';
+
 export default function TotalAssetsDisplay({
   infinityCoinBalance,
   icpBalance,
@@ -29,129 +29,95 @@ export default function TotalAssetsDisplay({
   isLoading,
   hasError,
 }: TotalAssetsDisplayProps) {
-  const [denominationCurrency, setDenominationCurrency] = useState<TokenType>('infinityCoin');
+  const [denomination, setDenomination] = useState<DenominationOption>('USD');
   const { data: exchangeRates, isLoading: ratesLoading, error: ratesError } = useExchangeRates();
 
-  // Calculate total USD value
   const calculateTotalUSD = (): number => {
     if (!exchangeRates) return 0;
-
-    const infinityCoinUSD = (Number(infinityCoinBalance) / 100_000_000) * (exchangeRates['Infinity Coin'] || 0);
-    const icpUSD = (Number(icpBalance) / 100_000_000) * (exchangeRates.ICP || 0);
-    const ckBtcUSD = (Number(ckBtcBalance) / 100_000_000) * (exchangeRates.ckBTC || 0);
-    const ckEthUSD = (Number(ckEthBalance) / 100_000_000) * (exchangeRates.ckETH || 0);
-    const ckSolUSD = (Number(ckSolBalance) / 100_000_000) * (exchangeRates.ckSOL || 0);
-
-    return infinityCoinUSD + icpUSD + ckBtcUSD + ckEthUSD + ckSolUSD;
+    
+    const infinityCoinUsd = (Number(infinityCoinBalance) / 100_000_000) * (exchangeRates['Infinity Coin'] || 0);
+    const icpUsd = (Number(icpBalance) / 100_000_000) * (exchangeRates.ICP || 0);
+    const ckBtcUsd = (Number(ckBtcBalance) / 100_000_000) * (exchangeRates.ckBTC || 0);
+    const ckEthUsd = (Number(ckEthBalance) / 100_000_000) * (exchangeRates.ckETH || 0);
+    const ckSolUsd = (Number(ckSolBalance) / 100_000_000) * (exchangeRates.ckSOL || 0);
+    
+    return infinityCoinUsd + icpUsd + ckBtcUsd + ckEthUsd + ckSolUsd;
   };
 
-  const calculateTotal = (): string => {
-    switch (denominationCurrency) {
-      case 'infinityCoin':
-        return formatBalance(infinityCoinBalance);
-      case 'icp':
-        return formatBalance(icpBalance);
-      case 'ckBtc':
-        return formatBalance(ckBtcBalance);
-      case 'ckEth':
-        return formatBalance(ckEthBalance);
-      case 'ckSol':
-        return formatBalance(ckSolBalance);
-      default:
-        return '0.00';
+  const convertToToken = (totalUsd: number, tokenRate: number): number => {
+    if (tokenRate === 0) return 0;
+    return totalUsd / tokenRate;
+  };
+
+  const getDisplayValue = (): string => {
+    if (isLoading || ratesLoading) return '...';
+    if (hasError || ratesError) return 'Error';
+    
+    const totalUsd = calculateTotalUSD();
+    
+    if (denomination === 'USD') {
+      return formatUSD(totalUsd);
     }
+    
+    const tokenRates: Record<string, number> = {
+      'Infinity Coin': exchangeRates?.['Infinity Coin'] || 0,
+      'ICP': exchangeRates?.ICP || 0,
+      'ckBTC': exchangeRates?.ckBTC || 0,
+      'ckETH': exchangeRates?.ckETH || 0,
+      'ckSOL': exchangeRates?.ckSOL || 0,
+    };
+    
+    const rate = tokenRates[denomination];
+    const tokenAmount = convertToToken(totalUsd, rate);
+    const tokenAmountE8s = BigInt(Math.floor(tokenAmount * 100_000_000));
+    
+    return formatBalance(tokenAmountE8s);
   };
-
-  const getTokenLabel = (token: TokenType): string => {
-    switch (token) {
-      case 'infinityCoin':
-        return TOKEN_INFINITY;
-      case 'icp':
-        return TOKEN_ICP;
-      case 'ckBtc':
-        return TOKEN_CKBTC;
-      case 'ckEth':
-        return TOKEN_CKETH;
-      case 'ckSol':
-        return TOKEN_CKSOL;
-      default:
-        return '';
-    }
-  };
-
-  const totalUSD = calculateTotalUSD();
 
   return (
-    <Card className="border-accent/30 bg-gradient-to-br from-card/90 to-accent/5 backdrop-blur-sm shadow-glow-lg">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <CardDescription className="text-accent/80 mb-2">Total Assets</CardDescription>
-            
-            {/* USD Value Display */}
-            {isLoading || ratesLoading ? (
-              <Skeleton className="h-16 w-80 mb-2" />
-            ) : hasError || ratesError ? (
-              <div className="text-2xl text-destructive mb-2">Error loading value</div>
-            ) : (
-              <div className="mb-3">
-                <div className="flex items-baseline gap-2">
-                  <DollarSign className="h-8 w-8 text-primary" />
-                  <CardTitle className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent break-all">
-                    {formatUSD(totalUSD).replace('$', '')}
-                  </CardTitle>
-                  <span className="text-2xl text-muted-foreground">USD</span>
-                </div>
-              </div>
-            )}
-
-            {/* Token Denomination Display */}
-            <div className="text-sm text-muted-foreground">
-              {isLoading ? (
-                <Skeleton className="h-6 w-48" />
-              ) : hasError ? (
-                <span className="text-destructive">Error</span>
-              ) : (
-                <span>
-                  {calculateTotal()} {getTokenLabel(denominationCurrency)}
-                </span>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-end gap-2">
-            <label className="text-xs text-muted-foreground">Denomination</label>
-            <Select value={denominationCurrency} onValueChange={(value) => setDenominationCurrency(value as TokenType)}>
-              <SelectTrigger className="w-[180px] border-primary/30 shadow-glow-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="infinityCoin">{TOKEN_INFINITY}</SelectItem>
-                <SelectItem value="icp">{TOKEN_ICP}</SelectItem>
-                <SelectItem value="ckBtc">{TOKEN_CKBTC}</SelectItem>
-                <SelectItem value="ckEth">{TOKEN_CKETH}</SelectItem>
-                <SelectItem value="ckSol">{TOKEN_CKSOL}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+    <Card className="border-primary/30 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-md shadow-glow">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-primary" />
+          Total Assets
+        </CardTitle>
+        <CardDescription className="text-xs">Combined value across all tokens</CardDescription>
       </CardHeader>
-      <CardContent>
-        {hasError && (
+      <CardContent className="space-y-3">
+        {hasError || ratesError ? (
           <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-3 w-3" />
             <AlertDescription className="text-xs">
-              Unable to calculate total assets. Some balances failed to load.
+              Failed to calculate total assets
             </AlertDescription>
           </Alert>
-        )}
-        {ratesError && !hasError && (
-          <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              Unable to fetch current exchange rates. USD values may be unavailable.
-            </AlertDescription>
-          </Alert>
+        ) : isLoading || ratesLoading ? (
+          <>
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-7 w-32" />
+          </>
+        ) : (
+          <>
+            <div className="text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent break-all">
+              {getDisplayValue()}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Show in:</span>
+              <Select value={denomination} onValueChange={(value) => setDenomination(value as DenominationOption)}>
+                <SelectTrigger className="w-32 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD" className="text-xs">USD</SelectItem>
+                  <SelectItem value="Infinity Coin" className="text-xs">{TOKEN_INFINITY}</SelectItem>
+                  <SelectItem value="ICP" className="text-xs">{TOKEN_ICP}</SelectItem>
+                  <SelectItem value="ckBTC" className="text-xs">{TOKEN_CKBTC}</SelectItem>
+                  <SelectItem value="ckETH" className="text-xs">{TOKEN_CKETH}</SelectItem>
+                  <SelectItem value="ckSOL" className="text-xs">{TOKEN_CKSOL}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
