@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add USD value display for all tokens and total portfolio using real-time exchange rates from ICPSwap oracle.
+**Goal:** Display USD values with extended decimal precision to show non-zero amounts for very small token balances, and fix the ckBTC deposit status decoding error.
 
 **Planned changes:**
-- Create backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin
-- Update TotalAssetsDisplay component to calculate and show total portfolio value in USD
-- Add USD value display for each individual token balance on the dashboard
-- Remove the "Exchange rate conversion not yet implemented" disclaimer from the UI
+- Modify TotalAssetsDisplay component to format USD values with 8-12 decimal places instead of 2
+- Apply the same extended decimal formatting to individual token USD values in BalanceCard component
+- Fix the "Not a vector type" decoding error in useCkBtcDepositStatus hook
 
-**User-visible outcome:** Users will see their token balances and total portfolio value converted to USD in real-time using ICPSwap oracle exchange rates.
+**User-visible outcome:** Users will see meaningful USD values (with many decimal places) for their small token holdings instead of $0.00, and the ckBTC deposit status will display correctly without console errors.

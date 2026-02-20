@@ -1,69 +1,56 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add USD value display using ICP oracle exchange rates",
+  "title": "Fix USD value display with extended decimal precision",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
+      "id": "REQ-1",
+      "summary": "Modify TotalAssetsDisplay component to format USD values with 8-12 decimal places to show non-zero values for very small amounts",
       "acceptanceCriteria": [
-        "TotalAssetsDisplay fetches exchange rates from the backend",
-        "Component calculates total USD value by multiplying each token balance by its exchange rate",
-        "USD total is displayed prominently alongside or instead of the selected denomination view",
-        "Exchange rate data is cached appropriately with React Query",
-        "Loading and error states are handled gracefully"
+        "Total Assets USD value displays with at least 8 decimal places",
+        "Small token values (like 495.33682336 Infinity Coin) show a non-zero USD equivalent",
+        "Formatting remains readable and does not use scientific notation"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useExchangeRates.ts",
-          "operation": "create",
-          "description": "Create a React Query hook that fetches current exchange rates from the backend's getCurrentRates() method. The hook should parse the JSON response containing USD rates for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin. Use a 60-second stale time for caching and handle loading/error states. The hook returns a map of token symbols to their USD exchange rates."
-        },
-        {
           "path": "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
           "operation": "modify",
-          "description": "Modify TotalAssetsDisplay to fetch exchange rates using the new useExchangeRates hook. Calculate total USD value by multiplying each token balance (retrieved from existing balance hooks) by its corresponding exchange rate. Display the USD total prominently in a new section above or alongside the denomination selector. Handle loading states with skeleton loaders and error states with appropriate error messages. Remove the note about exchange rate conversion not being implemented. The component should calculate: (infinityCoinBalance * infinityCoinRate + icpBalance * icpRate + ckBtcBalance * ckBtcRate + ckEthBalance * ckEthRate + ckSolBalance * ckSolRate) to get the total USD value. Format the USD amount using appropriate decimal places and currency symbol."
+          "description": "Update the USD value formatting logic to display 8-12 decimal places instead of the current 2 decimal places. Modify the calculation and display logic where total USD value is shown to use a format like toFixed(12) or a custom formatter that shows sufficient precision for very small values (e.g., values under $0.01 should show 12 decimals, values under $1 should show 8 decimals). Ensure the formatting does not use scientific notation and remains human-readable. The existing USD calculation logic using exchange rates and token balances should remain unchanged."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Add USD value display for individual token balances on the dashboard",
+      "id": "REQ-2",
+      "summary": "Apply extended decimal precision formatting to individual token balance USD values in BalanceCard component",
       "acceptanceCriteria": [
-        "Each BalanceCard shows the token amount and its equivalent USD value",
-        "USD value is calculated using the real-time exchange rate for that token",
-        "USD amounts are formatted with appropriate decimal places and currency symbol"
+        "Individual token balance cards show USD values with extended decimal precision",
+        "Formatting is consistent with TotalAssetsDisplay"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/wallet/BalanceCard.tsx",
           "operation": "modify",
-          "description": "Modify BalanceCard to accept an optional usdValue prop (number | undefined). When usdValue is provided, display it below the token balance in a smaller, secondary text style with proper USD formatting (e.g., '$1,234.56'). Use the formatBalance utility or create a new formatUSD utility for consistent currency formatting. Handle cases where usdValue is undefined by not rendering the USD section."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Modify DashboardPage to use the useExchangeRates hook to fetch current exchange rates. For each BalanceCard component (Infinity Coin, ICP, ckBTC, ckETH, ckSOL), calculate the USD value by multiplying the token balance by its exchange rate and pass it as the usdValue prop. Handle cases where exchange rates are still loading by passing undefined for usdValue. The calculation should convert from e8s format to decimal tokens before multiplying by the rate (e.g., icpBalanceE8s / 100_000_000 * icpUsdRate)."
-        },
-        {
-          "path": "frontend/src/lib/validation.ts",
-          "operation": "modify",
-          "description": "Add a formatUSD utility function that takes a number and returns a formatted USD string with dollar sign, thousands separators, and two decimal places (e.g., formatUSD(1234.56) returns '$1,234.56'). This function will be used consistently across the application for USD value display."
+          "description": "Update the USD value formatting in BalanceCard to match the extended decimal precision implemented in TotalAssetsDisplay (8-12 decimals). Modify the rendering logic where the optional usdValue prop is displayed to use the same formatting approach as REQ-1. Ensure consistency in how small USD amounts are displayed across both components, avoiding scientific notation and maintaining readability."
         }
       ]
     },
     {
-      "id": "REQ-4",
-      "summary": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
+      "id": "REQ-3",
+      "summary": "Fix the ckBTC deposit status decoding error 'Not a vector type' in useCkBtcDepositStatus hook",
       "acceptanceCriteria": [
-        "The disclaimer about missing exchange rate conversion is removed from TotalAssetsDisplay",
-        "UI reflects that real exchange rates are now being used"
+        "ckBTC deposit status queries complete without decoding errors",
+        "BitcoinDepositStatus component displays pending deposits correctly or remains hidden when no deposits exist"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+          "path": "frontend/src/hooks/useCkBtcDepositStatus.ts",
           "operation": "modify",
-          "description": "Remove the text 'Exchange rate conversion not yet implemented' and any associated note/disclaimer elements from the component. This removal is already included in the REQ-2 file operation for this component, where the note will be removed as part of implementing the real USD conversion display."
+          "description": "Investigate and fix the 'Not a vector type' decoding error that occurs when querying deposit status from the ckBTC minter. Review the IDL type definitions and the response parsing logic to ensure the minter's get_btc_address response structure matches the expected type. The error suggests a type mismatch in how the response is being decoded. Check if the response format changed or if the IDL definition needs updating. Add proper error handling and type guards to gracefully handle unexpected response formats. Ensure the hook returns appropriate states (loading, error, no deposits) so BitcoinDepositStatus component can render correctly."
+        },
+        {
+          "path": "frontend/src/lib/ckBtcMinter/client.ts",
+          "operation": "modify",
+          "description": "Review and fix the IDL factory definition for the ckBTC minter's get_btc_address method and related deposit status queries. Ensure the response type definitions match the actual minter canister interface. The 'Not a vector type' error suggests the IDL expects a vector but receives a different type. Verify the UTXOStatus and pending deposit response structures align with the official ckBTC minter interface. Update type definitions if necessary to resolve the decoding error."
         }
       ]
     }

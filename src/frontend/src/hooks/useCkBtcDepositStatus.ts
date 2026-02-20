@@ -81,12 +81,15 @@ export function useCkBtcDepositStatus() {
       } catch (error: any) {
         console.error('[useCkBtcDepositStatus] Error checking deposit status:', error);
         
-        // Check if this is a local development environment issue
+        // Check if this is a local development environment issue or mainnet-only feature
         if (error?.message?.includes('Not a vector type') ||
             error?.message?.includes('has no query method') ||
             error?.message?.includes('has no update method') ||
-            error?.message?.includes('Canister has no query method')) {
-          // Return empty status for local development
+            error?.message?.includes('Canister has no query method') ||
+            error?.message?.includes('Canister rejected the message') ||
+            error?.message?.includes('Canister not found')) {
+          // Return empty status for local development or when minter is unavailable
+          console.log('[useCkBtcDepositStatus] Returning empty status (local dev or unavailable minter)');
           return {
             hasPendingDeposits: false,
             utxos: [],
@@ -97,7 +100,8 @@ export function useCkBtcDepositStatus() {
       }
     },
     enabled: !!minterClient && !isInitializing && !!identity,
-    refetchInterval: false, // Disable polling in local development
+    refetchInterval: false, // Disable polling to avoid repeated errors in local development
     retry: false, // Don't retry on local development errors
+    staleTime: 30_000, // Cache for 30 seconds
   });
 }

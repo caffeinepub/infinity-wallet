@@ -142,9 +142,16 @@ export function parseAmountToE8(amount: string): bigint {
   return BigInt(Math.floor(num * 100_000_000));
 }
 
-// Format balance from e8s to display
+// Format balance from e8s to display with full precision (no scientific notation)
 export function formatBalance(balanceE8: bigint): string {
   const balance = Number(balanceE8) / 100_000_000;
+  
+  // For very small numbers, use toFixed with enough precision to avoid scientific notation
+  if (balance < 0.00000001 && balance > 0) {
+    // Handle extremely small values by converting to string and removing trailing zeros
+    return balance.toFixed(20).replace(/\.?0+$/, '');
+  }
+  
   return balance.toFixed(8).replace(/\.?0+$/, '');
 }
 
@@ -160,12 +167,50 @@ export function parseBtcToSatoshis(btc: string): bigint {
   return BigInt(Math.floor(num * 100_000_000));
 }
 
-// Format USD value with dollar sign and proper decimals
+// Format USD value with dollar sign and extended decimal precision for very small values
 export function formatUSD(value: number): string {
   if (isNaN(value) || !isFinite(value)) {
     return '$0.00';
   }
   
+  // For very small values (less than $0.01), show 12 decimal places
+  if (value < 0.01 && value > 0) {
+    const fixed = value.toFixed(12);
+    // Remove trailing zeros but keep at least 2 decimal places
+    const trimmed = fixed.replace(/(\.\d*?)0+$/, '$1');
+    const finalValue = trimmed.endsWith('.') ? trimmed + '00' : trimmed;
+    
+    // Ensure at least 2 decimal places
+    const parts = finalValue.split('.');
+    if (parts.length === 1) {
+      return '$' + finalValue + '.00';
+    }
+    if (parts[1].length < 2) {
+      return '$' + finalValue + '0'.repeat(2 - parts[1].length);
+    }
+    
+    return '$' + finalValue;
+  }
+  
+  // For values between $0.01 and $1, show 8 decimal places
+  if (value < 1 && value >= 0.01) {
+    const fixed = value.toFixed(8);
+    const trimmed = fixed.replace(/(\.\d*?)0+$/, '$1');
+    const finalValue = trimmed.endsWith('.') ? trimmed + '00' : trimmed;
+    
+    // Ensure at least 2 decimal places
+    const parts = finalValue.split('.');
+    if (parts.length === 1) {
+      return '$' + finalValue + '.00';
+    }
+    if (parts[1].length < 2) {
+      return '$' + finalValue + '0'.repeat(2 - parts[1].length);
+    }
+    
+    return '$' + finalValue;
+  }
+  
+  // For normal values ($1 and above), use standard currency formatting
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

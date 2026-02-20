@@ -97,7 +97,7 @@ export default function TotalAssetsDisplay({
               <div className="mb-3">
                 <div className="flex items-baseline gap-2">
                   <DollarSign className="h-8 w-8 text-primary" />
-                  <CardTitle className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                  <CardTitle className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent break-all">
                     {formatUSD(totalUSD).replace('$', '')}
                   </CardTitle>
                   <span className="text-2xl text-muted-foreground">USD</span>

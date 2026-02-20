@@ -67,7 +67,7 @@ export default function BalanceCard({
               {formatBalance(balance)}
             </div>
             {usdValue !== undefined && (
-              <div className="text-sm text-muted-foreground mt-1">
+              <div className="text-sm text-muted-foreground mt-1 break-all">
                 {formatUSD(usdValue)}
               </div>
             )}

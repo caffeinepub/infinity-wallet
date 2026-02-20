@@ -1,34 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [
-    "Exchange rate conversion not yet implemented for USD display"
+  "summary": "Cryptocurrency wallet application with multi-token support (ICP, ckBTC, ckETH, ckSOL, Infinity Coin)",
+  "architectural_notes": [
+    "Uses ICRC-1 standard for token balance queries across multiple ledgers",
+    "Supports ICP, ckBTC, ckETH, ckSOL, and Infinity Coin tokens",
+    "Implements ckBTC minter client for Bitcoin bridge functionality",
+    "Frontend built with React/Vite (bundle: index-CLj00lOV.js)",
+    "Uses Internet Computer agent with local development root key fetching"
   ],
-  "isFixRequest": false,
+  "known_issues": [
+    "Total Assets USD value displays as 0.00 for small amounts - needs extended decimal precision",
+    "ckBTC deposit status query fails with 'Not a vector type' decoding error",
+    "Multiple actor creation warnings about duplicate agent/agentOptions parameters"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-totalassetsdisplay-component-to-calculate-and-display-total-portfolio-value-in-usd-using-fetched-exchange-rates",
-      "title": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-usd-value-display-for-individual-token-balances-on-the-dashboard",
-      "title": "Add USD value display for individual token balances on the dashboard",
+      "id": "feature-investigate-and-fix-the-ckbtc-deposit-status-decoding-error-not-a-vector-type-that-appears-in-useckbtcdepositstatus-hook",
+      "title": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-remove-the-note-exchange-rate-conversion-not-yet-implemented-from-the-ui-once-usd-conversion-is-functional",
-      "title": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -36,20 +28,28 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Display total assets in USD using ICP oracle/ICPSwap exchange rates",
+      "summary": "Display USD values with extended decimal precision to show non-zero values for small amounts",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Create a backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin to USD conversion",
+      "summary": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places (e.g., 8-12 decimals) to show non-zero values for very small amounts instead of displaying 0.00",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Apply the same extended decimal precision formatting to individual token balance USD values in BalanceCard component",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
     }
   ],
-  "projectName": "Infinity Wallet",
+  "projectName": "Fix USD value display with extended decimal precision",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

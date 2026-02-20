@@ -1,92 +1,69 @@
 {
   "kind": "build_request",
-  "title": "Add USD value display using ICP oracle exchange rates",
-  "projectName": "Infinity Wallet",
+  "title": "Fix USD value display with extended decimal precision",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin to USD conversion",
-      "target": "backend",
+      "text": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places (e.g., 8-12 decimals) to show non-zero values for very small amounts instead of displaying 0.00",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "using exchange rate conversion from internet computer protocols built in oracle all information from icpswap"
+          "i still see total assets 0.00",
+          "i need it to show more 000000000s so that it has some type of value displayed in wallet no matter how small it is"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a method to retrieve current USD exchange rates for all supported tokens",
-        "Exchange rates are fetched from ICPSwap oracle on the Internet Computer",
-        "Rates include ICP/USD, ckBTC/USD, ckETH/USD, ckSOL/USD conversions",
-        "Method returns structured data with token symbol and USD rate pairs"
+        "Total Assets USD value displays with at least 8 decimal places",
+        "Small token values (like 495.33682336 Infinity Coin) show a non-zero USD equivalent",
+        "Formatting remains readable and does not use scientific notation"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
+      "text": "Apply the same extended decimal precision formatting to individual token balance USD values in BalanceCard component",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "can we get total assets to display USD value"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "TotalAssetsDisplay fetches exchange rates from the backend",
-        "Component calculates total USD value by multiplying each token balance by its exchange rate",
-        "USD total is displayed prominently alongside or instead of the selected denomination view",
-        "Exchange rate data is cached appropriately with React Query",
-        "Loading and error states are handled gracefully"
+        "Individual token balance cards show USD values with extended decimal precision",
+        "Formatting is consistent with TotalAssetsDisplay"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add USD value display for individual token balances on the dashboard",
+      "text": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each BalanceCard shows the token amount and its equivalent USD value",
-        "USD value is calculated using the real-time exchange rate for that token",
-        "USD amounts are formatted with appropriate decimal places and currency symbol"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "Note: Total shown in selected denomination. Exchange rate conversion not yet implemented"
+          "[useCkBtcDepositStatus] Error checking deposit status: Error: Not a vector type"
         ]
       },
       "acceptanceCriteria": [
-        "The disclaimer about missing exchange rate conversion is removed from TotalAssetsDisplay",
-        "UI reflects that real exchange rates are now being used"
+        "ckBTC deposit status queries complete without decoding errors",
+        "BitcoinDepositStatus component displays pending deposits correctly or remains hidden when no deposits exist"
       ]
     }
   ],
   "constraints": [
-    "Must use ICPSwap oracle on the Internet Computer for exchange rate data",
-    "Exchange rates must be fetched from the backend, not directly from frontend",
-    "Maintain the existing single-actor backend architecture",
-    "Do not modify Internet Identity authentication flow or immutable frontend paths"
+    "Do not modify any files in frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Maintain all existing functionality in TotalAssetsDisplay and BalanceCard components",
+    "Keep the existing USD value calculation logic intact"
   ],
   "nonGoals": [
-    "Historical exchange rate tracking or charts",
-    "Support for fiat currency deposits or withdrawals",
-    "Price alerts or notifications",
-    "Support for currencies other than USD"
+    "Changing the token balance fetching mechanism",
+    "Modifying exchange rate calculation or API integration",
+    "Adding new tokens or currencies",
+    "Changing the overall wallet layout or navigation"
   ],
   "imageRequirements": {
     "required": [],

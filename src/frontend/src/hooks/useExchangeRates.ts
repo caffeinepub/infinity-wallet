@@ -35,38 +35,88 @@ export function useExchangeRates() {
         console.log('Parsed exchange rate data:', data);
         
         const rates: ExchangeRates = {};
+        let icpUsdRate: number | undefined;
+        let ckBtcIcpRate: number | undefined;
+        let ckEthIcpRate: number | undefined;
+        let ckSolIcpRate: number | undefined;
+        let infinityCoinRate: number | undefined;
         
         // Extract rates from the ICPSwap response
-        // The API returns data with token pair keys like "ICP/USD", "BTC/USD", etc.
         if (data.data) {
-          // Map ICPSwap token symbols to our token names
-          const tokenMapping: { [key: string]: keyof ExchangeRates } = {
-            'ICP': 'ICP',
-            'BTC': 'ckBTC',
-            'ETH': 'ckETH',
-            'SOL': 'ckSOL',
-          };
-          
-          // Look for USD pairs in the data
           Object.keys(data.data).forEach((key) => {
             const tickData = data.data![key];
+            const upperKey = key.toUpperCase();
             
-            // Try to match token pairs like "ICP/USD", "ICP-USD", "ICPUSD", etc.
-            for (const [symbol, tokenName] of Object.entries(tokenMapping)) {
-              if (key.toUpperCase().includes(symbol) && key.toUpperCase().includes('USD')) {
-                if (tickData.close && typeof tickData.close === 'number') {
-                  rates[tokenName] = tickData.close;
-                  console.log(`Found rate for ${tokenName}: $${tickData.close}`);
-                }
-                break;
+            // ICP/USD - direct USD rate
+            if (upperKey.includes('ICP') && upperKey.includes('USD') && tickData.close) {
+              icpUsdRate = tickData.close;
+              rates.ICP = tickData.close;
+              console.log(`Found ICP/USD rate: $${tickData.close}`);
+            }
+            
+            // ckBTC/ICP - needs to be converted to USD using ICP rate
+            if (upperKey.includes('CKBTC') && upperKey.includes('ICP') && !upperKey.includes('USD') && tickData.close) {
+              ckBtcIcpRate = tickData.close;
+              console.log(`Found ckBTC/ICP rate: ${tickData.close} ICP`);
+            }
+            
+            // ckETH/ICP - needs to be converted to USD using ICP rate
+            if (upperKey.includes('CKETH') && upperKey.includes('ICP') && !upperKey.includes('USD') && tickData.close) {
+              ckEthIcpRate = tickData.close;
+              console.log(`Found ckETH/ICP rate: ${tickData.close} ICP`);
+            }
+            
+            // ckSOL/ICP - needs to be converted to USD using ICP rate
+            if (upperKey.includes('CKSOL') && upperKey.includes('ICP') && !upperKey.includes('USD') && tickData.close) {
+              ckSolIcpRate = tickData.close;
+              console.log(`Found ckSOL/ICP rate: ${tickData.close} ICP`);
+            }
+            
+            // Infinity Coin - look for various possible naming patterns
+            if ((upperKey.includes('INFINITY') || upperKey.includes('INFINITYCOIN')) && tickData.close) {
+              if (upperKey.includes('USD')) {
+                // Direct USD rate
+                infinityCoinRate = tickData.close;
+                console.log(`Found Infinity Coin/USD rate: $${tickData.close}`);
+              } else if (upperKey.includes('ICP')) {
+                // ICP rate - will convert to USD later
+                infinityCoinRate = tickData.close;
+                console.log(`Found Infinity Coin/ICP rate: ${tickData.close} ICP (will convert to USD)`);
               }
             }
           });
         }
         
-        // For Infinity Coin, we'll use a mock rate since it's not on ICPSwap yet
-        // In production, this would come from the actual market data
-        rates['Infinity Coin'] = 0.01;
+        // Calculate USD values for tokens priced in ICP
+        if (icpUsdRate) {
+          if (ckBtcIcpRate) {
+            rates.ckBTC = ckBtcIcpRate * icpUsdRate;
+            console.log(`Calculated ckBTC USD rate: $${rates.ckBTC} (${ckBtcIcpRate} ICP × $${icpUsdRate})`);
+          }
+          
+          if (ckEthIcpRate) {
+            rates.ckETH = ckEthIcpRate * icpUsdRate;
+            console.log(`Calculated ckETH USD rate: $${rates.ckETH} (${ckEthIcpRate} ICP × $${icpUsdRate})`);
+          }
+          
+          if (ckSolIcpRate) {
+            rates.ckSOL = ckSolIcpRate * icpUsdRate;
+            console.log(`Calculated ckSOL USD rate: $${rates.ckSOL} (${ckSolIcpRate} ICP × $${icpUsdRate})`);
+          }
+          
+          // If Infinity Coin rate is in ICP, convert to USD
+          if (infinityCoinRate && !rates['Infinity Coin']) {
+            rates['Infinity Coin'] = infinityCoinRate * icpUsdRate;
+            console.log(`Calculated Infinity Coin USD rate: $${rates['Infinity Coin']} (${infinityCoinRate} ICP × $${icpUsdRate})`);
+          }
+        }
+        
+        // If we still don't have Infinity Coin rate, use a very small default
+        // This matches the user's stated price of $0.00000129
+        if (!rates['Infinity Coin']) {
+          rates['Infinity Coin'] = 0.00000129;
+          console.log('Using default Infinity Coin rate: $0.00000129');
+        }
         
         console.log('Final exchange rates:', rates);
         return rates;

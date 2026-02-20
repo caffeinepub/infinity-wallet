@@ -2,33 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-totalassetsdisplay-component-to-calculate-and-display-total-portfolio-value-in-usd-using-fetched-exchange-rates",
-      "featureTitle": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
+      "featureId": "feature-investigate-and-fix-the-ckbtc-deposit-status-decoding-error-not-a-vector-type-that-appears-in-useckbtcdepositstatus-hook",
+      "featureTitle": "Investigate and fix the ckBTC deposit status decoding error 'Not a vector type' that appears in useCkBtcDepositStatus hook",
       "files": [
-        "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-        "frontend/src/hooks/useExchangeRates.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-usd-value-display-for-individual-token-balances-on-the-dashboard",
-      "featureTitle": "Add USD value display for individual token balances on the dashboard",
-      "files": [
-        "frontend/src/components/wallet/BalanceCard.tsx",
-        "frontend/src/lib/validation.ts",
-        "frontend/src/pages/DashboardPage.tsx"
+        "frontend/src/hooks/useCkBtcDepositStatus.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -41,26 +18,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-remove-the-note-exchange-rate-conversion-not-yet-implemented-from-the-ui-once-usd-conversion-is-functional",
-      "featureTitle": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
-      "files": [
-        "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

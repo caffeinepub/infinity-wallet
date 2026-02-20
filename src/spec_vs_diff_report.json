@@ -1,27 +1,28 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T03:14:28.963Z",
-  "summary": "The implementation partially addresses the requirements. The backend creates an exchange rate service fetching from ICPSwap, the frontend displays USD values in TotalAssetsDisplay and individual BalanceCards, and the 'Exchange rate conversion not yet implemented' note appears to have been removed. However, there is no explicit evidence that the removed disclaimer text was present in the original UI, and the implementation hardcodes a mock rate for Infinity Coin rather than fetching it from ICPSwap as specified.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-20T04:19:30.133Z",
+  "summary": "All three requirements (REQ-1, REQ-2, REQ-3) appear to be implemented in the diff. REQ-1 and REQ-2 are addressed through changes to frontend/src/lib/validation.ts (formatBalance and formatUSD functions with 12 decimal places for small values). REQ-3 is addressed through error handling improvements in useCkBtcDepositStatus.ts. However, the actual TotalAssetsDisplay and BalanceCard components themselves are not shown in the diff, so implementation completeness cannot be fully verified.",
+  "missing_requirements": [
     {
-      "description": "Hardcoded mock exchange rate for Infinity Coin (0.01 USD) instead of fetching from ICPSwap oracle",
-      "reason": "REQ-1 specifies that exchange rates for all tokens including Infinity Coin must be fetched from ICPSwap oracle. The implementation explicitly sets rates for Infinity Coin to 0.01 with a comment stating it is a mock rate since it is not on ICPSwap yet, which contradicts the requirement.",
-      "evidence": [
-        "frontend/src/hooks/useExchangeRates.ts"
-      ]
+      "id": "REQ-1",
+      "requirement": "Modify the TotalAssetsDisplay component to format USD values with sufficient decimal places",
+      "reason": "The TotalAssetsDisplay component file is not present in the diff. While validation.ts shows formatUSD function changes with 12 decimal precision, we cannot verify if TotalAssetsDisplay actually uses this updated function.",
+      "evidence": []
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Apply extended decimal precision formatting to BalanceCard component",
+      "reason": "The BalanceCard component file is not present in the diff. While validation.ts provides the formatting utilities, we cannot verify if BalanceCard imports and uses them.",
+      "evidence": []
     }
   ],
-  "confidence": 0.85,
+  "hallucinated_features": [],
+  "confidence": 0.65,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/wallet/BalanceCard.tsx",
-    "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
-    "frontend/src/hooks/useExchangeRates.ts",
+    "frontend/src/hooks/useCkBtcDepositStatus.ts",
     "frontend/src/lib/validation.ts",
-    "frontend/src/pages/DashboardPage.tsx",
     "project_state.json"
   ]
 }
