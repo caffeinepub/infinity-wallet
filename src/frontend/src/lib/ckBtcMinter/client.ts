@@ -44,14 +44,33 @@ export type RetrieveBtcStatus =
   | { AmountTooLow: null }
   | { Confirmed: { txid: Uint8Array } };
 
-export interface UtxoStatus {
-  confirmations: number;
-  value: bigint;
-}
+export type UpdateBalanceError =
+  | { GenericError: { error_message: string; error_code: bigint } }
+  | { TemporarilyUnavailable: string }
+  | { AlreadyProcessing: null }
+  | { NoNewUtxos: { required_confirmations: number; current_confirmations?: number } };
+
+export type UtxoStatus =
+  | { ValueTooSmall: { min_value: bigint } }
+  | { Tainted: { address: string } }
+  | {
+      Minted: {
+        block_index: bigint;
+        minted_amount: bigint;
+        utxo: {
+          height: number;
+          value: bigint;
+          outpoint: { txid: Uint8Array; vout: number };
+        };
+      };
+    }
+  | { Checked: { confirmations: number; value: bigint } };
+
+export type UpdateBalanceResult = { Ok: UtxoStatus } | { Err: UpdateBalanceError };
 
 export interface CkBtcMinterClient {
   get_btc_address(args: GetBtcAddressArgs): Promise<string>;
-  update_balance(args: UpdateBalanceArgs): Promise<Array<{ Ok?: bigint; Err?: any }>>;
+  update_balance(args: UpdateBalanceArgs): Promise<Array<UpdateBalanceResult>>;
   retrieve_btc(args: RetrieveBtcArgs): Promise<{ Ok?: bigint; Err?: any }>;
   retrieve_btc_with_approval(args: RetrieveBtcWithApprovalArgs): Promise<{ Ok?: bigint; Err?: any }>;
   retrieve_btc_status(args: RetrieveBtcStatusArgs): Promise<RetrieveBtcStatus>;
@@ -59,7 +78,7 @@ export interface CkBtcMinterClient {
   get_withdrawal_account(): Promise<{ owner: Principal; subaccount?: [] | [Uint8Array] }>;
 }
 
-// IDL factory for ckBTC minter
+// IDL factory for ckBTC minter - matching official interface
 const ckBtcMinterIdlFactory = () => {
   const Subaccount = IDL.Vec(IDL.Nat8);
   const Account = IDL.Record({
@@ -102,6 +121,11 @@ const ckBtcMinterIdlFactory = () => {
     Checked: IDL.Record({ confirmations: IDL.Nat32, value: IDL.Nat64 }),
   });
 
+  const UpdateBalanceResult = IDL.Variant({
+    Ok: UtxoStatus,
+    Err: UpdateBalanceError,
+  });
+
   const RetrieveBtcArgs = IDL.Record({
     address: IDL.Text,
     amount: IDL.Nat64,
@@ -142,12 +166,10 @@ const ckBtcMinterIdlFactory = () => {
   });
 
   return IDL.Service({
-    get_btc_address: IDL.Func([GetBtcAddressArgs], [IDL.Text], ['query']),
-    update_balance: IDL.Func(
-      [UpdateBalanceArgs],
-      [IDL.Vec(IDL.Variant({ Ok: IDL.Nat64, Err: UpdateBalanceError }))],
-      []
-    ),
+    // get_btc_address is an UPDATE call, not a query
+    get_btc_address: IDL.Func([GetBtcAddressArgs], [IDL.Text], []),
+    // update_balance is an UPDATE call, returns array of results
+    update_balance: IDL.Func([UpdateBalanceArgs], [IDL.Vec(UpdateBalanceResult)], []),
     retrieve_btc: IDL.Func([RetrieveBtcArgs], [IDL.Variant({ Ok: IDL.Nat64, Err: RetrieveBtcError })], []),
     retrieve_btc_with_approval: IDL.Func(
       [RetrieveBtcWithApprovalArgs],

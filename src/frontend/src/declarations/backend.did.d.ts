@@ -31,10 +31,25 @@ export interface TransactionHistoryItem {
   'timestamp' : Time,
   'coinType' : CoinType,
 }
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
@@ -43,6 +58,7 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getContacts' : ActorMethod<[], Array<Contact>>,
+  'getCurrentRates' : ActorMethod<[], string>,
   'getTransactionHistory' : ActorMethod<[], Array<TransactionHistoryItem>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -53,6 +69,7 @@ export interface _SERVICE {
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveContact' : ActorMethod<[string, string], undefined>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
   'updateContact' : ActorMethod<[bigint, string, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

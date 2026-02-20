@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix ckBTC minter canister integration errors to enable proper Bitcoin deposit address generation and status checking.
+**Goal:** Add USD value display for all tokens and total portfolio using real-time exchange rates from ICPSwap oracle.
 
 **Planned changes:**
-- Update useCkBtcDepositAddress hook to use the correct ckBTC minter canister method name for fetching Bitcoin deposit addresses
-- Fix useCkBtcDepositStatus hook to properly decode the deposit status response from the ckBTC minter canister
-- Resolve agent configuration conflict warnings by ensuring only 'agent' or 'agentOptions' is passed to createActor functions, not both
+- Create backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin
+- Update TotalAssetsDisplay component to calculate and show total portfolio value in USD
+- Add USD value display for each individual token balance on the dashboard
+- Remove the "Exchange rate conversion not yet implemented" disclaimer from the UI
 
-**User-visible outcome:** Users can successfully generate Bitcoin deposit addresses and view their deposit status without errors in the Receive page.
+**User-visible outcome:** Users will see their token balances and total portfolio value converted to USD in real-time using ICPSwap oracle exchange rates.

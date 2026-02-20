@@ -3,6 +3,7 @@ import { useIcpBalance } from '../hooks/useIcpBalance';
 import { useCkBtcBalance } from '../hooks/useCkBtcBalance';
 import { useCkEthBalance } from '../hooks/useCkEthBalance';
 import { useCkSolBalance } from '../hooks/useCkSolBalance';
+import { useExchangeRates } from '../hooks/useExchangeRates';
 import { Button } from '@/components/ui/button';
 import { Download, History } from 'lucide-react';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
@@ -22,9 +23,22 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
   const ckBtc = useCkBtcBalance();
   const ckEth = useCkEthBalance();
   const ckSol = useCkSolBalance();
+  const { data: exchangeRates, isLoading: ratesLoading } = useExchangeRates();
 
   const isAnyLoading = infinityCoin.isLoading || icp.isLoading || ckBtc.isLoading || ckEth.isLoading || ckSol.isLoading;
   const hasAnyError = !!infinityCoin.error || !!icp.error || !!ckBtc.error || !!ckEth.error || !!ckSol.error;
+
+  // Calculate USD values for each token
+  const calculateUsdValue = (balanceE8s: bigint, rate?: number): number | undefined => {
+    if (rate === undefined || ratesLoading) return undefined;
+    return (Number(balanceE8s) / 100_000_000) * rate;
+  };
+
+  const infinityCoinUsd = calculateUsdValue(infinityCoin.balance, exchangeRates?.['Infinity Coin']);
+  const icpUsd = calculateUsdValue(icp.balance, exchangeRates?.ICP);
+  const ckBtcUsd = calculateUsdValue(ckBtc.balance, exchangeRates?.ckBTC);
+  const ckEthUsd = calculateUsdValue(ckEth.balance, exchangeRates?.ckETH);
+  const ckSolUsd = calculateUsdValue(ckSol.balance, exchangeRates?.ckSOL);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -63,6 +77,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             error={infinityCoin.error as Error | null}
             onRefresh={() => infinityCoin.refetch()}
             isRefetching={infinityCoin.isRefetching}
+            usdValue={infinityCoinUsd}
           />
           <BalanceCard
             tokenName={TOKEN_ICP}
@@ -72,6 +87,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             error={icp.error as Error | null}
             onRefresh={() => icp.refetch()}
             isRefetching={icp.isRefetching}
+            usdValue={icpUsd}
           />
           <BalanceCard
             tokenName={TOKEN_CKBTC}
@@ -81,6 +97,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             error={ckBtc.error as Error | null}
             onRefresh={() => ckBtc.refetch()}
             isRefetching={ckBtc.isRefetching}
+            usdValue={ckBtcUsd}
           />
           <BalanceCard
             tokenName={TOKEN_CKETH}
@@ -90,6 +107,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             error={ckEth.error as Error | null}
             onRefresh={() => ckEth.refetch()}
             isRefetching={ckEth.isRefetching}
+            usdValue={ckEthUsd}
           />
           <BalanceCard
             tokenName={TOKEN_CKSOL}
@@ -99,6 +117,7 @@ export default function DashboardPage({ onNavigate }: DashboardPageProps) {
             error={ckSol.error as Error | null}
             onRefresh={() => ckSol.refetch()}
             isRefetching={ckSol.isRefetching}
+            usdValue={ckSolUsd}
           />
         </div>
       </div>

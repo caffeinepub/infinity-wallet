@@ -4,40 +4,52 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "ckBTC minter canister missing 'get_btc_address' query method - causing Bitcoin deposit address generation to fail",
-    "useCkBtcDepositStatus hook throwing 'Not a vector type' decoding error",
-    "Agent configuration conflict warning: 'Detected both agent and agentOptions passed to createActor'"
+    "Exchange rate conversion not yet implemented for USD display"
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-useckbtcdepositaddress-hook-to-use-the-correct-ckbtc-minter-canister-method-for-fetching-bitcoin-deposit-addresses-the-current-implementation-calls-get-btc-address-which-does-not-exist-on-canister-mqygn-kiaaa-aaaar-qaadq-cai-replace-with-the-correct-method-name-from-the-ckbtc-minter-idl",
-      "title": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
+      "id": "feature-update-totalassetsdisplay-component-to-calculate-and-display-total-portfolio-value-in-usd-using-fetched-exchange-rates",
+      "title": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-useckbtcdepositstatus-hook-to-properly-decode-the-response-from-the-ckbtc-minter-canister-the-current-implementation-throws-not-a-vector-type-error-when-checking-deposit-status-review-the-return-type-from-the-minter-s-deposit-status-method-and-update-the-decoding-logic-accordingly",
-      "title": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
+      "id": "feature-add-usd-value-display-for-individual-token-balances-on-the-dashboard",
+      "title": "Add USD value display for individual token balances on the dashboard",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-note-exchange-rate-conversion-not-yet-implemented-from-the-ui-once-usd-conversion-is-functional",
+      "title": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-3",
-      "summary": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
+      "id": "AR-1",
+      "summary": "Display total assets in USD using ICP oracle/ICPSwap exchange rates",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Create a backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin to USD conversion",
       "reqIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Fix ckBTC minter integration errors",
+  "projectName": "Infinity Wallet",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

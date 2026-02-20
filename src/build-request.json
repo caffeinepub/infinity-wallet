@@ -1,72 +1,92 @@
 {
   "kind": "build_request",
-  "title": "Fix ckBTC minter integration errors",
-  "priority": "high",
+  "title": "Add USD value display using ICP oracle exchange rates",
+  "projectName": "Infinity Wallet",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
-      "target": "frontend",
+      "text": "Create a backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin to USD conversion",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-current"
+          "msg-6"
         ],
         "quotes": [
-          "Error from Canister mqygn-kiaaa-aaaar-qaadq-cai: Canister has no query method 'get_btc_address'",
-          "Failed to generate Bitcoin address. Please try again."
+          "using exchange rate conversion from internet computer protocols built in oracle all information from icpswap"
         ]
       },
       "acceptanceCriteria": [
-        "The ckBTC deposit address is successfully retrieved from the minter canister",
-        "No 'method not found' errors appear in the console",
-        "The Bitcoin deposit address is displayed in the Receive page"
+        "Backend exposes a method to retrieve current USD exchange rates for all supported tokens",
+        "Exchange rates are fetched from ICPSwap oracle on the Internet Computer",
+        "Rates include ICP/USD, ckBTC/USD, ckETH/USD, ckSOL/USD conversions",
+        "Method returns structured data with token symbol and USD rate pairs"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
+      "text": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-current"
+          "msg-6"
         ],
         "quotes": [
-          "[useCkBtcDepositStatus] Error checking deposit status: Error: Not a vector type"
+          "can we get total assets to display USD value"
         ]
       },
       "acceptanceCriteria": [
-        "No 'Not a vector type' decoding errors occur",
-        "Deposit status is successfully retrieved and displayed",
-        "The BitcoinDepositStatus component shows pending deposits correctly"
+        "TotalAssetsDisplay fetches exchange rates from the backend",
+        "Component calculates total USD value by multiplying each token balance by its exchange rate",
+        "USD total is displayed prominently alongside or instead of the selected denomination view",
+        "Exchange rate data is cached appropriately with React Query",
+        "Loading and error states are handled gracefully"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
+      "text": "Add USD value display for individual token balances on the dashboard",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-current"
-        ],
-        "quotes": [
-          "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "No 'Detected both agent and agentOptions' warnings appear in console",
-        "All ledger clients initialize without configuration conflicts"
+        "Each BalanceCard shows the token amount and its equivalent USD value",
+        "USD value is calculated using the real-time exchange rate for that token",
+        "USD amounts are formatted with appropriate decimal places and currency symbol"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Note: Total shown in selected denomination. Exchange rate conversion not yet implemented"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The disclaimer about missing exchange rate conversion is removed from TotalAssetsDisplay",
+        "UI reflects that real exchange rates are now being used"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the ckBTC minter canister ID (mqygn-kiaaa-aaaar-qaadq-cai)",
-    "Maintain compatibility with existing ICRC-1 ledger implementations",
-    "Do not change the backend schema or main.mo file"
+    "Must use ICPSwap oracle on the Internet Computer for exchange rate data",
+    "Exchange rates must be fetched from the backend, not directly from frontend",
+    "Maintain the existing single-actor backend architecture",
+    "Do not modify Internet Identity authentication flow or immutable frontend paths"
   ],
   "nonGoals": [
-    "Implementing native Ethereum or Solana deposit functionality",
-    "Modifying the ckBTC minter canister itself",
-    "Changing the authentication flow or Internet Identity integration"
+    "Historical exchange rate tracking or charts",
+    "Support for fiat currency deposits or withdrawals",
+    "Price alerts or notifications",
+    "Support for currencies other than USD"
   ],
   "imageRequirements": {
     "required": [],

@@ -7,6 +7,27 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export type Time = bigint;
+export interface Contact {
+    id: bigint;
+    owner: Principal;
+    name: string;
+    address: string;
+}
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
 export interface TransactionHistoryItem {
     id: bigint;
     recipient: string;
@@ -16,14 +37,11 @@ export interface TransactionHistoryItem {
     timestamp: Time;
     coinType: CoinType;
 }
-export type Time = bigint;
-export interface Contact {
-    id: bigint;
-    owner: Principal;
-    name: string;
-    address: string;
-}
 export interface UserProfile {
+    name: string;
+}
+export interface http_header {
+    value: string;
     name: string;
 }
 export enum CoinType {
@@ -45,6 +63,7 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContacts(): Promise<Array<Contact>>;
+    getCurrentRates(): Promise<string>;
     getTransactionHistory(): Promise<Array<TransactionHistoryItem>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -52,5 +71,6 @@ export interface backendInterface {
     recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType, blockHeight: bigint | null): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveContact(name: string, address: string): Promise<void>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
     updateContact(contactId: bigint, name: string, address: string): Promise<void>;
 }

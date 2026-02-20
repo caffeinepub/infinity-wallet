@@ -20,6 +20,7 @@ export function useCkBtcDepositAddress() {
       console.log('[useCkBtcDepositAddress] Principal:', principal.toString());
       
       try {
+        // get_btc_address is an UPDATE call (not query)
         // Pass empty arrays for optional fields - the minter will use the caller's principal
         // by default when owner is not specified (empty optional)
         const address = await minterClient.get_btc_address({
@@ -34,7 +35,8 @@ export function useCkBtcDepositAddress() {
         
         // Check if this is a local development environment issue
         if (error?.message?.includes('has no query method') || 
-            error?.message?.includes('Canister has no query method')) {
+            error?.message?.includes('Canister has no query method') ||
+            error?.message?.includes('has no update method')) {
           throw new Error('ckBTC minter is only available on mainnet. Please deploy to mainnet to use Bitcoin deposits.');
         }
         

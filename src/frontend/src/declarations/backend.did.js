@@ -37,6 +37,24 @@ export const TransactionHistoryItem = IDL.Record({
   'timestamp' : Time,
   'coinType' : CoinType,
 });
+export const http_header = IDL.Record({
+  'value' : IDL.Text,
+  'name' : IDL.Text,
+});
+export const http_request_result = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
+export const TransformationInput = IDL.Record({
+  'context' : IDL.Vec(IDL.Nat8),
+  'response' : http_request_result,
+});
+export const TransformationOutput = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -50,6 +68,7 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getContacts' : IDL.Func([], [IDL.Vec(Contact)], ['query']),
+  'getCurrentRates' : IDL.Func([], [IDL.Text], []),
   'getTransactionHistory' : IDL.Func(
       [],
       [IDL.Vec(TransactionHistoryItem)],
@@ -69,6 +88,11 @@ export const idlService = IDL.Service({
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveContact' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'transform' : IDL.Func(
+      [TransformationInput],
+      [TransformationOutput],
+      ['query'],
+    ),
   'updateContact' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
 });
 
@@ -104,6 +128,21 @@ export const idlFactory = ({ IDL }) => {
     'timestamp' : Time,
     'coinType' : CoinType,
   });
+  const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const http_request_result = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
+  const TransformationInput = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : http_request_result,
+  });
+  const TransformationOutput = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -117,6 +156,7 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getContacts' : IDL.Func([], [IDL.Vec(Contact)], ['query']),
+    'getCurrentRates' : IDL.Func([], [IDL.Text], []),
     'getTransactionHistory' : IDL.Func(
         [],
         [IDL.Vec(TransactionHistoryItem)],
@@ -136,6 +176,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveContact' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'transform' : IDL.Func(
+        [TransformationInput],
+        [TransformationOutput],
+        ['query'],
+      ),
     'updateContact' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
   });
 };

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RefreshCw, AlertCircle } from 'lucide-react';
-import { formatBalance } from '@/lib/validation';
+import { formatBalance, formatUSD } from '@/lib/validation';
 
 interface BalanceCardProps {
   tokenName: string;
@@ -13,6 +13,7 @@ interface BalanceCardProps {
   error: Error | null;
   onRefresh: () => void;
   isRefetching?: boolean;
+  usdValue?: number;
 }
 
 export default function BalanceCard({
@@ -23,6 +24,7 @@ export default function BalanceCard({
   error,
   onRefresh,
   isRefetching = false,
+  usdValue,
 }: BalanceCardProps) {
   return (
     <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-glow-sm hover:shadow-glow transition-all">
@@ -55,11 +57,21 @@ export default function BalanceCard({
             </AlertDescription>
           </Alert>
         ) : isLoading ? (
-          <Skeleton className="h-8 w-32" />
+          <>
+            <Skeleton className="h-8 w-32 mb-2" />
+            <Skeleton className="h-4 w-24" />
+          </>
         ) : (
-          <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {formatBalance(balance)}
-          </div>
+          <>
+            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {formatBalance(balance)}
+            </div>
+            {usdValue !== undefined && (
+              <div className="text-sm text-muted-foreground mt-1">
+                {formatUSD(usdValue)}
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

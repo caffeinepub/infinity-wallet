@@ -1,65 +1,78 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T02:29:30.092Z",
+  "generatedAt": "2026-02-20T03:14:28.967Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useCkBtcDepositAddress.ts",
-          "frontend/src/lib/ckBtcMinter/client.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useCkBtcDepositAddress.ts"
-        ]
+        "summary": "Create a backend service to fetch real-time exchange rates from ICPSwap oracle for ICP, ckBTC, ckETH, ckSOL, and Infinity Coin to USD conversion",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
+        "summary": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useCkBtcDepositStatus.ts",
-          "frontend/src/lib/ckBtcMinter/client.ts"
+          "frontend/src/hooks/useExchangeRates.ts",
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useCkBtcDepositStatus.ts"
+          "frontend/src/hooks/useExchangeRates.ts",
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Resolve the agent configuration conflict warning by ensuring that either 'agent' or 'agentOptions' is passed to createActor functions, but not both. This appears to be happening in multiple ledger client initialization paths.",
-        "status": "missing",
+        "summary": "Add USD value display for individual token balances on the dashboard",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useCkBtcLedger.ts",
-          "frontend/src/hooks/useCkBtcMinter.ts",
-          "frontend/src/hooks/useIcpLedger.ts",
-          "frontend/src/hooks/useCkEthLedger.ts",
-          "frontend/src/hooks/useCkSolLedger.ts",
-          "frontend/src/hooks/useInfinityLedger.ts"
+          "frontend/src/components/wallet/BalanceCard.tsx",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/lib/validation.ts"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/wallet/BalanceCard.tsx",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/lib/validation.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/wallet/BitcoinDepositStatus.tsx",
-    "frontend/src/hooks/useCkBtcDepositAddress.ts",
-    "frontend/src/hooks/useCkBtcDepositStatus.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/wallet/BalanceCard.tsx",
+    "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useExchangeRates.ts",
+    "frontend/src/lib/validation.ts",
     "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/ReceivePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

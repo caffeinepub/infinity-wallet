@@ -7,9 +7,8 @@ import Nat32 "mo:core/Nat32";
 import List "mo:core/List";
 import Order "mo:core/Order";
 import MixinAuthorization "authorization/MixinAuthorization";
+import OutCall "http-outcalls/outcall";
 import AccessControl "authorization/access-control";
-
-
 
 actor {
   type CoinType = {
@@ -51,6 +50,11 @@ actor {
 
   public type UserProfile = {
     name : Text;
+  };
+
+  type ExchangeRate = {
+    coinType : CoinType;
+    rate : Float;
   };
 
   let accessControlState = AccessControl.initState();
@@ -267,6 +271,21 @@ actor {
     switch (balancesVault.get(caller)) {
       case (null) { (0, 0, 0, 0, 0) };
       case (?balances) { balances };
+    };
+  };
+
+  public query ({ caller }) func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    OutCall.transform(input);
+  };
+
+  public shared ({ caller }) func getCurrentRates() : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view balances");
+    };
+    let url = "https://api.icpswap.com/public/market/tick";
+    switch (await OutCall.httpGetRequest(url, [], transform)) {
+      case ("") { Runtime.trap("Failed to fetch rates") };
+      case (result) { result };
     };
   };
 };

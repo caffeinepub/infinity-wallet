@@ -89,6 +89,27 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export type Time = bigint;
+export interface Contact {
+    id: bigint;
+    owner: Principal;
+    name: string;
+    address: string;
+}
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
 export interface TransactionHistoryItem {
     id: bigint;
     recipient: string;
@@ -98,14 +119,11 @@ export interface TransactionHistoryItem {
     timestamp: Time;
     coinType: CoinType;
 }
-export type Time = bigint;
-export interface Contact {
-    id: bigint;
-    owner: Principal;
-    name: string;
-    address: string;
-}
 export interface UserProfile {
+    name: string;
+}
+export interface http_header {
+    value: string;
     name: string;
 }
 export enum CoinType {
@@ -128,6 +146,7 @@ export interface backendInterface {
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContacts(): Promise<Array<Contact>>;
+    getCurrentRates(): Promise<string>;
     getTransactionHistory(): Promise<Array<TransactionHistoryItem>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -135,6 +154,7 @@ export interface backendInterface {
     recordTransaction(recipient: string, amountE8: bigint, coinType: CoinType, blockHeight: bigint | null): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveContact(name: string, address: string): Promise<void>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
     updateContact(contactId: bigint, name: string, address: string): Promise<void>;
 }
 import type { CoinType as _CoinType, Time as _Time, TransactionHistoryItem as _TransactionHistoryItem, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -250,6 +270,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getCurrentRates(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCurrentRates();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCurrentRates();
+            return result;
+        }
+    }
     async getTransactionHistory(): Promise<Array<TransactionHistoryItem>> {
         if (this.processError) {
             try {
@@ -345,6 +379,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveContact(arg0, arg1);
+            return result;
+        }
+    }
+    async transform(arg0: TransformationInput): Promise<TransformationOutput> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transform(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transform(arg0);
             return result;
         }
     }

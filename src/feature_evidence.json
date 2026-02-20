@@ -2,30 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-useckbtcdepositaddress-hook-to-use-the-correct-ckbtc-minter-canister-method-for-fetching-bitcoin-deposit-addresses-the-current-implementation-calls-get-btc-address-which-does-not-exist-on-canister-mqygn-kiaaa-aaaar-qaadq-cai-replace-with-the-correct-method-name-from-the-ckbtc-minter-idl",
-      "featureTitle": "Fix the useCkBtcDepositAddress hook to use the correct ckBTC minter canister method for fetching Bitcoin deposit addresses. The current implementation calls 'get_btc_address' which does not exist on canister mqygn-kiaaa-aaaar-qaadq-cai. Replace with the correct method name from the ckBTC minter IDL.",
+      "featureId": "feature-update-totalassetsdisplay-component-to-calculate-and-display-total-portfolio-value-in-usd-using-fetched-exchange-rates",
+      "featureTitle": "Update TotalAssetsDisplay component to calculate and display total portfolio value in USD using fetched exchange rates",
       "files": [
-        "frontend/src/hooks/useCkBtcDepositAddress.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-the-useckbtcdepositstatus-hook-to-properly-decode-the-response-from-the-ckbtc-minter-canister-the-current-implementation-throws-not-a-vector-type-error-when-checking-deposit-status-review-the-return-type-from-the-minter-s-deposit-status-method-and-update-the-decoding-logic-accordingly",
-      "featureTitle": "Fix the useCkBtcDepositStatus hook to properly decode the response from the ckBTC minter canister. The current implementation throws 'Not a vector type' error when checking deposit status. Review the return type from the minter's deposit status method and update the decoding logic accordingly.",
-      "files": [
-        "frontend/src/hooks/useCkBtcDepositStatus.ts"
+        "frontend/src/components/wallet/TotalAssetsDisplay.tsx",
+        "frontend/src/hooks/useExchangeRates.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,6 +19,48 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-usd-value-display-for-individual-token-balances-on-the-dashboard",
+      "featureTitle": "Add USD value display for individual token balances on the dashboard",
+      "files": [
+        "frontend/src/components/wallet/BalanceCard.tsx",
+        "frontend/src/lib/validation.ts",
+        "frontend/src/pages/DashboardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-note-exchange-rate-conversion-not-yet-implemented-from-the-ui-once-usd-conversion-is-functional",
+      "featureTitle": "Remove the note 'Exchange rate conversion not yet implemented' from the UI once USD conversion is functional",
+      "files": [
+        "frontend/src/components/wallet/TotalAssetsDisplay.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

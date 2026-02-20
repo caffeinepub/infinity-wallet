@@ -3,9 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { formatBalance } from '@/lib/validation';
+import { AlertCircle, DollarSign } from 'lucide-react';
+import { formatBalance, formatUSD } from '@/lib/validation';
 import { TOKEN_INFINITY, TOKEN_ICP, TOKEN_CKBTC, TOKEN_CKETH, TOKEN_CKSOL } from '@/lib/branding';
+import { useExchangeRates } from '@/hooks/useExchangeRates';
 
 type TokenType = 'infinityCoin' | 'icp' | 'ckBtc' | 'ckEth' | 'ckSol';
 
@@ -29,12 +30,22 @@ export default function TotalAssetsDisplay({
   hasError,
 }: TotalAssetsDisplayProps) {
   const [denominationCurrency, setDenominationCurrency] = useState<TokenType>('infinityCoin');
+  const { data: exchangeRates, isLoading: ratesLoading, error: ratesError } = useExchangeRates();
 
-  // Mock exchange rates (in reality, these would come from an API)
-  // For now, we'll just display the sum in the selected token without conversion
+  // Calculate total USD value
+  const calculateTotalUSD = (): number => {
+    if (!exchangeRates) return 0;
+
+    const infinityCoinUSD = (Number(infinityCoinBalance) / 100_000_000) * (exchangeRates['Infinity Coin'] || 0);
+    const icpUSD = (Number(icpBalance) / 100_000_000) * (exchangeRates.ICP || 0);
+    const ckBtcUSD = (Number(ckBtcBalance) / 100_000_000) * (exchangeRates.ckBTC || 0);
+    const ckEthUSD = (Number(ckEthBalance) / 100_000_000) * (exchangeRates.ckETH || 0);
+    const ckSolUSD = (Number(ckSolBalance) / 100_000_000) * (exchangeRates.ckSOL || 0);
+
+    return infinityCoinUSD + icpUSD + ckBtcUSD + ckEthUSD + ckSolUSD;
+  };
+
   const calculateTotal = (): string => {
-    // Since we don't have real exchange rates, we'll just show the balance of the selected token
-    // In a real implementation, you would convert all balances to the selected denomination
     switch (denominationCurrency) {
       case 'infinityCoin':
         return formatBalance(infinityCoinBalance);
@@ -68,24 +79,46 @@ export default function TotalAssetsDisplay({
     }
   };
 
+  const totalUSD = calculateTotalUSD();
+
   return (
     <Card className="border-accent/30 bg-gradient-to-br from-card/90 to-accent/5 backdrop-blur-sm shadow-glow-lg">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div>
-            <CardDescription className="text-accent/80">Total Assets</CardDescription>
-            <CardTitle className="text-5xl font-bold bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
+          <div className="flex-1">
+            <CardDescription className="text-accent/80 mb-2">Total Assets</CardDescription>
+            
+            {/* USD Value Display */}
+            {isLoading || ratesLoading ? (
+              <Skeleton className="h-16 w-80 mb-2" />
+            ) : hasError || ratesError ? (
+              <div className="text-2xl text-destructive mb-2">Error loading value</div>
+            ) : (
+              <div className="mb-3">
+                <div className="flex items-baseline gap-2">
+                  <DollarSign className="h-8 w-8 text-primary" />
+                  <CardTitle className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                    {formatUSD(totalUSD).replace('$', '')}
+                  </CardTitle>
+                  <span className="text-2xl text-muted-foreground">USD</span>
+                </div>
+              </div>
+            )}
+
+            {/* Token Denomination Display */}
+            <div className="text-sm text-muted-foreground">
               {isLoading ? (
-                <Skeleton className="h-14 w-64" />
+                <Skeleton className="h-6 w-48" />
               ) : hasError ? (
-                <span className="text-2xl text-destructive">Error</span>
+                <span className="text-destructive">Error</span>
               ) : (
-                <>
-                  {calculateTotal()} <span className="text-3xl">{getTokenLabel(denominationCurrency)}</span>
-                </>
+                <span>
+                  {calculateTotal()} {getTokenLabel(denominationCurrency)}
+                </span>
               )}
-            </CardTitle>
+            </div>
           </div>
+          
           <div className="flex flex-col items-end gap-2">
             <label className="text-xs text-muted-foreground">Denomination</label>
             <Select value={denominationCurrency} onValueChange={(value) => setDenominationCurrency(value as TokenType)}>
@@ -112,10 +145,13 @@ export default function TotalAssetsDisplay({
             </AlertDescription>
           </Alert>
         )}
-        {!hasError && !isLoading && (
-          <p className="text-xs text-muted-foreground">
-            Note: Total shown in selected denomination. Exchange rate conversion not yet implemented.
-          </p>
+        {ratesError && !hasError && (
+          <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              Unable to fetch current exchange rates. USD values may be unavailable.
+            </AlertDescription>
+          </Alert>
         )}
       </CardContent>
     </Card>
